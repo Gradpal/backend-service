@@ -12,7 +12,6 @@ import { AuthModule } from './modules/auth/auth.module';
 import { RolesGuard } from './guards/role.guard';
 import { JwtModule } from '@nestjs/jwt';
 import { NotificationModule } from './integrations/notification/notification.module';
-import { IntegrationMicroserviceModule } from './integrations/integration-service/integrations.microservice.module';
 import { MinioClientModule } from './modules/minio-client/minio-client.module';
 import { REDIS_CONST } from './common/constants/all.constants';
 import { BrainModule } from '@app/common/brain/brain.module';
@@ -32,7 +31,6 @@ import { BrainModule } from '@app/common/brain/brain.module';
         redisConfig: appConfigService.getRedisInfo(),
       }),
     }),
-    IntegrationMicroserviceModule,
     LoggerModule,
     UserModule,
     HealthModule,

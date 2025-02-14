@@ -35,7 +35,6 @@ export class UserService {
     private readonly notificationProcessor: NotificationPreProcessor,
     private readonly configService: CoreServiceConfigService,
     private readonly exceptionHandler: ExceptionHandler,
-    @Inject(INTEGRATION_GRPC_PACKAGE) private readonly client: ClientGrpc,
     private readonly brainService: BrainService,
     private readonly minioService: MinioClientService,
   ) {
