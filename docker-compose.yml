@@ -1,0 +1,81 @@
+services:
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      - "2019:2019"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+
+  core-service:
+    build:
+      context: .
+      dockerfile: ./apps/core-service/Dockerfile
+    command: yarn start:dev core-service
+    env_file:
+      - ./apps/core-service/.env
+    environment:
+      - DB_HOST=postgres #  this is useful since localhost is not accessible from the container
+      - DB_PORT=5432  # Use PostgreSQL's default internal port
+      - REDIS_URL=redis://:dXf9TMBjMLxUCfz6HG57@redis:6379/1
+      - RABBITMQ_URI=amqp://rabbitmq:5672
+    volumes:
+      - /usr/src/app/node_modules
+      - .:/usr/src/app
+    ports:
+      - '4010:4010'
+      - "50055:50055"
+
+  notification-service:
+    build:
+      context: .
+      dockerfile: ./apps/notification-service/Dockerfile
+    command: yarn start:dev notification-service
+    env_file:
+      - ./apps/notification-service/.env
+    environment:
+      - DB_HOST=notification-db #  this is useful since localhost is not accessible from the container
+      - DB_PORT=5432  # Use PostgreSQL's default internal port
+      - RABBITMQ_URI=amqp://rabbitmq:5672
+
+    volumes:
+      - /usr/src/app/node_modules
+      - .:/usr/src/app
+    ports:
+      - '4020:4020'
+
+  integration-service:
+    build:
+      context: .
+      dockerfile: ./apps/integration-service/Dockerfile
+    command: yarn start:dev integration-service
+    env_file:
+      - ./apps/integration-service/.env
+    volumes:
+      - /usr/src/app/node_modules
+      - .:/usr/src/app
+    ports:
+      - '4030:4030'
+      - "50051:50051"
+
+  hocus-pocus-service:
+    build:
+      context: .
+      dockerfile: ./apps/hocus-pocus-service/Dockerfile
+    command: yarn start:dev hocus-pocus-service
+    env_file:
+      - ./apps/hocus-pocus-service/.env
+    volumes:
+      - /usr/src/app/node_modules
+      - .:/usr/src/app
+    ports:
+      - '4040:4040'
+      - '5021:5021'
+
+volumes:
+  caddy_data:
+  caddy_config:

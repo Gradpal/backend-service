@@ -1,0 +1,21 @@
+{
+  "name": "@gradpal-backend/core-service",
+  "version": "1.0.0",
+  "description": "",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@nestjs/common": "^10.4.15",
+    "@nestjs/jwt": "^10.2.0",
+    "bcryptjs": "^2.4.3",
+    "handlebars": "^4.7.8",
+    "reflect-metadata": "^0.2.2",
+    "rxjs": "^7.8.1"
+  }
+}
