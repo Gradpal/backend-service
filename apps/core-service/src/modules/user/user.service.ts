@@ -81,12 +81,6 @@ export class UserService {
   }
 
   async createAdmin(createUserDto: CreateAdminDTO) {
-    if (
-      createUserDto.adminRegistrationCode !=
-      this.configService.adminSecurityCode
-    ) {
-      this.exceptionHandler.throwBadRequest(_400.INVALID_ADMIN_REG_CODE);
-    }
     const userExists: boolean = await this.existByEmail(createUserDto.email);
     if (userExists)
       this.exceptionHandler.throwConflict(_409.USER_ALREADY_EXISTS);

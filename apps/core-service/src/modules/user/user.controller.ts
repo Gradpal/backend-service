@@ -62,7 +62,6 @@ export class UserController {
 
   @Post()
   @ApiBody({ type: CreateUserDTO })
-  @ApiNotFoundResponse(_errors([_404.COMPANY_NOT_FOUND]))
   @ApiConflictResponse(_errors([_409.USER_ALREADY_EXISTS]))
   @ApiCreatedResponse({ type: [User] })
   @PreAuthorize(EUserRole.SUPER_ADMIN)

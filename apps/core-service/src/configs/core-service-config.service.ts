@@ -59,10 +59,6 @@ export class CoreServiceConfigService {
     return this.configService.getOrThrow('RABBIT_MQ_NOTIFICATIONS_QUEUE');
   }
 
-  get integrationServiceGrpcUrl(): string {
-    return this.configService.getOrThrow('INTEGRATION_SERVICE_GRPC_URL');
-  }
-
   get GrpcHost(): string {
     return this.configService.getOrThrow('GRPC_HOST');
   }
@@ -95,9 +91,7 @@ export class CoreServiceConfigService {
   get getRedisUrl(): string {
     return this.configService.getOrThrow('REDIS_URL');
   }
-  get adminSecurityCode(): string {
-    return this.configService.getOrThrow('ADMIN_REG_CODE');
-  }
+
   get minioUrl(): string {
     return this.configService.getOrThrow('MINIO_URL');
   }

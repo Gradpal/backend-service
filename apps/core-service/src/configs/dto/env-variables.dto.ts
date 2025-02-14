@@ -82,16 +82,10 @@ export class EnvironmentVariables {
   CLIENT_URL: string;
 
   @Expose()
-  INTEGRATION_SERVICE_GRPC_URL: string;
-
-  @Expose()
   GRPC_HOST: string;
 
   @Expose()
   GRPC_PORT: number;
-  @Expose()
-  ADMIN_REG_CODE: string;
-
   @Expose()
   DEFAULT_PASSWORD: string;
 }
