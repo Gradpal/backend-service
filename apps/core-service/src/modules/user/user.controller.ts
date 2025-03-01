@@ -50,7 +50,6 @@ export class UserController {
   @ApiOperation({
     summary: 'use this api to onboard new student to this platform',
   })
-
   @Patch('/onboard/confirm-profile')
   @Public()
   @ApiOperation({
@@ -85,7 +84,7 @@ export class UserController {
   @ApiQuery({
     name: 'role',
     required: false,
-    example: EUserRole.INSTITUTIONAL_ADMIN,
+    example: EUserRole.STUDENT,
   })
   @ApiQuery({ name: 'searchKey', required: false })
   @PreAuthorize(EUserRole.SUPER_ADMIN)
@@ -156,13 +155,8 @@ export class UserController {
     return this.userService.findAllStudents();
   }
 
-  @Get('/get-lectures/')
+  @Get('/get-tutors/')
   findAllLectures() {
-    return this.userService.findAllLectures();
-  }
-
-  @Get('/incubation-center-staff/')
-  findAllIncubationCenterStaff() {
-    return this.userService.findAllIncubationCenterStaff();
+    return this.userService.findAllTutors();
   }
 }
