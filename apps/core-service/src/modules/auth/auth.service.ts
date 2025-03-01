@@ -21,11 +21,16 @@ import {
 } from '@core-service/common/constants/brain.constants';
 import { MAX_FAILED_ATTEMPTS } from '@core-service/common/constants/all.constants';
 import { hashPassword } from '@core-service/common/helpers/all.helpers';
+import { EUserRole } from '../user/enums/user-role.enum';
+import { StudentService } from '../student/student.service';
+import { TutorService } from '../tutor/tutor.service';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly userService: UserService,
+    private readonly studentService: StudentService,
+    private readonly tutorService: TutorService,
     private readonly config: CoreServiceConfigService,
     private readonly jwt: JwtService,
     private readonly exceptionHandler: ExceptionHandler,
@@ -72,6 +77,12 @@ export class AuthService {
     const account: User = await this.userService.findByEmail(dto.email);
     await this.verifyOtp(account.id, dto.otp);
     account.status = EUserStatus.ACTIVE;
+    if (account.role === EUserRole.STUDENT) {
+      await this.studentService.create(account);
+    }
+    if (account.role === EUserRole.TUTOR) {
+      await this.tutorService.create(account);
+    }
     return await this.userService.saveUser(account);
   }
   async sendOpt(email: string) {
@@ -80,7 +91,7 @@ export class AuthService {
     console.log({
       userName: account.user_name,
       verificationUrl: `${this.config.clientUrl}auth/reset-password/?email=${account.email}&verification_code=${otp}`,
-    },)
+    });
     await this.notificationProcessor.sendTemplateEmail(
       EmailTemplates.VERIFICATION,
       [account.email],
