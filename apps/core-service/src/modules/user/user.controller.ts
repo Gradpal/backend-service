@@ -8,12 +8,15 @@ import {
   Delete,
   Patch,
   Req,
+  UseInterceptors,
+  UploadedFile,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import {
   ApiBearerAuth,
   ApiBody,
   ApiConflictResponse,
+  ApiConsumes,
   ApiCreatedResponse,
   ApiNotFoundResponse,
   ApiOperation,
@@ -36,6 +39,9 @@ import { User } from './entities/user.entity';
 import { OnboardUserDto } from './dto/onboard-user.dto';
 import { ConfirmUserProfileDto } from './dto/confirm-profile.dto';
 import { UpdateSettingsDto } from './dto/update-settings.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
+import { extname } from 'path';
 
 @Controller('user')
 @ApiTags('user')
@@ -43,39 +49,29 @@ import { UpdateSettingsDto } from './dto/update-settings.dto';
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  // TODO: this endpoint should be removed or refactored, it exist only for demonstration purposes
-  @Post('/onboard/:registrationNumber')
-  @ApiParam({ name: 'registrationNumber', required: true })
-  @Public()
-  @ApiOperation({
-    summary: 'use this api to onboard new student to this platform',
-  })
-  @Patch('/onboard/confirm-profile')
-  @Public()
-  @ApiOperation({
-    summary: 'use this api to confirm user details',
-  })
-  async confirmUserProfile(@Body() confirmProfileDto: ConfirmUserProfileDto) {
-    return await this.userService.confirmUserProfile(confirmProfileDto);
-  }
-
   @Post()
-  @ApiBody({ type: CreateUserDTO })
-  @ApiConflictResponse(_errors([_409.USER_ALREADY_EXISTS]))
-  @ApiCreatedResponse({ type: [User] })
-  @PreAuthorize(EUserRole.SUPER_ADMIN)
-  createUser(@Body() createUserDto: CreateUserDTO) {
-    return this.userService.create(createUserDto);
+  @Public()
+  @UseInterceptors(
+    FileInterceptor('profilePicture', {
+      storage: diskStorage({
+        destination: './uploads/profile-pictures',
+        filename: (req, file, callback) => {
+          const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+          callback(null, file.fieldname + '-' + uniqueSuffix + extname(file.originalname));
+        },
+      }),
+    }),
+  )
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    description: 'Create a new user',
+    type: CreateUserDTO,
+  })
+  @ApiCreatedResponse({ type: User })
+  async createUser(@Body() createUserDto: CreateUserDTO, @UploadedFile() file: Express.Multer.File) {
+    return this.userService.create(createUserDto, file);
   }
 
-  @Post('admin')
-  @ApiConflictResponse(_errors([_409.USER_ALREADY_EXISTS]))
-  @ApiCreatedResponse({ type: [User] })
-  @ApiBody({ type: CreateAdminDTO })
-  @Public()
-  createAdmin(@Body() createUserDto: CreateAdminDTO) {
-    return this.userService.createAdmin(createUserDto);
-  }
 
   @Get()
   @ApiQuery({ name: 'page', required: false, example: 1 })
