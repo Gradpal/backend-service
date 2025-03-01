@@ -45,27 +45,35 @@ export class UserService {
     return await this.userRepository.save(user);
   }
 
-  async create(createUserDto: CreateUserDTO) {
+  async create(createUserDto: CreateUserDTO, file?: Express.Multer.File) {
     if (await this.existByEmail(createUserDto.email)) {
       this.exceptionHandler.throwConflict(_409.USER_ALREADY_EXISTS);
     }
+
     const userEntity: User = this.userRepository.create(createUserDto);
+
+    if (file) {
+      userEntity.profile_photo = `/uploads/profile-pictures/${file.filename}`;
+    }
+
     userEntity.password = await bcrypt.hash(
       this.configService.defaultPassword,
       10,
     );
+
     const [savedUser] = await Promise.all([
       this.userRepository.save(userEntity),
       this.notificationProcessor.sendTemplateEmail(
         EmailTemplates.WELCOME,
         [userEntity.email],
         {
-          userName: userEntity.userName,
+          userName: userEntity.user_name,
           isNewUser: true,
           dashboardUrl: `${this.configService.clientUrl}activate/`,
         },
       ),
     ]);
+
     return plainToClass(User, savedUser);
   }
 
@@ -81,7 +89,7 @@ export class UserService {
       EmailTemplates.WELCOME,
       [user.email],
       {
-        userName: user.userName,
+        userName: user.user_name,
         isNewUser: true,
         dashboardUrl: `${this.configService.clientUrl}activate/`,
       },
@@ -197,7 +205,7 @@ export class UserService {
       },
       select: {
         id: true,
-        userName: true,
+        user_name: true,
         email: true,
         role: true,
       },
@@ -213,7 +221,7 @@ export class UserService {
       },
       select: {
         id: true,
-        userName: true,
+        user_name: true,
         email: true,
         role: true,
       },

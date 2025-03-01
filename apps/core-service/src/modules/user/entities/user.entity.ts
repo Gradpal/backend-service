@@ -13,8 +13,14 @@ export class User {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
+  @Column({ type: 'varchar', length: 100, nullable: true })
+  first_name: string;
+
+  @Column({ type: 'varchar', length: 100, nullable: true })
+  last_name: string;
+
   @Column()
-  userName: string;
+  user_name: string;
 
   @Column()
   email: string;
@@ -25,10 +31,18 @@ export class User {
   @Column()
   profile_photo: string;
 
+  @Column()
+  country: string;
+
   @Column({ type: 'enum', enum: EUserRole })
   role: EUserRole;
 
-  @Column({ type: 'enum', enum: EUserStatus })
+  @Column({
+    nullable: false,
+    type: 'enum',
+    enum: EUserStatus,
+    default: EUserStatus.NOT_VERIFIED,
+  })
   status: EUserStatus;
 
   @CreateDateColumn()

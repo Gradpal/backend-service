@@ -77,11 +77,15 @@ export class AuthService {
   async sendOpt(email: string) {
     const account: User = await this.userService.findByEmail(email);
     const otp = await this.generateOTP(account.id);
+    console.log({
+      userName: account.user_name,
+      verificationUrl: `${this.config.clientUrl}auth/reset-password/?email=${account.email}&verification_code=${otp}`,
+    },)
     await this.notificationProcessor.sendTemplateEmail(
       EmailTemplates.VERIFICATION,
       [account.email],
       {
-        userName: account.userName,
+        userName: account.user_name,
         verificationUrl: `${this.config.clientUrl}auth/reset-password/?email=${account.email}&verification_code=${otp}`,
       },
     );

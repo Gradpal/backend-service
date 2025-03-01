@@ -12,12 +12,12 @@ export class CreateUserDTO {
   @IsString()
   @IsNotEmpty()
   @ApiProperty()
-  firstName: string;
+  first_name: string;
 
   @IsString()
   @IsNotEmpty()
   @ApiProperty()
-  lastName: string;
+  last_name: string;
 
   @IsEmail()
   @IsNotEmpty()
@@ -25,34 +25,36 @@ export class CreateUserDTO {
   email: string;
 
   @IsString()
+  @IsNotEmpty()
+  @ApiProperty()
+  user_name: string;
+
+  @IsString()
   @IsPhoneNumber()
   @IsNotEmpty()
   @ApiProperty()
   phoneNumber: string;
 
-  // @IsEnum(EGender)
-  // @IsOptional()
-  // @ApiProperty({ required: false })
-  // gender: EGender;
+  @IsString()
+  @IsNotEmpty()
+  @ApiProperty()
+  password: string;
 
-  // @IsOptional()
-  // @ApiProperty({ required: false })
-  // dob: Date;
+  @IsString()
+  @IsNotEmpty()
+  @ApiProperty()
+  referralCode: string;
 
-  // @IsString()
-  // @IsOptional()
-  // @ApiProperty({ required: false })
-  // country: string;
+  @IsString()
+  @IsNotEmpty()
+  @ApiProperty()
+  country: string;
 
   @IsNotEmpty()
   @ApiProperty()
   role: EUserRole;
 
   @IsOptional()
-  @ApiProperty({ required: false })
-  companyId?: string;
-
-  @IsOptional()
-  @ApiProperty({ required: false })
-  collegeId?: string;
+  @ApiProperty({ type: 'string', format: 'binary', required: false })
+  profilePicture?: Express.Multer.File;
 }
