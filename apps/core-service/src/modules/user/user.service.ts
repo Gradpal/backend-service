@@ -1,13 +1,11 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
 import { CreateUserDTO } from './dto/create-user.dto';
-import { ClientGrpc } from '@nestjs/microservices';
 import * as bcrypt from 'bcryptjs';
 import { ExceptionHandler } from '@app/common/exceptions/exceptions.handler';
 import { _400, _404, _409 } from '@app/common/constants/errors-constants';
-import { INTEGRATION_GRPC_PACKAGE } from '@app/common/constants/services-constants';
 import { NotificationPreProcessor } from '@core-service/integrations/notification/notification.preprocessor';
 import { EUserStatus } from './enums/user-status.enum';
 import { EUserRole } from './enums/user-role.enum';
@@ -20,15 +18,12 @@ import { USER_BY_ID_CACHE } from '@core-service/common/constants/brain.constants
 import { BrainService } from '@app/common/brain/brain.service';
 import { MinioClientService } from '../minio-client/minio-client.service';
 import { EmailTemplates } from '@core-service/configs/email-template-configs/email-templates.config';
-import { lastValueFrom, Observable } from 'rxjs';
-import { OnboardUserDto } from './dto/onboard-user.dto';
 import { ConfirmUserProfileDto } from './dto/confirm-profile.dto';
 import { hashPassword } from '@core-service/common/helpers/all.helpers';
 import { UpdateSettingsDto } from './dto/update-settings.dto';
 
 @Injectable()
 export class UserService {
- 
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
@@ -37,12 +32,10 @@ export class UserService {
     private readonly exceptionHandler: ExceptionHandler,
     private readonly brainService: BrainService,
     private readonly minioService: MinioClientService,
-  ) {
-  }
+  ) {}
   // sample method that onboard a student
   // this method will get the student reg number, and get the student details from the student service
   // the parameters can be a DTO, but for simplicity, we are using a string
-  
 
   // This is the service for confirming the user information.
   async confirmUserProfile(confirmProfileDto: ConfirmUserProfileDto) {
@@ -61,16 +54,13 @@ export class UserService {
       this.configService.defaultPassword,
       10,
     );
-    const isUserAdmin = createUserDto.role === EUserRole.COMPANY_ADMIN;
-    const isCollegeAdmin = createUserDto.role === EUserRole.COLLEGE_ADMIN;
-
     const [savedUser] = await Promise.all([
       this.userRepository.save(userEntity),
       this.notificationProcessor.sendTemplateEmail(
         EmailTemplates.WELCOME,
         [userEntity.email],
         {
-          userName: userEntity.firstName,
+          userName: userEntity.userName,
           isNewUser: true,
           dashboardUrl: `${this.configService.clientUrl}activate/`,
         },
@@ -91,7 +81,7 @@ export class UserService {
       EmailTemplates.WELCOME,
       [user.email],
       {
-        userName: user.firstName,
+        userName: user.userName,
         isNewUser: true,
         dashboardUrl: `${this.configService.clientUrl}activate/`,
       },
@@ -181,8 +171,6 @@ export class UserService {
       this.exceptionHandler.throwConflict(_409.USER_ALREADY_EXISTS);
     }
     user.email = updateSettingsDto.email;
-    user.firstName = updateSettingsDto.firstName;
-    user.lastName = updateSettingsDto.lastName;
     user.password = await hashPassword(updateSettingsDto.password);
     return await this.userRepository.save(user);
   }
@@ -209,8 +197,7 @@ export class UserService {
       },
       select: {
         id: true,
-        firstName: true,
-        lastName: true,
+        userName: true,
         email: true,
         role: true,
       },
@@ -219,32 +206,14 @@ export class UserService {
     return users;
   }
 
-  async findAllLectures() {
+  async findAllTutors() {
     const users = await this.userRepository.find({
       where: {
-        role: EUserRole.LECTURE,
+        role: EUserRole.TUTOR,
       },
       select: {
         id: true,
-        firstName: true,
-        lastName: true,
-        email: true,
-        role: true,
-      },
-    });
-
-    return users;
-  }
-
-  async findAllIncubationCenterStaff() {
-    const users = await this.userRepository.find({
-      where: {
-        role: EUserRole.INCUBATION_CENTER_STAFF,
-      },
-      select: {
-        id: true,
-        firstName: true,
-        lastName: true,
+        userName: true,
         email: true,
         role: true,
       },

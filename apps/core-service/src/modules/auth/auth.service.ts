@@ -81,7 +81,7 @@ export class AuthService {
       EmailTemplates.VERIFICATION,
       [account.email],
       {
-        userName: account.firstName,
+        userName: account.userName,
         verificationUrl: `${this.config.clientUrl}auth/reset-password/?email=${account.email}&verification_code=${otp}`,
       },
     );

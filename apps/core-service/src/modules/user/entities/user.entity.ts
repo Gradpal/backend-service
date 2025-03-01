@@ -1,59 +1,39 @@
-import { Column, Entity, Index, JoinColumn, ManyToOne } from 'typeorm';
-import { BaseEntity } from '@app/common/database/base.entity';
-import { ApiProperty } from '@nestjs/swagger';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  CreateDateColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 import { EUserRole } from '../enums/user-role.enum';
 import { EUserStatus } from '../enums/user-status.enum';
-import { Exclude } from 'class-transformer';
-import { EGender } from '@app/common/enums';
 
-@Entity({ name: 'user' })
-export class User extends BaseEntity {
-  @Column({ nullable: true }) // TODO: Change nullability to false  replacing the null values with actual ones in the database
-  @ApiProperty()
-  firstName: string;
-
-  @Column({ nullable: true }) // TODO: Change nullability to false after replacing the null values with actual ones in the database
-  @ApiProperty()
-  lastName: string;
+@Entity()
+export class User {
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
 
   @Column()
-  @Index({ unique: true })
-  @ApiProperty()
+  userName: string;
+
+  @Column()
   email: string;
 
-  @Column({ nullable: true })
-  @ApiProperty()
-  @Exclude()
+  @Column()
   password: string;
-  @Column({ nullable: true })
-  @ApiProperty()
-  phoneNumber: string;
 
-  @Column({ nullable: true }) // TODO: Change nullability to false after replacing the null values with actual ones in the database
-  @ApiProperty()
-  registrationID: string;
+  @Column()
+  profile_photo: string;
 
-  @Column({ type: 'enum', enum: EGender, nullable: true }) // TODO: change This to  nullable=false
-  @ApiProperty()
-  gender: EGender;
+  @Column({ type: 'enum', enum: EUserRole })
+  role: EUserRole;
 
-  @Column({
-    nullable: false,
-    type: 'enum',
-    enum: EUserStatus,
-    default: EUserStatus.NOT_VERIFIED,
-  })
-  @ApiProperty()
+  @Column({ type: 'enum', enum: EUserStatus })
   status: EUserStatus;
 
-  @Column({ nullable: true })
-  @ApiProperty()
-  dateOfBirth: Date;
-  @Column({ nullable: true })
-  @ApiProperty()
-  country: string;
+  @CreateDateColumn()
+  created_at: Date;
 
-  @Column({ type: 'enum', enum: EUserRole, nullable: false })
-  @ApiProperty({ enum: EUserRole, example: EUserRole.STUDENT })
-  role: EUserRole;
+  @UpdateDateColumn()
+  updated_at: Date;
 }
