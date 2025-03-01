@@ -6,6 +6,13 @@ import { AuthGuard } from '@core-service/guards/auth.guard';
 import { CoreServiceConfigService } from '@core-service/configs/core-service-config.service';
 import { CoreServiceConfigModule } from '@core-service/configs/core-service-config.module';
 import { UserModule } from '../user/user.module';
+import { TutorService } from '../tutor/tutor.service';
+import { StudentService } from '../student/student.service';
+import { TutorModule } from '../tutor/tutor.module';
+import { StudentModule } from '../student/student.module';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { Tutor } from '../tutor/entities/tutor.entity';
+import { Student } from '../student/entities/student.entity';
 
 @Module({
   imports: [
@@ -20,10 +27,15 @@ import { UserModule } from '../user/user.module';
       }),
     }),
     UserModule,
+    TutorModule,
+    StudentModule,
+    TypeOrmModule.forFeature([Tutor, Student]),
   ],
   controllers: [AuthController],
   providers: [
     AuthService,
+    StudentService,
+    TutorService,
     AuthGuard,
     {
       provide: 'APP_GUARD',
