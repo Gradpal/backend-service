@@ -14,14 +14,14 @@ jobs:
           SERVER_HOST: ${{ secrets.SERVER_HOST }}
           SERVER_USER: ${{ secrets.SERVER_USER }}
           DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
+          SERVER_PASSWORD: ${{ secrets.SERVER_PASSWORD }}
         run: |
-          sshpass -p "$SERVER_PASSWORD" ssh $SERVER_USER@$SERVER_HOST << EOF
+          sshpass -p "$SERVER_PASSWORD" ssh -t $SERVER_USER@$SERVER_HOST << EOF
             # Exit on any error
             set -e
 
             # Error handling
             trap 'echo "Error on line \$LINENO"' ERR
-
 
             # Source profile and NVM
             export NVM_DIR="\$HOME/.nvm"
