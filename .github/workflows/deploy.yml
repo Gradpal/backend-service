@@ -19,6 +19,7 @@ jobs:
           sshpass -p "$SERVER_PASSWORD" ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $SERVER_USER@$SERVER_HOST << EOF
             # Exit on any error
             set -e
+            sudo -i
 
             # Error handling
             trap 'echo "Error on line \$LINENO"' ERR
