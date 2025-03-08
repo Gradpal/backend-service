@@ -103,40 +103,6 @@ notif.gradpal.devteam.dev {
     encode zstd gzip
 }
 
-intergration.gradpal.devteam.dev {
-    import security
-
-    # Handle Swagger documentation specifically
-    handle /api/documentation* {
-        reverse_proxy core-service:4030 {
-            header_up Host {host}
-            header_up X-Real-IP {remote_host}
-
-            # WebSocket support
-            header_up Connection {http.upgrade}
-            header_up Upgrade {http.upgrade}
-        }
-    }
-
-    reverse_proxy integration-service:4030 {
-        header_up Host {host}
-        header_up X-Real-IP {remote_host}
-
-        health_uri /api/v1/health
-        health_interval 30s
-        health_timeout 10s
-        health_status 200
-
-        transport http {
-            keepalive 30s
-            keepalive_idle_conns 100
-        }
-    }
-
-    encode zstd gzip
-}
-
-
 hocus.gradpal.devteam.dev {
     import security
 
