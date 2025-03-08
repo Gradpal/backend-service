@@ -43,15 +43,6 @@
         "tsConfigPath": "apps/notification-service/tsconfig.app.json"
       }
     },
-    "integration-service": {
-      "type": "application",
-      "root": "apps/integration-service",
-      "entryFile": "main",
-      "sourceRoot": "apps/integration-service/src",
-      "compilerOptions": {
-        "tsConfigPath": "apps/integration-service/tsconfig.app.json"
-      }
-    },
     "hocus-pocus-service": {
       "type": "application",
       "root": "apps/hocus-pocus-service",

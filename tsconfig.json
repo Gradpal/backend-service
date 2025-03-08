@@ -18,36 +18,14 @@
     "forceConsistentCasingInFileNames": false,
     "noFallthroughCasesInSwitch": false,
     "paths": {
-      "@app/common": [
-        "libs/common/src"
-      ],
-      "@app/common/*": [
-        "libs/common/src/*"
-      ],
-      "@core-service/": [
-        "apps/core-service/src"
-      ],
-      "@core-service/*": [
-        "apps/core-service/src/*"
-      ],
-      "@integration-service/": [
-        "apps/integration-service/src"
-      ],
-      "@integration-service/*": [
-        "apps/integration-service/src/*"
-      ],
-      "@notification-service/": [
-        "apps/notification-service/src"
-      ],
-      "@notification-service/*": [
-        "apps/notification-service/src/*"
-      ],
-      "@hocus-pocus-service/": [
-        "apps/hocus-pocus-service/src"
-      ],
-      "@hocus-pocus-service/*": [
-        "apps/hocus-pocus-service/src/*"
-      ]
+      "@app/common": ["libs/common/src"],
+      "@app/common/*": ["libs/common/src/*"],
+      "@core-service/": ["apps/core-service/src"],
+      "@core-service/*": ["apps/core-service/src/*"],
+      "@notification-service/": ["apps/notification-service/src"],
+      "@notification-service/*": ["apps/notification-service/src/*"],
+      "@hocus-pocus-service/": ["apps/hocus-pocus-service/src"],
+      "@hocus-pocus-service/*": ["apps/hocus-pocus-service/src/*"]
     }
   }
 }

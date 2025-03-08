@@ -48,20 +48,6 @@ services:
     ports:
       - '4020:4020'
 
-  integration-service:
-    build:
-      context: .
-      dockerfile: ./apps/integration-service/Dockerfile
-    command: yarn start:dev integration-service
-    env_file:
-      - ./apps/integration-service/.env
-    volumes:
-      - /usr/src/app/node_modules
-      - .:/usr/src/app
-    ports:
-      - '4030:4030'
-      - "50051:50051"
-
   hocus-pocus-service:
     build:
       context: .

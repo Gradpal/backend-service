@@ -15,7 +15,6 @@
     "predev": "yarn collect-protos",
     "build": "  yarn prebuild && nest build",
     "build:core": "yarn prebuild && nest build core-service",
-    "build:integration": "yarn prebuild && nest build integration-service",
     "format": "prettier --write \"apps/**/*.ts\" \"libs/**/*.ts\"",
     "start": "yarn prebuild && nest start",
     "start:dev": " yarn predev && nest start --watch",
@@ -118,7 +117,6 @@
     "moduleNameMapper": {
       "^@app/common(|/.*)$": "<rootDir>/libs/common/src/$1",
       "^@core-service(|/.*)$": "<rootDir>/apps/core-service/src/$1",
-      "^@integration-service(|/.*)$": "<rootDir>/apps/integration-service/src/$1",
       "^@notification-service(|/.*)$": "<rootDir>/apps/notification-service/src/$1",
       "^@hocus-pocus-service(|/.*)$": "<rootDir>/apps/hocus-pocus-service/src/$1"
     }
