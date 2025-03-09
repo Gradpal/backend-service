@@ -18,7 +18,6 @@ jobs:
         run: |
           sshpass -p "$SERVER_PASSWORD" ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $SERVER_USER@$SERVER_HOST << EOF
             # Exit on any error
-            sudo -i
             set -e
 
             # Error handling
