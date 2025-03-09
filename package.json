@@ -117,8 +117,7 @@
     "moduleNameMapper": {
       "^@app/common(|/.*)$": "<rootDir>/libs/common/src/$1",
       "^@core-service(|/.*)$": "<rootDir>/apps/core-service/src/$1",
-      "^@notification-service(|/.*)$": "<rootDir>/apps/notification-service/src/$1",
-      "^@hocus-pocus-service(|/.*)$": "<rootDir>/apps/hocus-pocus-service/src/$1"
+      "^@notification-service(|/.*)$": "<rootDir>/apps/notification-service/src/$1"
     }
   },
   "engines": {

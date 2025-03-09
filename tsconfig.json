@@ -23,9 +23,7 @@
       "@core-service/": ["apps/core-service/src"],
       "@core-service/*": ["apps/core-service/src/*"],
       "@notification-service/": ["apps/notification-service/src"],
-      "@notification-service/*": ["apps/notification-service/src/*"],
-      "@hocus-pocus-service/": ["apps/hocus-pocus-service/src"],
-      "@hocus-pocus-service/*": ["apps/hocus-pocus-service/src/*"]
+      "@notification-service/*": ["apps/notification-service/src/*"]
     }
   }
 }
