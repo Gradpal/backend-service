@@ -28,13 +28,7 @@ jobs:
             export NVM_DIR="\$HOME/.nvm"
             [ -s "\$NVM_DIR/nvm.sh" ] && \. "\$NVM_DIR/nvm.sh"
 
-            # Check if the deployment path exists
-            if [ ! -d "${DEPLOY_PATH}" ]; then
-              echo "Error: Directory ${DEPLOY_PATH} does not exist."
-              exit 1
-            fi
-
-            cd ${DEPLOY_PATH}
+            cd app/Backend-service
 
             git checkout main
             git fetch origin main
