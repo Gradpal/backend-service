@@ -15,10 +15,8 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import helmet from 'helmet';
 import { Logger } from 'nestjs-pino';
 import * as cookieParser from 'cookie-parser';
-import { join } from 'path';
 import { GrpcOptions, Transport } from '@nestjs/microservices';
 import { CORE_GRPC_PACKAGE } from '@app/common/constants/services-constants';
-import { CORE_PROTO_PATH } from '@app/common/constants/all.constants';
 import { ReflectionService } from '@grpc/reflection';
 
 export const setupCoreConfig = async (app: INestApplication) => {
@@ -116,12 +114,10 @@ const enableGRPC = async (app: INestApplication) => {
   const grpcHost = app.get(CoreServiceConfigService).GrpcHost;
   const url = `${grpcHost}:${grpcPort}`;
 
-  const protoPath = join(process.cwd(), CORE_PROTO_PATH);
   app.connectMicroservice<GrpcOptions>({
     transport: Transport.GRPC,
     options: {
       package: CORE_GRPC_PACKAGE,
-      protoPath,
       url,
       onLoadPackageDefinition: (pkg, server) => {
         new ReflectionService(pkg).addToServer(server);

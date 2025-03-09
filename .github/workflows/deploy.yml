@@ -18,7 +18,6 @@ jobs:
         run: |
           sshpass -p "$SERVER_PASSWORD" ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $SERVER_USER@$SERVER_HOST << EOF
             # Exit on any error
-            sudo -i 
             set -e
 
             # Error handling
@@ -28,7 +27,7 @@ jobs:
             export NVM_DIR="\$HOME/.nvm"
             [ -s "\$NVM_DIR/nvm.sh" ] && \. "\$NVM_DIR/nvm.sh"
 
-            cd ${DEPLOY_PATH}
+            cd app/Backend-service
 
             git checkout main
             git fetch origin main
@@ -47,5 +46,5 @@ jobs:
             docker compose up -d
 
             # Cleanup
-            docker system prune -f
+            echo "$SERVER_PASSWORD" | sudo -S docker system prune -f
           EOF
