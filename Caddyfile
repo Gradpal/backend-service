@@ -102,40 +102,6 @@ notif.gradpal.devteam.dev {
 
     encode zstd gzip
 }
-
-hocus.gradpal.devteam.dev {
-    import security
-
-    reverse_proxy hocus-pocus-service:5021 {
-        header_up Host {host}
-        header_up X-Real-IP {remote_host}
-
-        # Enhanced WebSocket support
-        header_up X-Forwarded-For {remote}
-        header_up X-Forwarded-Proto {scheme}
-
-        # Ensure WebSocket upgrade is properly handled
-        transport http {
-            keepalive 30s
-            keepalive_idle_conns 100
-            versions "1.1" "2"
-        }
-    }
-
-    @websockets {
-        header Connection *Upgrade*
-        header Upgrade websocket
-    }
-
-    handle @websockets {
-        reverse_proxy hocus-pocus-service:5021 {
-            trusted_proxies private_ranges
-        }
-    }
-
-    encode zstd gzip
-}
-
 storage.gradpal.devteam.dev {
     import security
 

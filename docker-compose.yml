@@ -48,20 +48,6 @@ services:
     ports:
       - '4020:4020'
 
-  hocus-pocus-service:
-    build:
-      context: .
-      dockerfile: ./apps/hocus-pocus-service/Dockerfile
-    command: yarn start:dev hocus-pocus-service
-    env_file:
-      - ./apps/hocus-pocus-service/.env
-    volumes:
-      - /usr/src/app/node_modules
-      - .:/usr/src/app
-    ports:
-      - '4040:4040'
-      - '5021:5021'
-
 volumes:
   caddy_data:
   caddy_config:
