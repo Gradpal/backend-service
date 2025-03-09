@@ -42,15 +42,6 @@
       "compilerOptions": {
         "tsConfigPath": "apps/notification-service/tsconfig.app.json"
       }
-    },
-    "hocus-pocus-service": {
-      "type": "application",
-      "root": "apps/hocus-pocus-service",
-      "entryFile": "main",
-      "sourceRoot": "apps/hocus-pocus-service/src",
-      "compilerOptions": {
-        "tsConfigPath": "apps/hocus-pocus-service/tsconfig.app.json"
-      }
     }
   },
   "monorepo": true
