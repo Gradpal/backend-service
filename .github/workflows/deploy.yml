@@ -48,7 +48,4 @@ jobs:
 
             # Cleanup
             docker system prune -f
-
-            # If sudo is needed for any command
-            echo "$SERVER_PASSWORD" | sudo -S systemctl restart some_service_name
           EOF
