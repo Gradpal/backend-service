@@ -18,7 +18,6 @@ jobs:
         run: |
           sshpass -p "$SERVER_PASSWORD" ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $SERVER_USER@$SERVER_HOST << EOF
             # Exit on any error
-            sudo -i
             set -e
 
             # Error handling
@@ -42,10 +41,10 @@ jobs:
             yarn build notification-service
 
             # Docker operations
-            docker compose down
-            docker compose build --no-cache
-            docker compose up -d
+            echo "$SERVER_PASSWORD" | sudo -S docker compose down
+            echo "$SERVER_PASSWORD" | sudo -S docker compose build --no-cache
+            echo "$SERVER_PASSWORD" | sudo -S docker compose up -d
 
             # Cleanup
-            docker system prune -f
+            echo "$SERVER_PASSWORD" | sudo -S docker system prune -f
           EOF
