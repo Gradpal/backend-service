@@ -7,6 +7,7 @@ import {
   JoinColumn,
   BaseEntity,
 } from 'typeorm';
+import { EPaymentType } from '../enums/payment-type.enum';
 
 @Entity()
 export class Payment extends BaseEntity {
@@ -23,9 +24,9 @@ export class Payment extends BaseEntity {
   @Column({ type: 'varchar', length: 10, default: 'USD' })
   currency: string;
 
-  @Column({ type: 'varchar', length: 20, default: 'pending' })
-  status: 'pending' | 'completed' | 'failed';
+  @Column({ type: 'varchar', length: 255, unique: true, nullable: true })
+  stripe_checkout_session_id: string;
 
   @Column({ type: 'varchar', length: 255, unique: true, nullable: true })
-  transaction_id: string;
+  payment_type: EPaymentType;
 }

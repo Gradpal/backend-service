@@ -88,4 +88,8 @@ export class EnvironmentVariables {
   GRPC_PORT: number;
   @Expose()
   DEFAULT_PASSWORD: string;
+  @Expose()
+  STRIPE_SECRET_KEY:string;
+  @Expose()
+  STRIPE_WEBHOOK_SECRET:string;
 }

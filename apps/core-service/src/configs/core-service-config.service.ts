@@ -98,6 +98,14 @@ export class CoreServiceConfigService {
   get defaultPassword(): string {
     return this.configService.getOrThrow('DEFAULT_PASSWORD');
   }
+  get getStripeSecretKey(): string {
+    return this.configService.getOrThrow('STRIPE_SECRET_KEY')
+  }
+  get getStripeWebsookSecret(): string {
+    return this.configService.getOrThrow('STRIPE_WEBHOOK_SECRET')
+  }
+
+  STRIPE_WEBHOOK_SECRET
 
   getPostgresInfo(): TypeOrmModuleOptions {
     return {
