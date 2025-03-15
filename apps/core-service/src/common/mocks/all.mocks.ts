@@ -5,4 +5,5 @@ export const MINIO_PROPERTIES_MOCK = {
   minioAccessKey: 'test-access-key',
   minioSecretKey: 'test-secret-key',
   minioBucket: 'test-bucket',
+  getStripeSecretKey: jest.fn().mockReturnValue('sk_test_1234567890'),
 };
