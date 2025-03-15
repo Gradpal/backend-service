@@ -41,9 +41,9 @@ export class CreateUserDTO {
   password: string;
 
   @IsString()
-  @IsNotEmpty()
-  @ApiProperty()
-  referralCode: string;
+  @ApiProperty({ required: false })
+  @IsOptional()
+  referralCode?: string;
 
   @IsString()
   @IsNotEmpty()
