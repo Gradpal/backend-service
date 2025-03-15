@@ -12,7 +12,7 @@ export class TutorService {
   ) {}
   async create(user: User) {
     let student = await this.tutorRepository.create({
-      user: user,
+      profile: user,
     });
     return await this.tutorRepository.save(student);
   }

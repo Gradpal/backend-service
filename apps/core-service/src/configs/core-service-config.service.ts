@@ -95,17 +95,14 @@ export class CoreServiceConfigService {
   get minioUrl(): string {
     return this.configService.getOrThrow('MINIO_URL');
   }
-  get defaultPassword(): string {
-    return this.configService.getOrThrow('DEFAULT_PASSWORD');
-  }
   get getStripeSecretKey(): string {
-    return this.configService.getOrThrow('STRIPE_SECRET_KEY')
+    return this.configService.getOrThrow('STRIPE_SECRET_KEY');
   }
   get getStripeWebsookSecret(): string {
-    return this.configService.getOrThrow('STRIPE_WEBHOOK_SECRET')
+    return this.configService.getOrThrow('STRIPE_WEBHOOK_SECRET');
   }
 
-  STRIPE_WEBHOOK_SECRET
+  STRIPE_WEBHOOK_SECRET;
 
   getPostgresInfo(): TypeOrmModuleOptions {
     return {

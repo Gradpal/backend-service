@@ -15,7 +15,6 @@ import { UserService } from './user.service';
 import {
   ApiBearerAuth,
   ApiBody,
-  ApiConflictResponse,
   ApiConsumes,
   ApiCreatedResponse,
   ApiNotFoundResponse,
@@ -34,14 +33,9 @@ import {
 import { EUserRole } from './enums/user-role.enum';
 import { Public } from '@app/common/decorators/public.decorator';
 import { EUserStatus } from './enums/user-status.enum';
-import { CreateAdminDTO } from './dto/create-admin.dto';
 import { User } from './entities/user.entity';
-import { OnboardUserDto } from './dto/onboard-user.dto';
-import { ConfirmUserProfileDto } from './dto/confirm-profile.dto';
 import { UpdateSettingsDto } from './dto/update-settings.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { diskStorage } from 'multer';
-import { extname } from 'path';
 
 @Controller('user')
 @ApiTags('user')
@@ -51,19 +45,19 @@ export class UserController {
 
   @Post()
   @Public()
-  @UseInterceptors(
-    FileInterceptor('profilePicture'),
-  )
+  @UseInterceptors(FileInterceptor('profilePicture'))
   @ApiConsumes('multipart/form-data')
   @ApiBody({
     description: 'Create a new user',
     type: CreateUserDTO,
   })
   @ApiCreatedResponse({ type: User })
-  async createUser(@Body() createUserDto: CreateUserDTO, @UploadedFile() profilePicture: Express.Multer.File) {
+  async createUser(
+    @Body() createUserDto: CreateUserDTO,
+    @UploadedFile() profilePicture: Express.Multer.File,
+  ) {
     return this.userService.create(createUserDto, profilePicture);
   }
-
 
   @Get()
   @ApiQuery({ name: 'page', required: false, example: 1 })

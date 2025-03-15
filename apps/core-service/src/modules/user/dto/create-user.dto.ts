@@ -12,12 +12,12 @@ export class CreateUserDTO {
   @IsString()
   @IsNotEmpty()
   @ApiProperty()
-  first_name: string;
+  firstName: string;
 
   @IsString()
   @IsNotEmpty()
   @ApiProperty()
-  last_name: string;
+  lastName: string;
 
   @IsEmail()
   @IsNotEmpty()
@@ -27,7 +27,7 @@ export class CreateUserDTO {
   @IsString()
   @IsNotEmpty()
   @ApiProperty()
-  user_name: string;
+  userName: string;
 
   @IsString()
   @IsPhoneNumber()
@@ -54,7 +54,11 @@ export class CreateUserDTO {
   @ApiProperty()
   role: EUserRole;
 
+  @ApiProperty({
+    description: 'Profile picture',
+    type: 'string',
+    format: 'binary',
+  })
   @IsOptional()
-  @ApiProperty({ type: 'string', format: 'binary', required: false })
-  profilePicture?: Express.Multer.File;
+  profilePicture: Express.Multer.File;
 }

@@ -80,6 +80,14 @@ export const _404 = {
     code: 'USER_NOT_FOUND',
     message: 'No User exists with provided id',
   },
+  STUDENT_NOT_FOUND: {
+    code: 'STUDENT_NOT_FOUND',
+    message: 'No Student exists with provided attributes',
+  },
+  USER_WITH_REFERAL_CODE_NOT_FOUND: {
+    code: 'USER_WITH_REFERAL_CODE_NOT_FOUND',
+    message: 'No User exists with provided referal code',
+  },
   DATABASE_RECORD_NOT_FOUND: {
     code: 'DATABASE_RECORD_NOT_FOUND',
     message: 'Record does not exist in the database',

@@ -10,3 +10,14 @@ export function normalizeArray<T>(array: T[]) {
   return Array.isArray(array) ? array : array ? [array] : [];
 }
 
+export function generateAlphaNumericCode(length) {
+  const characters =
+    'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  let result = '';
+
+  for (let i = 0; i < length; i++) {
+    result += characters.charAt(Math.floor(Math.random() * characters.length));
+  }
+
+  return result;
+}

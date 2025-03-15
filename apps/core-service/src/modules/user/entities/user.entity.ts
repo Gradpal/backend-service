@@ -1,26 +1,21 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  CreateDateColumn,
-  UpdateDateColumn,
-} from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
 import { EUserRole } from '../enums/user-role.enum';
 import { EUserStatus } from '../enums/user-status.enum';
+import { BaseEntity } from '@app/common/database/base.entity';
 
 @Entity()
-export class User {
+export class User extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
   @Column({ type: 'varchar', length: 100, nullable: true })
-  first_name: string;
+  firstName: string;
 
   @Column({ type: 'varchar', length: 100, nullable: true })
-  last_name: string;
+  lastName: string;
 
-  @Column()
-  user_name: string;
+  @Column({ type: 'varchar', length: 100, nullable: true })
+  userName: string;
 
   @Column()
   email: string;
@@ -30,9 +25,6 @@ export class User {
 
   @Column()
   profile_photo: string;
-
-  @Column()
-  country: string;
 
   @Column({ type: 'enum', enum: EUserRole })
   role: EUserRole;
@@ -45,9 +37,6 @@ export class User {
   })
   status: EUserStatus;
 
-  @CreateDateColumn()
-  created_at: Date;
-
-  @UpdateDateColumn()
-  updated_at: Date;
+  @Column({ type: 'text', unique: true })
+  referalCode: string;
 }

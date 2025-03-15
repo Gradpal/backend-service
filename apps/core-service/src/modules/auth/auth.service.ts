@@ -78,7 +78,7 @@ export class AuthService {
     await this.verifyOtp(account.id, dto.otp);
     account.status = EUserStatus.ACTIVE;
     if (account.role === EUserRole.STUDENT) {
-      await this.studentService.create(account);
+      await this.studentService.saveStudent(account);
     }
     if (account.role === EUserRole.TUTOR) {
       await this.tutorService.create(account);
@@ -88,18 +88,17 @@ export class AuthService {
   async sendOpt(email: string) {
     const account: User = await this.userService.findByEmail(email);
     const otp = await this.generateOTP(account.id);
-    console.log({
-      userName: account.user_name,
-      verificationUrl: `${this.config.clientUrl}auth/reset-password/?email=${account.email}&verification_code=${otp}`,
-    });
     await this.notificationProcessor.sendTemplateEmail(
       EmailTemplates.VERIFICATION,
       [account.email],
       {
-        userName: account.user_name,
+        userName: account.userName,
+        otp: '0',
+        otpValidityDuration: 0,
         verificationUrl: `${this.config.clientUrl}auth/reset-password/?email=${account.email}&verification_code=${otp}`,
       },
     );
+    return otp;
   }
 
   async resetPassword(dto: ResetPasswordDto): Promise<User> {

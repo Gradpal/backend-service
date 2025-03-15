@@ -28,7 +28,7 @@ export class PaymentService {
   async createCheckoutSession(user: User, credits: number) {
     const student = await this.studentRepository.findOne({
       where: {
-        user: {
+        profile: {
           id: user.id,
         },
       },
@@ -40,7 +40,7 @@ export class PaymentService {
     }
 
     const session = await this.stripe.checkout.sessions.create({
-      customer_email: student.user.email, // Ensure the Student entity has an email field
+      customer_email: student.profile.email, // Ensure the Student entity has an email field
       payment_method_types: ['card'],
       line_items: [
         {
@@ -85,7 +85,7 @@ export class PaymentService {
 
       // Record payment in the database
       const payment = this.paymentRepository.create({
-        user: student.user, // Assuming Student extends User
+        user: student.profile, // Assuming Student extends User
         amount,
         currency: session.currency || 'USD',
         stripe_checkout_session_id: session.id,
