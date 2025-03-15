@@ -2,11 +2,6 @@ import { CoreServiceConfigService } from '@core-service/configs/core-service-con
 import { Injectable } from '@nestjs/common';
 import * as Minio from 'minio';
 import { FileInfo } from './types/all.types';
-// import { AttachmentDto } from '../portfolio/dto/attachment.dto';
-import {
-  generateUUID,
-  objectExistsInJson,
-} from '@app/common/helpers/shared.helpers';
 
 @Injectable()
 export class MinioClientService {

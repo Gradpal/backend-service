@@ -42,6 +42,9 @@ export class NotificationConfigService {
   get smtpEmail(): string {
     return this.configService.getOrThrow('SMTP_EMAIL');
   }
+  get smtpUser(): string {
+    return this.configService.getOrThrow('SMTP_USER');
+  }
 
   get smtpPassword(): string {
     return this.configService.getOrThrow('SMTP_PASSWORD');

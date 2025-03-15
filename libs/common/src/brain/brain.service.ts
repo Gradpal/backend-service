@@ -3,6 +3,10 @@ import { InjectRedis } from '@nestjs-modules/ioredis';
 import Redis from 'ioredis';
 import { ONE_MONTH } from '../constants/all.constants';
 import { BrainConfigService } from './brain-config.service';
+import {
+  RESET_PASSWORD_CACHE,
+  USER_BY_EMAIL_CACHE,
+} from '@core-service/common/constants/brain.constants';
 /**
  * This class here, plays the role of your brain.
  *
@@ -137,5 +141,19 @@ export class BrainService {
    */
   async clearAllKeys(): Promise<void> {
     this.redis.flushall();
+  }
+
+  getCacheKey(id: string) {
+    return `${USER_BY_EMAIL_CACHE.name}:${id}`;
+  }
+
+  async verifyOTP(email: string, otp: number): Promise<boolean> {
+    const key = `${RESET_PASSWORD_CACHE.name}:${email}`;
+    const storedOTP = await this.remindMe<number>(key);
+    if (!storedOTP || storedOTP != otp) {
+      return false;
+    }
+    await this.forget(key);
+    return true;
   }
 }

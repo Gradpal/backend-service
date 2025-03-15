@@ -1,12 +1,10 @@
-import { IsString, IsBoolean, IsUrl } from 'class-validator';
+import { IsString, IsNumber } from 'class-validator';
+import { VerificationEmailDto } from './verification.email.dto';
 
-export class WelcomeEmailDto {
+export class WelcomeEmailDto extends VerificationEmailDto {
   @IsString()
-  userName: string;
+  otp?: string;
 
-  @IsBoolean()
-  isNewUser: boolean;
-
-  @IsUrl()
-  dashboardUrl: string;
+  @IsNumber()
+  otpValidityDuration?: number;
 }

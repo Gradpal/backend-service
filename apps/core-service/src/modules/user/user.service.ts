@@ -14,13 +14,16 @@ import { CreateAdminDTO } from './dto/create-admin.dto';
 import { createPaginatedResponse } from '@app/common/helpers/pagination.helper';
 import { plainToClass } from 'class-transformer';
 import { PlatformQueuePayload } from '@app/common/interfaces/shared-queues/platform-queue-payload.interface';
-import { USER_BY_ID_CACHE } from '@core-service/common/constants/brain.constants';
 import { BrainService } from '@app/common/brain/brain.service';
 import { MinioClientService } from '../minio-client/minio-client.service';
 import { EmailTemplates } from '@core-service/configs/email-template-configs/email-templates.config';
 import { ConfirmUserProfileDto } from './dto/confirm-profile.dto';
-import { hashPassword } from '@core-service/common/helpers/all.helpers';
+import {
+  generateAlphaNumericCode,
+  hashPassword,
+} from '@core-service/common/helpers/all.helpers';
 import { UpdateSettingsDto } from './dto/update-settings.dto';
+import { USER_BY_EMAIL_CACHE } from '@core-service/common/constants/brain.constants';
 
 @Injectable()
 export class UserService {
@@ -33,11 +36,7 @@ export class UserService {
     private readonly brainService: BrainService,
     private readonly minioService: MinioClientService,
   ) {}
-  // sample method that onboard a student
-  // this method will get the student reg number, and get the student details from the student service
-  // the parameters can be a DTO, but for simplicity, we are using a string
 
-  // This is the service for confirming the user information.
   async confirmUserProfile(confirmProfileDto: ConfirmUserProfileDto) {
     const user = await this.findOne(confirmProfileDto.userId);
     user.password = await hashPassword(confirmProfileDto.password);
@@ -45,7 +44,10 @@ export class UserService {
     return await this.userRepository.save(user);
   }
 
-  async create(createUserDto: CreateUserDTO, profilePicture?: Express.Multer.File) {
+  async create(
+    createUserDto: CreateUserDTO,
+    profilePicture?: Express.Multer.File,
+  ) {
     if (await this.existByEmail(createUserDto.email)) {
       this.exceptionHandler.throwConflict(_409.USER_ALREADY_EXISTS);
     }
@@ -53,13 +55,12 @@ export class UserService {
     const userEntity: User = this.userRepository.create(createUserDto);
 
     if (profilePicture) {
-      userEntity.profile_photo = await this.minioService.uploadFile(profilePicture);
+      userEntity.profile_photo =
+        await this.minioService.uploadFile(profilePicture);
     }
 
-    userEntity.password = await bcrypt.hash(
-      this.configService.defaultPassword,
-      10,
-    );
+    userEntity.password = await bcrypt.hash(generateAlphaNumericCode(8), 10);
+    userEntity.referalCode = generateAlphaNumericCode(10);
 
     const [savedUser] = await Promise.all([
       this.userRepository.save(userEntity),
@@ -67,9 +68,10 @@ export class UserService {
         EmailTemplates.WELCOME,
         [userEntity.email],
         {
-          userName: userEntity.user_name,
-          isNewUser: true,
-          dashboardUrl: `${this.configService.clientUrl}activate/`,
+          userName: userEntity.userName,
+          otpValidityDuration: 3,
+          otp: '34',
+          verificationUrl: `${this.configService.clientUrl}activate/`,
         },
       ),
     ]);
@@ -89,9 +91,10 @@ export class UserService {
       EmailTemplates.WELCOME,
       [user.email],
       {
-        userName: user.user_name,
-        isNewUser: true,
-        dashboardUrl: `${this.configService.clientUrl}activate/`,
+        userName: user.userName,
+        otpValidityDuration: 3,
+        otp: '34',
+        verificationUrl: `${this.configService.clientUrl}activate/`,
       },
     );
     return user;
@@ -124,8 +127,6 @@ export class UserService {
     return createPaginatedResponse(data, total, page, limit);
   }
 
-  // This method updates an existing user
-  // It's needed by external services just to update the user
   async saveUser(user: User): Promise<User> {
     return await this.userRepository.save(user);
   }
@@ -134,28 +135,32 @@ export class UserService {
       this.exceptionHandler.throwNotFound(_404.USER_NOT_FOUND);
     return await this.userRepository.findOne({ where: { email } });
   }
-
+  async findByReferalCode(code: string) {
+    const user = await this.userRepository.findOne({
+      where: { referalCode: code },
+    });
+    if (!user)
+      this.exceptionHandler.throwNotFound(
+        _404.USER_WITH_REFERAL_CODE_NOT_FOUND,
+      );
+    return user;
+  }
   async findOne(id: string) {
     const user = await this.userRepository.findOne({ where: { id } });
     if (!user) this.exceptionHandler.throwNotFound(_404.USER_NOT_FOUND);
     return user;
   }
 
-  //TODO: this is a sample method to show how to cache a query result and it should not be used in production
-
   async findOneCached(id: string) {
-    const cacheKey = `${USER_BY_ID_CACHE.name}:${id}`;
-    // check if the user is already cached
+    const cacheKey = `${USER_BY_EMAIL_CACHE.name}:${id}`;
     const cachedUser = await this.brainService.remindMe<User>(cacheKey);
     if (cachedUser) return cachedUser;
-
-    // if not cached, get the user from the database and cache it
     const user = await this.userRepository.findOne({ where: { id } });
 
     await this.brainService.memorize<User>(
       cacheKey,
       user,
-      USER_BY_ID_CACHE.ttl,
+      USER_BY_EMAIL_CACHE.ttl,
     );
 
     return user;
@@ -189,7 +194,6 @@ export class UserService {
       this.exceptionHandler.throwNotFound(_404.USER_NOT_FOUND);
   }
 
-  // TO DO: Remove this endpoint after engineer in need has tested
   async notifyOnPlatform(data: PlatformQueuePayload) {
     return await this.notificationProcessor.sendPlatformNotification(data);
   }
@@ -205,7 +209,9 @@ export class UserService {
       },
       select: {
         id: true,
-        user_name: true,
+        userName: true,
+        firstName: true,
+        lastName: true,
         email: true,
         role: true,
       },
@@ -218,11 +224,12 @@ export class UserService {
     const users = await this.userRepository.find({
       where: {
         role: EUserRole.TUTOR,
-        
       },
       select: {
         id: true,
-        user_name: true,
+        userName: true,
+        firstName: true,
+        lastName: true,
         email: true,
         role: true,
       },

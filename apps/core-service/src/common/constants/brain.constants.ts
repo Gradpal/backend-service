@@ -1,7 +1,7 @@
 import { ONE_MINUTE } from '@app/common/constants/all.constants';
 
-export const USER_BY_ID_CACHE = {
-  name: 'USER_BY_ID_CACHE',
+export const USER_BY_EMAIL_CACHE = {
+  name: 'USER_BY_EMAIL_CACHE',
   ttl: 30 * ONE_MINUTE,
 };
 

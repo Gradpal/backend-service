@@ -19,7 +19,7 @@ export const EMAIL_TEMPLATES_CONFIG = {
   },
   [EmailTemplates.VERIFICATION]: {
     subject: 'Verify Your Email',
-    dto: VerificationEmailDto,
+    dto: WelcomeEmailDto,
   },
 } as const;
 
