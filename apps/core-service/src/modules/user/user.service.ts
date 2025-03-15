@@ -218,6 +218,7 @@ export class UserService {
     const users = await this.userRepository.find({
       where: {
         role: EUserRole.TUTOR,
+        
       },
       select: {
         id: true,

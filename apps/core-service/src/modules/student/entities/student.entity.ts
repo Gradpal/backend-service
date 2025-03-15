@@ -14,4 +14,7 @@ export class Student extends Person {
 
   @Column({ type: 'text', nullable: true })
   preferred_learning_style: string;
+
+  @Column({ type: 'int', default: 0 })
+  credits: number; 
 }
