@@ -1,8 +1,7 @@
-import { Injectable, Req } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { UserService } from '../user/user.service';
 import { LoginDTO, LoginResDto } from './dto/login.dto';
 import * as bcrypt from 'bcryptjs';
-import { Logger } from 'nestjs-pino';
 import { ExceptionHandler } from '@app/common/exceptions/exceptions.handler';
 import { _400, _401 } from '@app/common/constants/errors-constants';
 import { EUserStatus } from '../user/enums/user-status.enum';
@@ -46,7 +45,6 @@ export class AuthService {
     if (user.status === EUserStatus.NOT_VERIFIED)
       this.exceptionHandler.throwBadRequest(_401.ACCOUNT_NOT_VERIFIED);
 
-    // Check if the user has exceeded max login failed attempts
     const key = `${FAILED_LOGIN_ATTEMPT.name}:${user.email}`;
     const failedAttempts = await this.brainService.remindMe<number>(key);
 
@@ -65,14 +63,13 @@ export class AuthService {
     }
 
     const token = await this.getToken(user);
-    user = plainToClass(User, user); // Preventing excluded field on User to be returned
+    user = plainToClass(User, user);
     return { token, user };
   }
   async verifyOtp(id: string, otp: number) {
     const isOtpValid = await this.verifyOTP(id, otp);
     if (!isOtpValid) this.exceptionHandler.throwBadRequest(_400.INVALID_OTP);
   }
-  // This method activates a user account from INACTIVE to ACTIVE status
   async verifyAccount(dto: ActivateAccount): Promise<User> {
     const account: User = await this.userService.findByEmail(dto.email);
     await this.verifyOtp(account.id, dto.otp);
@@ -93,12 +90,11 @@ export class AuthService {
       [account.email],
       {
         userName: account.userName,
-        otp: '0',
-        otpValidityDuration: 0,
+        otp: `${otp}`,
+        otpValidityDuration: 12,
         verificationUrl: `${this.config.clientUrl}auth/reset-password/?email=${account.email}&verification_code=${otp}`,
       },
     );
-    return otp;
   }
 
   async resetPassword(dto: ResetPasswordDto): Promise<User> {
