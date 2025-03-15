@@ -52,15 +52,7 @@ export class UserController {
   @Post()
   @Public()
   @UseInterceptors(
-    FileInterceptor('profilePicture', {
-      storage: diskStorage({
-        destination: './uploads/profile-pictures',
-        filename: (req, file, callback) => {
-          const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-          callback(null, file.fieldname + '-' + uniqueSuffix + extname(file.originalname));
-        },
-      }),
-    }),
+    FileInterceptor('profilePicture'),
   )
   @ApiConsumes('multipart/form-data')
   @ApiBody({
@@ -68,8 +60,8 @@ export class UserController {
     type: CreateUserDTO,
   })
   @ApiCreatedResponse({ type: User })
-  async createUser(@Body() createUserDto: CreateUserDTO, @UploadedFile() file: Express.Multer.File) {
-    return this.userService.create(createUserDto, file);
+  async createUser(@Body() createUserDto: CreateUserDTO, @UploadedFile() profilePicture: Express.Multer.File) {
+    return this.userService.create(createUserDto, profilePicture);
   }
 
 

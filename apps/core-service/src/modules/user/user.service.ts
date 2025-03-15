@@ -45,15 +45,15 @@ export class UserService {
     return await this.userRepository.save(user);
   }
 
-  async create(createUserDto: CreateUserDTO, file?: Express.Multer.File) {
+  async create(createUserDto: CreateUserDTO, profilePicture?: Express.Multer.File) {
     if (await this.existByEmail(createUserDto.email)) {
       this.exceptionHandler.throwConflict(_409.USER_ALREADY_EXISTS);
     }
 
     const userEntity: User = this.userRepository.create(createUserDto);
 
-    if (file) {
-      userEntity.profile_photo = `/uploads/profile-pictures/${file.filename}`;
+    if (profilePicture) {
+      userEntity.profile_photo = await this.minioService.uploadFile(profilePicture);
     }
 
     userEntity.password = await bcrypt.hash(
