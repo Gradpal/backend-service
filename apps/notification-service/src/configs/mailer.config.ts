@@ -5,11 +5,11 @@ export const createMailerConfig = (
   configService: NotificationConfigService,
 ): MailerOptions => ({
   transport: {
-    host: 'smtp.gmail.com',
+    host: 'live.smtp.mailtrap.io',
     port: 587,
     secure: false,
     auth: {
-      user: configService.smtpEmail,
+      user: configService.smtpUser,
       pass: configService.smtpPassword,
     },
   },

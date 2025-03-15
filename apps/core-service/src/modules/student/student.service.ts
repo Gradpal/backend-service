@@ -23,7 +23,6 @@ export class StudentService {
     private readonly studentRepository: Repository<Student>,
     private readonly userService: UserService,
     private readonly exceptionHandler: ExceptionHandler,
-    private readonly minioClientService: MinioClientService,
     private readonly brainService: BrainService,
     private readonly notificationProcessor: NotificationPreProcessor,
     private readonly configService: CoreServiceConfigService,
@@ -86,7 +85,6 @@ export class StudentService {
         },
       ),
     ]);
-    return otp;
   }
   async create(
     createStudentDto: CreateStudentDto,
