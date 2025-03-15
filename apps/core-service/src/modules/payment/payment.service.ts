@@ -26,15 +26,15 @@ export class PaymentService {
   }
 
   async createCheckoutSession(user: User, credits: number) {
-      const student = await this.studentRepository.findOne({
-          where: {
-              user: {
-                  id: user.id,
-                },
-            },
-            relations: ['user'],
-        });
-        
+    const student = await this.studentRepository.findOne({
+      where: {
+        user: {
+          id: user.id,
+        },
+      },
+      relations: ['user'],
+    });
+
     if (!student) {
       throw new Error('Student not found');
     }
@@ -76,7 +76,7 @@ export class PaymentService {
 
       const student = await this.studentRepository.findOne({
         where: { id: studentId },
-        relations:['user']
+        relations: ['user'],
       });
       if (!student) return;
 
@@ -97,16 +97,12 @@ export class PaymentService {
   }
 
   async validateWebhookEvent(req: any): Promise<Stripe.Event | null> {
-    return req.body
+    return req.body;
     const sig = req.headers['stripe-signature'];
     const endpointSecret = this.configService.getStripeWebsookSecret;
 
     try {
-      return this.stripe.webhooks.constructEvent(
-        req.body,
-        sig,
-        endpointSecret,
-      );
+      return this.stripe.webhooks.constructEvent(req.body, sig, endpointSecret);
     } catch (err) {
       console.error('Webhook Error:', err.message);
       return null;
