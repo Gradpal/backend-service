@@ -26,8 +26,14 @@ export class User extends BaseEntity {
   @Column()
   profile_photo: string;
 
+  @Column({ type: 'text', nullable: true })
+  country_of_residence: string;
+
   @Column({ type: 'enum', enum: EUserRole })
   role: EUserRole;
+
+  @Column({ type: 'varchar', length: 20, unique: true, nullable: true })
+  phone_number: string;
 
   @Column({
     nullable: false,
@@ -39,4 +45,6 @@ export class User extends BaseEntity {
 
   @Column({ type: 'text', unique: true })
   referalCode: string;
+
+  referer?: User;
 }

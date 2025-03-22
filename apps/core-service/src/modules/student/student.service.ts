@@ -55,9 +55,9 @@ export class StudentService {
     });
 
     if (studentDto.referralCode) {
-      student.referer = await this.userService.findByReferalCode(
-        studentDto.referralCode,
-      );
+      // student.referer = await this.userService.findByReferalCode(
+      //   studentDto.referralCode,
+      // );
     }
     let studentEntity = this.studentRepository.create(studentDto);
 

@@ -84,6 +84,10 @@ export const _404 = {
     code: 'STUDENT_NOT_FOUND',
     message: 'No Student exists with provided attributes',
   },
+  TUTOR_NOT_FOUND: {
+    code: 'TUTOR_NOT_FOUND',
+    message: 'No Tutor exists with provided attributes',
+  },
   USER_WITH_REFERAL_CODE_NOT_FOUND: {
     code: 'USER_WITH_REFERAL_CODE_NOT_FOUND',
     message: 'No User exists with provided referal code',

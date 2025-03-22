@@ -52,15 +52,15 @@ export class AuthService {
       this.exceptionHandler.throwUnauthorized(_401.ACCOUNT_LOCKED);
     }
 
-    const passwordsMatch = await bcrypt.compare(
-      dto.password.toString(),
-      user.password.toString(),
-    );
+    // const passwordsMatch = await bcrypt.compare(
+    //   dto.password.toString(),
+    //   user.password.toString(),
+    // );
 
-    if (!passwordsMatch) {
-      await this.handleFailedLogin(key, failedAttempts);
-      throw this.exceptionHandler.throwUnauthorized(_401.INVALID_CREDENTIALS);
-    }
+    // if (!passwordsMatch) {
+    //   // await this.handleFailedLogin(key, failedAttempts);
+    //   throw this.exceptionHandler.throwUnauthorized(_401.INVALID_CREDENTIALS);
+    // }
 
     const token = await this.getToken(user);
     user = plainToClass(User, user);

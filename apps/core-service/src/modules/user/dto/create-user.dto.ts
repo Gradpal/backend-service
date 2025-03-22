@@ -48,7 +48,7 @@ export class CreateUserDTO {
   @IsString()
   @IsNotEmpty()
   @ApiProperty()
-  country: string;
+  countryOfResidence: string;
 
   @IsNotEmpty()
   @ApiProperty()

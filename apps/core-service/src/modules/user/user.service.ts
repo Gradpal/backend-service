@@ -53,7 +53,7 @@ export class UserService {
     }
 
     const userEntity: User = this.userRepository.create(createUserDto);
-
+    userEntity.phone_number=createUserDto.phoneNumber;
     if (profilePicture) {
       userEntity.profile_photo =
         await this.minioService.uploadFile(profilePicture);
