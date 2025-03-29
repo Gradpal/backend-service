@@ -8,6 +8,8 @@ import { ResetPasswordDto } from './dto/reset-password.dto';
 import { AuthUser } from '@core-service/decorators/auth.decorator';
 import { plainToClass } from 'class-transformer';
 import { User } from '../user/entities/user.entity';
+import { RegisterDTO } from './dto/register.dto';
+import { ForgotPasswordDTO } from './dto/forgot-password.dto';
 
 @Controller('auth')
 @ApiTags('Auth')
@@ -16,35 +18,44 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Public()
+  @Post('/register')
+  @ApiBody({ type: RegisterDTO })
+  async register(@Body() dto: RegisterDTO) {
+    return await this.authService.register(dto);
+  }
+
+  @Public()
   @Post('/login')
   @ApiBody({ type: LoginDTO })
   async login(@Body() dto: LoginDTO) {
     return await this.authService.login(dto);
   }
-  @Patch('verify-account')
-  @ApiBody({ type: ActivateAccount })
+
   @Public()
-  async verifyAccount(@Body() dto: ActivateAccount) {
+  @Post('/verify-email')
+  @ApiBody({ type: ActivateAccount })
+  async verifyEmail(@Body() dto: ActivateAccount) {
     const activatedAccount = await this.authService.verifyAccount(dto);
     return activatedAccount;
   }
-  @Post('/send-otp/:email')
+
   @Public()
-  async sendOpt(@Param('email') email: string) {
-    return await this.authService.sendOpt(email);
+  @Post('/forgot-password')
+  @ApiBody({ type: ForgotPasswordDTO })
+  async forgotPassword(@Body() dto: ForgotPasswordDTO) {
+    return await this.authService.forgotPassword(dto.email);
   }
 
-  @Patch('reset-password')
   @Public()
+  @Post('/reset-password')
   @ApiBody({ type: ResetPasswordDto })
   async resetPassword(@Body() dto: ResetPasswordDto) {
     const updatedAccount = await this.authService.resetPassword(dto);
     return updatedAccount;
   }
+
   @Get('/get-profile')
-  @AuthUser() // example of tracking loggedIn user
-  async getProfile(@Req() req) {
-    const profile = req.user;
-    return profile;
+  async getProfile(@AuthUser() user: User) {
+    return user;
   }
 }

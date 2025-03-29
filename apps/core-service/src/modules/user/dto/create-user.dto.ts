@@ -54,11 +54,7 @@ export class CreateUserDTO {
   @ApiProperty()
   role: EUserRole;
 
-  @ApiProperty({
-    description: 'Profile picture',
-    type: 'string',
-    format: 'binary',
-  })
+  @ApiProperty({ type: 'string', format: 'binary', required: false })
   @IsOptional()
-  profilePicture: Express.Multer.File;
+  profilePicture?: Express.Multer.File;
 }

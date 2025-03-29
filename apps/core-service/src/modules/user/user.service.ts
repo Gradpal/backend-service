@@ -52,10 +52,13 @@ export class UserService {
       this.exceptionHandler.throwConflict(_409.USER_ALREADY_EXISTS);
     }
 
-    const userEntity: User = this.userRepository.create(createUserDto);
-    userEntity.phone_number=createUserDto.phoneNumber;
+    // Create user without file fields first
+    const { profilePicture: _, ...userDataWithoutFiles } = createUserDto;
+    const userEntity: User = this.userRepository.create(userDataWithoutFiles);
+
+    // Handle profile picture upload
     if (profilePicture) {
-      userEntity.profile_photo =
+      userEntity.profilePicture =
         await this.minioService.uploadFile(profilePicture);
     }
 
@@ -80,25 +83,28 @@ export class UserService {
   }
 
   async createAdmin(createUserDto: CreateAdminDTO) {
-    const userExists: boolean = await this.existByEmail(createUserDto.email);
-    if (userExists)
+    if (await this.existByEmail(createUserDto.email)) {
       this.exceptionHandler.throwConflict(_409.USER_ALREADY_EXISTS);
-    let user: User = this.userRepository.create(createUserDto);
-    user.role = EUserRole.SUPER_ADMIN;
-    user.password = await bcrypt.hash(user.password, 10);
+    }
+
+    // Create admin without file fields first
+    const { profilePicture: _, ...adminDataWithoutFiles } = createUserDto;
+    let user: User = this.userRepository.create(adminDataWithoutFiles);
+
+    // Handle profile picture upload if provided
+    if (createUserDto.profilePicture) {
+      user.profilePicture = await this.minioService.uploadFile(
+        createUserDto.profilePicture,
+      );
+    }
+
+    user.password = await bcrypt.hash(generateAlphaNumericCode(8), 10);
+    user.referalCode = generateAlphaNumericCode(10);
     user = await this.userRepository.save(user);
-    await this.notificationProcessor.sendTemplateEmail(
-      EmailTemplates.WELCOME,
-      [user.email],
-      {
-        userName: user.userName,
-        otpValidityDuration: 3,
-        otp: '34',
-        verificationUrl: `${this.configService.clientUrl}activate/`,
-      },
-    );
-    return user;
+
+    return plainToClass(User, user);
   }
+
   async findAll(
     page: number,
     limit: number,
@@ -130,11 +136,13 @@ export class UserService {
   async saveUser(user: User): Promise<User> {
     return await this.userRepository.save(user);
   }
+
   async findByEmail(email: string) {
     if (!(await this.existByEmail(email)))
       this.exceptionHandler.throwNotFound(_404.USER_NOT_FOUND);
     return await this.userRepository.findOne({ where: { email } });
   }
+
   async findByReferalCode(code: string) {
     const user = await this.userRepository.findOne({
       where: { referalCode: code },
@@ -145,6 +153,7 @@ export class UserService {
       );
     return user;
   }
+
   async findOne(id: string) {
     const user = await this.userRepository.findOne({ where: { id } });
     if (!user) this.exceptionHandler.throwNotFound(_404.USER_NOT_FOUND);
@@ -170,6 +179,7 @@ export class UserService {
     const user = await this.userRepository.findOne({ where: { email } });
     return !!user;
   }
+
   async update(id: string, updateUserDto: Partial<CreateUserDTO>) {
     const user = await this.findOne(id);
     Object.assign(user, updateUserDto);
@@ -197,6 +207,7 @@ export class UserService {
   async notifyOnPlatform(data: PlatformQueuePayload) {
     return await this.notificationProcessor.sendPlatformNotification(data);
   }
+
   // Example to upload a file with Minio
   async uploadFileExample(file: Express.Multer.File) {
     return this.minioService.uploadFile(file);

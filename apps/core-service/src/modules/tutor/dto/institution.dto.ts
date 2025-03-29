@@ -1,8 +1,7 @@
 export class Institution {
   name: string;
   degree_type: string;
-  start_year: number;
-  end_year: number;
-  academic_transcript: string;
-  degree_certificate: string;
+  year_started: number;
+  year_ended: number;
+  degree_certificate?: string;
 }

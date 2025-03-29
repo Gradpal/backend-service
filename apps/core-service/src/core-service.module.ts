@@ -20,6 +20,8 @@ import { StudentController } from './modules/student/student.controller';
 import { StudentModule } from './modules/student/student.module';
 import { PaymentModule } from './modules/payment/payment.module';
 import { ClassSessionModule } from './modules/class-session/class-session.module';
+import { BookingModule } from './modules/booking/booking.module';
+
 @Module({
   imports: [
     CoreServiceConfigModule,
@@ -48,6 +50,7 @@ import { ClassSessionModule } from './modules/class-session/class-session.module
     StudentModule,
     PaymentModule,
     ClassSessionModule,
+    BookingModule,
   ],
   controllers: [StudentController],
   providers: [

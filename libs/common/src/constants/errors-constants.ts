@@ -32,6 +32,14 @@ export const _400 = {
     code: 'INVALID_USER_ROLE',
     message: 'The provided user role is invalid',
   },
+  INSUFFICIENT_CREDITS: {
+    code: 'INSUFFICIENT_CREDITS',
+    message: 'You do not have enough credits for this session',
+  },
+  TIME_SLOT_NOT_AVAILABLE: {
+    code: 'TIME_SLOT_NOT_AVAILABLE',
+    message: 'The selected time slot is not available',
+  },
 };
 
 // unauthorized
@@ -72,6 +80,10 @@ export const _403 = {
     code: 'UNAUTHORIZED',
     message: 'You are not authorized to perform this action',
   },
+  UNAUTHORIZED_TO_UPDATE_BOOKING: {
+    code: 'UNAUTHORIZED_TO_UPDATE_BOOKING',
+    message: 'Only the tutor can update the booking status',
+  },
 };
 
 // not found
@@ -104,6 +116,10 @@ export const _404 = {
   NOTIFICATION_REGISTRY_NOT_FOUND: {
     code: 'NOTIFICATION_REGISTRY_NOT_FOUND',
     message: 'Notification Registry not found',
+  },
+  BOOKING_NOT_FOUND: {
+    code: 'BOOKING_NOT_FOUND',
+    message: 'The requested booking was not found',
   },
 };
 

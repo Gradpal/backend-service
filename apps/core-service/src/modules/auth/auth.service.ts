@@ -3,7 +3,7 @@ import { UserService } from '../user/user.service';
 import { LoginDTO, LoginResDto } from './dto/login.dto';
 import * as bcrypt from 'bcryptjs';
 import { ExceptionHandler } from '@app/common/exceptions/exceptions.handler';
-import { _400, _401 } from '@app/common/constants/errors-constants';
+import { _400, _401, _404 } from '@app/common/constants/errors-constants';
 import { EUserStatus } from '../user/enums/user-status.enum';
 import { JwtService } from '@nestjs/jwt';
 import { User } from '../user/entities/user.entity';
@@ -23,6 +23,9 @@ import { hashPassword } from '@core-service/common/helpers/all.helpers';
 import { EUserRole } from '../user/enums/user-role.enum';
 import { StudentService } from '../student/student.service';
 import { TutorService } from '../tutor/tutor.service';
+import { CreateTutorDto } from '../tutor/dto/create-tutor.dto';
+import { RegisterDTO } from './dto/register.dto';
+import { CreateUserDTO } from '../user/dto/create-user.dto';
 
 @Injectable()
 export class AuthService {
@@ -74,12 +77,32 @@ export class AuthService {
     const account: User = await this.userService.findByEmail(dto.email);
     await this.verifyOtp(account.id, dto.otp);
     account.status = EUserStatus.ACTIVE;
+
     if (account.role === EUserRole.STUDENT) {
       await this.studentService.saveStudent(account);
     }
+
     if (account.role === EUserRole.TUTOR) {
-      await this.tutorService.create(account);
+      const tutorDto: CreateTutorDto = {
+        profileId: account.id,
+        firstName: account.firstName,
+        lastName: account.lastName,
+        email: account.email,
+        userName: account.userName,
+        phoneNumber: account.phone_number,
+        countryOfResidence: account.country_of_residence,
+        country: account.country_of_residence,
+        refererId: account.referer?.id || '',
+        citizenship: account.country_of_residence,
+        location: account.country_of_residence,
+        referralCode: account.referalCode,
+        password: account.password,
+        role: account.role,
+        profilePicture: null,
+      };
+      await this.tutorService.create(tutorDto);
     }
+
     return await this.userService.saveUser(account);
   }
   async sendOpt(email: string) {
@@ -160,13 +183,63 @@ export class AuthService {
     }
   }
 
-  async generateCustomToken<T extends Object>(object: T): Promise<string> {
+  async generateCustomToken(data: object): Promise<string> {
     return await this.jwt.signAsync(
-      { ...object },
+      { ...data },
       {
         expiresIn: this.config.jwtExpiresIn,
         secret: this.config.jwtSecret,
       },
     );
+  }
+
+  async register(dto: RegisterDTO): Promise<User> {
+    if (await this.userService.existByEmail(dto.email)) {
+      this.exceptionHandler.throwBadRequest(_400.INVALID_USER_ID);
+    }
+
+    const hashedPassword = await hashPassword(dto.password);
+    const createUserDto: CreateUserDTO = {
+      ...dto,
+      password: hashedPassword,
+      userName: dto.email.split('@')[0],
+      phoneNumber: '+1234567890', // Default phone number
+      countryOfResidence: 'US', // Default country
+    };
+
+    const user = await this.userService.create(createUserDto);
+
+    const otp = await this.generateOTP(user.id);
+    await this.notificationProcessor.sendTemplateEmail(
+      EmailTemplates.VERIFICATION,
+      [user.email],
+      {
+        userName: user.firstName,
+        verificationUrl: `${this.config.getFrontendUrl()}/verify-email?otp=${otp}`,
+      },
+    );
+
+    return user;
+  }
+
+  async forgotPassword(email: string): Promise<{ message: string }> {
+    const user = await this.userService.findByEmail(email);
+    if (!user) {
+      this.exceptionHandler.throwNotFound(_404.USER_NOT_FOUND);
+    }
+
+    const resetToken = await this.generateCustomToken({ userId: user.id });
+    await this.brainService.memorize(RESET_PASSWORD_CACHE.name, resetToken);
+
+    await this.notificationProcessor.sendTemplateEmail(
+      EmailTemplates.VERIFICATION,
+      [user.email],
+      {
+        userName: user.firstName,
+        verificationUrl: `${this.config.getFrontendUrl()}/reset-password?token=${resetToken}`,
+      },
+    );
+
+    return { message: 'Password reset email sent' };
   }
 }
