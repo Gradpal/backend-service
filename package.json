@@ -26,7 +26,7 @@
     "test:watch": "j yarn prebuild && est --watch",
     "test:cov": "yarn prebuild &&  jest --coverage",
     "test:debug": "yarn prebuild &&  node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "yarn prebuild &&  jest --config ./apps/eportfolio-backend/test/jest-e2e.json"
+    "test:e2e": "yarn prebuild && jest --config ./apps/core-service/test/jest-e2e.json"
   },
   "dependencies": {
     "@grpc/grpc-js": "^1.12.5",
@@ -40,7 +40,7 @@
     "@nestjs/microservices": "^10.4.15",
     "@nestjs/platform-express": "^10.4.15",
     "@nestjs/platform-socket.io": "^10.4.15",
-    "@nestjs/swagger": "^8.1.0",
+    "@nestjs/swagger": "^11.0.7",
     "@nestjs/typeorm": "^10.0.2",
     "amqp-connection-manager": "^4.1.14",
     "amqplib": "^0.10.5",
@@ -53,6 +53,7 @@
     "ioredis": "^5.4.2",
     "lodash": "^4.17.21",
     "minio": "^8.0.3",
+    "moment": "^2.30.1",
     "nestjs-minio-client": "^2.2.0",
     "nestjs-pino": "^4.2.0",
     "pg": "^8.13.1",

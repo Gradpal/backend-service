@@ -104,6 +104,10 @@ export class CoreServiceConfigService {
 
   STRIPE_WEBHOOK_SECRET;
 
+  getFrontendUrl(): string {
+    return this.configService.getOrThrow('CLIENT_URL');
+  }
+
   getPostgresInfo(): TypeOrmModuleOptions {
     return {
       name: 'default',

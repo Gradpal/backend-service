@@ -1,10 +1,36 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsString } from 'class-validator';
-import { CreateUserDTO } from './create-user.dto';
+import { IsEmail, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { EUserRole } from '../enums/user-role.enum';
 
-export class CreateAdminDTO extends CreateUserDTO {
-  @IsNotEmpty()
+export class CreateAdminDTO {
   @IsString()
+  @IsNotEmpty()
   @ApiProperty()
-  adminRegistrationCode: string; // The secret code for registering admin - just verify if the API is being executed legally.
+  firstName: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @ApiProperty()
+  lastName: string;
+
+  @IsEmail()
+  @IsNotEmpty()
+  @ApiProperty()
+  email: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @ApiProperty()
+  userName: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @ApiProperty()
+  password: string;
+
+  @ApiProperty({ type: 'string', format: 'binary', required: false })
+  @IsOptional()
+  profilePicture?: Express.Multer.File;
+
+  role: EUserRole = EUserRole.SUPER_ADMIN;
 }

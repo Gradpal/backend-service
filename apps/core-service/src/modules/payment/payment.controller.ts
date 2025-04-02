@@ -43,19 +43,11 @@ export class PaymentController {
       },
     },
   })
-  @AuthUser()
   @PreAuthorize(EUserRole.STUDENT)
-  async buyCredits(@Body() body: BuyCreditsDto, @Req() req) {
-    const { credits } = body;
-
-    if (!credits || credits < 1) {
-      return { error: 'Invalid request' };
-    }
-
-    const session = await this.paymentService.createCheckoutSession(
-      req.user as User,
-      credits,
-    );
-    return session;
+  async buyCredits(
+    @Body() body: BuyCreditsDto,
+    @AuthUser() user: User,
+  ): Promise<Stripe.Checkout.Session | { error: string }> {
+    return this.paymentService.createCheckoutSession(user, body.credits);
   }
 }

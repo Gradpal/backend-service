@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Global, Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
@@ -6,14 +6,14 @@ import { AuthGuard } from '@core-service/guards/auth.guard';
 import { CoreServiceConfigService } from '@core-service/configs/core-service-config.service';
 import { CoreServiceConfigModule } from '@core-service/configs/core-service-config.module';
 import { UserModule } from '../user/user.module';
-import { TutorService } from '../tutor/tutor.service';
-import { StudentService } from '../student/student.service';
 import { TutorModule } from '../tutor/tutor.module';
 import { StudentModule } from '../student/student.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Tutor } from '../tutor/entities/tutor.entity';
 import { Student } from '../student/entities/student.entity';
+import { User } from '../user/entities/user.entity';
 
+@Global()
 @Module({
   imports: [
     JwtModule.registerAsync({
@@ -29,19 +29,17 @@ import { Student } from '../student/entities/student.entity';
     UserModule,
     TutorModule,
     StudentModule,
-    TypeOrmModule.forFeature([Tutor, Student]),
+    TypeOrmModule.forFeature([Tutor, Student, User]),
   ],
   controllers: [AuthController],
   providers: [
     AuthService,
-    StudentService,
-    TutorService,
     AuthGuard,
     {
       provide: 'APP_GUARD',
       useClass: AuthGuard,
     },
   ],
-  exports: [AuthService],
+  exports: [AuthService, JwtModule],
 })
 export class AuthModule {}

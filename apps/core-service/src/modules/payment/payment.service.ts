@@ -32,7 +32,7 @@ export class PaymentService {
           id: user.id,
         },
       },
-      relations: ['user'],
+      relations: ['profile'],
     });
 
     if (!student) {
@@ -76,7 +76,7 @@ export class PaymentService {
 
       const student = await this.studentRepository.findOne({
         where: { id: studentId },
-        relations: ['user'],
+        relations: ['profile'],
       });
       if (!student) return;
 

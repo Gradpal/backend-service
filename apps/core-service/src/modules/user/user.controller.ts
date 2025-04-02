@@ -17,11 +17,11 @@ import {
   ApiBody,
   ApiConsumes,
   ApiCreatedResponse,
-  ApiNotFoundResponse,
-  ApiOperation,
   ApiParam,
   ApiQuery,
   ApiTags,
+  ApiOperation,
+  ApiResponse,
 } from '@nestjs/swagger';
 import { CreateUserDTO } from './dto/create-user.dto';
 import { _errors } from '@app/common/helpers/shared.helpers';
@@ -88,7 +88,6 @@ export class UserController {
   }
 
   @Get('/email/:email')
-  @ApiNotFoundResponse(_errors([_404.USER_NOT_FOUND]))
   @ApiParam({ name: 'email', required: true })
   @PreAuthorize(EUserRole.SUPER_ADMIN)
   async getUserByEmail(@Param('email') email: string) {
@@ -97,7 +96,6 @@ export class UserController {
   }
 
   @Get('by-id/:id')
-  @ApiNotFoundResponse(_errors([_404.USER_NOT_FOUND]))
   @ApiQuery({ name: 'id', required: true })
   @PreAuthorize(EUserRole.SUPER_ADMIN)
   async getUserById(@Query('id') id: string) {
@@ -107,7 +105,6 @@ export class UserController {
 
   @Patch(':id')
   @ApiParam({ name: 'id', required: true })
-  @ApiNotFoundResponse(_errors([_404.USER_NOT_FOUND]))
   @ApiBody({ type: CreateUserDTO })
   @PreAuthorize(EUserRole.SUPER_ADMIN)
   updateUser(
@@ -117,11 +114,14 @@ export class UserController {
     return this.userService.update(id, updateUserDto);
   }
 
-  @Patch('update/settings')
-  @AuthUser()
-  @ApiBody({ type: UpdateSettingsDto })
-  updateSettings(@Req() req, @Body() updateSettingsDto: UpdateSettingsDto) {
-    return this.userService.updateSettings(req.user as User, updateSettingsDto);
+  @Patch('settings')
+  @ApiOperation({ summary: 'Update user settings' })
+  @ApiResponse({ status: 200, type: User })
+  async updateSettings(
+    @AuthUser() user: User,
+    @Body() updateSettingsDto: UpdateSettingsDto,
+  ): Promise<User> {
+    return this.userService.updateSettings(user, updateSettingsDto);
   }
 
   @Delete('/:id')
