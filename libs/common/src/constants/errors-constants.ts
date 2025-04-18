@@ -145,6 +145,10 @@ export const _409 = {
     code: 'FOREIGN_KEY_VIOLATION',
     message: 'Referenced record does not exist',
   },
+  PHONE_NUMBER_ALREADY_EXISTS: {
+    code: 'PHONE_NUMBER_ALREADY_EXISTS',
+    message: 'Phone number already exists',
+  },
 };
 
 // internal server error
