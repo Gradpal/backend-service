@@ -26,6 +26,7 @@ import { TutorService } from '../tutor/tutor.service';
 import { CreateTutorDto } from '../tutor/dto/create-tutor.dto';
 import { RegisterDTO } from './dto/register.dto';
 import { CreateUserDTO } from '../user/dto/create-user.dto';
+import { PaymentService } from '../payment/payment.service';
 
 @Injectable()
 export class AuthService {
@@ -38,6 +39,7 @@ export class AuthService {
     private readonly exceptionHandler: ExceptionHandler,
     private readonly notificationProcessor: NotificationPreProcessor,
     private readonly brainService: BrainService,
+    private readonly paymentService: PaymentService,
   ) {}
   async login(dto: LoginDTO): Promise<LoginResDto> {
     if (!(await this.userService.existByEmail(dto.email))) {
@@ -77,6 +79,11 @@ export class AuthService {
     const account: User = await this.userService.findByEmail(dto.email);
     await this.verifyOtp(account.id, dto.otp);
     account.status = EUserStatus.ACTIVE;
+
+    // Create Stripe account for the user
+    const stripeAccountId =
+      await this.paymentService.createStripeAccount(account);
+    account.stripeAccountId = stripeAccountId;
 
     if (account.role === EUserRole.STUDENT) {
       await this.studentService.saveStudent(account);
@@ -118,6 +125,7 @@ export class AuthService {
         verificationUrl: `${this.config.clientUrl}auth/reset-password/?email=${account.email}&verification_code=${otp}`,
       },
     );
+    console.log('otp', otp);
   }
 
   async resetPassword(dto: ResetPasswordDto): Promise<User> {

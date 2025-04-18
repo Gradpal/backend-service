@@ -7,6 +7,8 @@ import { CoreServiceConfigService } from '@core-service/configs/core-service-con
 import { Payment } from './entities/payment.entity';
 import { EPaymentType } from './enums/payment-type.enum';
 import { User } from '../user/entities/user.entity';
+import { ExceptionHandler } from '@app/common/exceptions/exceptions.handler';
+import { _400 } from '@app/common/constants/errors-constants';
 
 @Injectable()
 export class PaymentService {
@@ -16,6 +18,7 @@ export class PaymentService {
     @InjectRepository(Student)
     private readonly studentRepository: Repository<Student>,
     private readonly configService: CoreServiceConfigService,
+    private readonly exceptionHandler: ExceptionHandler,
     @InjectRepository(Payment)
     private readonly paymentRepository: Repository<Payment>,
   ) {
@@ -41,7 +44,6 @@ export class PaymentService {
 
     const session = await this.stripe.checkout.sessions.create({
       customer_email: student.profile.email, // Ensure the Student entity has an email field
-      payment_method_types: ['card'],
       line_items: [
         {
           price_data: {
@@ -107,5 +109,123 @@ export class PaymentService {
       console.error('Webhook Error:', err.message);
       return null;
     }
+  }
+
+  async createStripeAccount(user: User): Promise<string> {
+    try {
+      const params: Stripe.AccountCreateParams = {
+        type: 'express',
+        email: user.email,
+        individual: {
+          first_name: user.firstName,
+          last_name: user.lastName,
+          email: user.email,
+        },
+        settings: {
+          payouts: {
+            schedule: {
+              interval: 'manual' as const,
+            },
+          },
+        },
+        business_type: 'individual',
+      };
+      const account = await this.stripe.accounts.create(params);
+      return account.id;
+    } catch (error) {
+      console.log('error', error);
+      this.exceptionHandler.throwBadRequest(
+        _400.STRIPE_ACCOUNT_CREATION_FAILED,
+      );
+    }
+  }
+
+  async checkPaymentCapability(stripeAccountId: string): Promise<{
+    canProceedPayments: boolean;
+    accountLink?: string;
+    loginLink?: string;
+  }> {
+    try {
+      const account = await this.stripe.accounts.retrieve(stripeAccountId);
+      const requirements = account.requirements;
+
+      if (
+        requirements.currently_due.length !== 0 &&
+        requirements.disabled_reason
+      ) {
+        const accountLink = await this.stripe.accountLinks.create({
+          account: stripeAccountId,
+          refresh_url: `${this.configService.clientUrl}/stripe/refresh`,
+          return_url: `${this.configService.clientUrl}/stripe/return`,
+          type: 'account_onboarding',
+        });
+
+        return {
+          canProceedPayments: false,
+          accountLink: accountLink.url,
+        };
+      }
+
+      const loginLink =
+        await this.stripe.accounts.createLoginLink(stripeAccountId);
+
+      return {
+        canProceedPayments: true,
+        loginLink: loginLink.url,
+      };
+    } catch (error) {
+      this.exceptionHandler.throwBadRequest(
+        _400.STRIPE_ACCOUNT_RETRIEVAL_FAILED,
+      );
+    }
+  }
+
+  async makeTransfer(transferInfo: {
+    amount: number;
+    currency: string;
+    recipientStripeAccountId: string;
+    metadata?: Record<string, any>;
+    transferGroup?: string;
+  }) {
+    const {
+      amount,
+      currency,
+      recipientStripeAccountId,
+      metadata,
+      transferGroup,
+    } = transferInfo;
+
+    const transfer = await this.stripe.transfers.create({
+      amount: Math.round(amount * 100), // Convert to cents and round to 3 decimals
+      currency: currency,
+      destination: recipientStripeAccountId,
+      transfer_group: transferGroup,
+      metadata: {
+        ...metadata,
+        transaction_scope: this.configService.environment,
+      },
+    });
+    return transfer;
+  }
+
+  async markSessionAsComplete(
+    sessionId: string,
+    recipientStripeAccountId: string,
+  ) {
+    const amount = 10; // 10 EUR
+    const currency = 'eur';
+
+    const transfer = await this.makeTransfer({
+      amount,
+      currency,
+      recipientStripeAccountId,
+      metadata: {
+        // sessionId,
+        // type: 'session_completion',
+      },
+      // transferGroup: `session_${sessionId}`,
+    });
+
+    return transfer;
   }
 }

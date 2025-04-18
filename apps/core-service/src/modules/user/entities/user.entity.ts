@@ -58,6 +58,8 @@ export class User extends BaseEntity {
 
   @OneToOne(() => Tutor, (tutor) => tutor.profile)
   tutor: Tutor;
+  @Column({ type: 'varchar', length: 255, nullable: true })
+  stripeAccountId: string;
 
   referer?: User;
 }

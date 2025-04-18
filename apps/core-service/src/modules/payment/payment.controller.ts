@@ -1,4 +1,12 @@
-import { Controller, Post, Body, Req, Res, HttpStatus } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  Req,
+  Res,
+  HttpStatus,
+  Get,
+} from '@nestjs/common';
 import { PaymentService } from './payment.service';
 import Stripe from 'stripe';
 import { ApiBearerAuth, ApiBody, ApiOperation } from '@nestjs/swagger';
@@ -49,5 +57,49 @@ export class PaymentController {
     @AuthUser() user: User,
   ): Promise<Stripe.Checkout.Session | { error: string }> {
     return this.paymentService.createCheckoutSession(user, body.credits);
+  }
+
+  @Post('create')
+  @AuthUser()
+  @PreAuthorize(EUserRole.TUTOR)
+  @ApiOperation({ summary: 'Create a new Stripe account for the user' })
+  async createStripeAccount(@Req() req) {
+    const user = req.user as User;
+    const stripeAccountId = await this.paymentService.createStripeAccount(user);
+    return { stripeAccountId };
+  }
+
+  @Get('status')
+  @AuthUser()
+  @PreAuthorize(EUserRole.TUTOR)
+  @ApiOperation({ summary: 'Check if user can proceed with payments' })
+  async checkPaymentCapability(@Req() req) {
+    const { stripeAccountId } = req.user as User;
+    if (!stripeAccountId) {
+      return { canProceedPayments: false, message: 'No Stripe account found' };
+    }
+    return this.paymentService.checkPaymentCapability(stripeAccountId);
+  }
+
+  @Post('session/complete')
+  @ApiOperation({ summary: 'Mark a session as complete and transfer payment' })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        sessionId: { type: 'string' },
+        recipientStripeAccountId: { type: 'string' },
+      },
+    },
+  })
+  @AuthUser()
+  async markSessionAsComplete(
+    @Body() body: { sessionId: string; recipientStripeAccountId: string },
+  ) {
+    const { sessionId, recipientStripeAccountId } = body;
+    return this.paymentService.markSessionAsComplete(
+      sessionId,
+      recipientStripeAccountId,
+    );
   }
 }
