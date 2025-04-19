@@ -40,6 +40,14 @@ export const _400 = {
     code: 'TIME_SLOT_NOT_AVAILABLE',
     message: 'The selected time slot is not available',
   },
+  STRIPE_ACCOUNT_CREATION_FAILED: {
+    code: 'STRIPE_ACCOUNT_CREATION_FAILED',
+    message: 'Failed to create Stripe account',
+  },
+  STRIPE_ACCOUNT_RETRIEVAL_FAILED: {
+    code: 'STRIPE_ACCOUNT_RETRIEVAL_FAILED',
+    message: 'Failed to retrieve Stripe account',
+  },
 };
 
 // unauthorized
@@ -136,6 +144,10 @@ export const _409 = {
   FOREIGN_KEY_VIOLATION: {
     code: 'FOREIGN_KEY_VIOLATION',
     message: 'Referenced record does not exist',
+  },
+  PHONE_NUMBER_ALREADY_EXISTS: {
+    code: 'PHONE_NUMBER_ALREADY_EXISTS',
+    message: 'Phone number already exists',
   },
 };
 

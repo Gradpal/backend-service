@@ -12,6 +12,9 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Tutor } from '../tutor/entities/tutor.entity';
 import { Student } from '../student/entities/student.entity';
 import { User } from '../user/entities/user.entity';
+import { PaymentModule } from '../payment/payment.module';
+import { PaymentService } from '../payment/payment.service';
+import { Payment } from '../payment/entities/payment.entity';
 
 @Global()
 @Module({
@@ -29,12 +32,13 @@ import { User } from '../user/entities/user.entity';
     UserModule,
     TutorModule,
     StudentModule,
-    TypeOrmModule.forFeature([Tutor, Student, User]),
+    TypeOrmModule.forFeature([Tutor, Student, Payment,User]),
   ],
   controllers: [AuthController],
   providers: [
     AuthService,
     AuthGuard,
+    PaymentService,
     {
       provide: 'APP_GUARD',
       useClass: AuthGuard,
