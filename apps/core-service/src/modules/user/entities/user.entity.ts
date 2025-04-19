@@ -50,7 +50,7 @@ export class User extends BaseEntity {
   @Column({ type: 'text', unique: true, nullable: true })
   referalCode: string;
 
-  @Column({ type: 'varchar', length: 20, unique: true })
+  @Column({ type: 'varchar', length: 20, unique: true,nullable:true })
   userCode: string;
 
   @Column({ type: 'timestamp', nullable: true })

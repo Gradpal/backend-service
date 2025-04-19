@@ -201,21 +201,14 @@ export class AuthService {
     );
   }
 
-  async register(dto: RegisterDTO): Promise<User> {
+  async register(dto: CreateUserDTO): Promise<User> {
     if (await this.userService.existByEmail(dto.email)) {
       this.exceptionHandler.throwBadRequest(_400.INVALID_USER_ID);
     }
 
     const hashedPassword = await hashPassword(dto.password);
-    const createUserDto: CreateUserDTO = {
-      ...dto,
-      password: hashedPassword,
-      userName: dto.email.split('@')[0],
-      phoneNumber: '+1234567890', // Default phone number
-      countryOfResidence: 'US', // Default country
-    };
-
-    const user = await this.userService.create(createUserDto);
+    dto.password = hashedPassword;
+    const user = await this.userService.create(dto);
 
     const otp = await this.generateOTP(user.id);
     await this.notificationProcessor.sendTemplateEmail(

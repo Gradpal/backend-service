@@ -60,21 +60,18 @@ export class PaymentController {
   }
 
   @Post('create')
-  @AuthUser()
   @PreAuthorize(EUserRole.TUTOR)
   @ApiOperation({ summary: 'Create a new Stripe account for the user' })
-  async createStripeAccount(@Req() req) {
-    const user = req.user as User;
+  async createStripeAccount(@AuthUser() user: User) {
     const stripeAccountId = await this.paymentService.createStripeAccount(user);
     return { stripeAccountId };
   }
 
   @Get('status')
-  @AuthUser()
   @PreAuthorize(EUserRole.TUTOR)
   @ApiOperation({ summary: 'Check if user can proceed with payments' })
-  async checkPaymentCapability(@Req() req) {
-    const { stripeAccountId } = req.user as User;
+  async checkPaymentCapability(@AuthUser() user: User) {
+    const { stripeAccountId } = user;
     if (!stripeAccountId) {
       return { canProceedPayments: false, message: 'No Stripe account found' };
     }
@@ -92,9 +89,9 @@ export class PaymentController {
       },
     },
   })
-  @AuthUser()
   async markSessionAsComplete(
     @Body() body: { sessionId: string; recipientStripeAccountId: string },
+    @AuthUser() user: User,
   ) {
     const { sessionId, recipientStripeAccountId } = body;
     return this.paymentService.markSessionAsComplete(

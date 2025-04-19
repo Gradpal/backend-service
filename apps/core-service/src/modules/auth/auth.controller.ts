@@ -10,6 +10,7 @@ import { plainToClass } from 'class-transformer';
 import { User } from '../user/entities/user.entity';
 import { RegisterDTO } from './dto/register.dto';
 import { ForgotPasswordDTO } from './dto/forgot-password.dto';
+import { CreateUserDTO } from '../user/dto/create-user.dto';
 
 @Controller('auth')
 @ApiTags('Auth')
@@ -20,7 +21,7 @@ export class AuthController {
   @Public()
   @Post('/register')
   @ApiBody({ type: RegisterDTO })
-  async register(@Body() dto: RegisterDTO) {
+  async register(@Body() dto: CreateUserDTO) {
     return await this.authService.register(dto);
   }
 
@@ -29,6 +30,12 @@ export class AuthController {
   @ApiBody({ type: LoginDTO })
   async login(@Body() dto: LoginDTO) {
     return await this.authService.login(dto);
+  }
+
+  @Post('/send-otp/:email')
+  @Public()
+  async sendOpt(@Param('email') email: string) {
+    return await this.authService.sendOpt(email);
   }
 
   @Public()
