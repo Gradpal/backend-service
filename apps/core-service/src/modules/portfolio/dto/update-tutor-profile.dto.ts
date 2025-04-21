@@ -28,6 +28,11 @@ export class UpdateTutorProfileDto {
   @IsOptional()
   time_zone?: string;
 
+  @ApiProperty({ required: false })
+  @IsString()
+  @IsOptional()
+  time_zone_display_format?: string;
+
   @ApiProperty({ type: Visibility<string>, required: false })
   @IsOptional()
   religious_affiliation?: Visibility<string>;
@@ -67,6 +72,11 @@ export class UpdateTutorProfileDto {
   @ApiProperty({ required: false })
   @IsString()
   @IsOptional()
+  country_of_residence?: string;
+
+  @ApiProperty({ required: false })
+  @IsString()
+  @IsOptional()
   institution?: string;
 
   @ApiProperty({ type: [String], required: false })
@@ -80,7 +90,6 @@ export class UpdateTutorProfileDto {
   price_per_hour?: number;
 
   @ApiProperty({ required: false })
-  @IsArray()
   @IsOptional()
   institutions?: InstitutionUpdate[];
 

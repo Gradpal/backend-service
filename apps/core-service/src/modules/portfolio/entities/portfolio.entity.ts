@@ -36,6 +36,9 @@ export class Portfolio extends BaseEntity {
   @Column({ type: 'varchar', nullable: true })
   timezone: string;
 
+  @Column({ type: 'varchar', nullable: true })
+  time_zone_display_format: string;
+
   @Column({ type: 'json', nullable: true })
   session_type: string[];
 
@@ -50,6 +53,9 @@ export class Portfolio extends BaseEntity {
 
   @Column({ type: 'varchar', nullable: true })
   highestDegree: string;
+
+  @Column({ type: 'varchar', nullable: true })
+  country_of_residence: string;
 
   @Column({ type: 'varchar', nullable: true })
   university: string;

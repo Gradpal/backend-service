@@ -95,8 +95,7 @@ export class UserController {
 
   @Get('by-id/:id')
   @ApiQuery({ name: 'id', required: true })
-  @PreAuthorize(EUserRole.SUPER_ADMIN)
-  async getUserById(@Query('id') id: string) {
+  async getUserById(@Param('id') id: string) {
     const user = await this.userService.findOne(id);
     return user;
   }
