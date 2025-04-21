@@ -8,6 +8,7 @@ import {
   UseInterceptors,
   UploadedFile,
   UseGuards,
+  Req,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import {
@@ -43,13 +44,14 @@ export class BookingController {
   @ApiConsumes('multipart/form-data')
   @ApiResponse({ status: 201, type: Booking })
   @UseInterceptors(FileInterceptor('materials'))
+  @AuthUser()
   async createBooking(
-    @AuthUser() student: User,
+    @Req() req,
     @Body() bookingRequestDto: BookingRequestDto,
     @UploadedFile() materials?: Express.Multer.File,
   ): Promise<Booking> {
     return this.bookingService.createBooking(
-      student,
+      req.user as User,
       bookingRequestDto,
       materials,
     );
@@ -59,7 +61,9 @@ export class BookingController {
   @PreAuthorize(EUserRole.STUDENT)
   @ApiOperation({ summary: 'Get all bookings for the current student' })
   @ApiResponse({ status: 200, type: [Booking] })
-  async getStudentBookings(@AuthUser() student: User): Promise<Booking[]> {
+  @AuthUser()
+  async getStudentBookings(@Req() req): Promise<Booking[]> {
+    const student = req.user as User;
     return this.bookingService.getStudentBookings(student.id);
   }
 
@@ -67,7 +71,8 @@ export class BookingController {
   @PreAuthorize(EUserRole.TUTOR)
   @ApiOperation({ summary: 'Get all bookings for the current tutor' })
   @ApiResponse({ status: 200, type: [Booking] })
-  async getTutorBookings(@AuthUser() tutor: User): Promise<Booking[]> {
+  async getTutorBookings(@Req() req): Promise<Booking[]> {
+    const tutor = req.user as User;
     return this.bookingService.getTutorBookings(tutor.id);
   }
 
@@ -86,8 +91,12 @@ export class BookingController {
   async updateBookingStatus(
     @Param('id') id: string,
     @Body('status') status: BookingStatus,
-    @AuthUser() user: User,
+    @Req() req,
   ): Promise<Booking> {
-    return this.bookingService.updateBookingStatus(id, status, user);
+    return this.bookingService.updateBookingStatus(
+      id,
+      status,
+      req.user as User,
+    );
   }
 }

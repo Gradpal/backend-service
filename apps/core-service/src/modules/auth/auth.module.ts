@@ -7,6 +7,8 @@ import { CoreServiceConfigService } from '@core-service/configs/core-service-con
 import { CoreServiceConfigModule } from '@core-service/configs/core-service-config.module';
 import { UserModule } from '../user/user.module';
 import { PaymentService } from '../payment/payment.service';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { Payment } from '../payment/entities/payment.entity';
 
 @Global()
 @Module({
@@ -27,7 +29,6 @@ import { PaymentService } from '../payment/payment.service';
   providers: [
     AuthService,
     AuthGuard,
-    PaymentService,
     {
       provide: 'APP_GUARD',
       useClass: AuthGuard,

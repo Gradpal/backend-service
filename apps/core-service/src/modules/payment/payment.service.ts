@@ -6,12 +6,9 @@ import { CoreServiceConfigService } from '@core-service/configs/core-service-con
 import { Payment } from './entities/payment.entity';
 import { EPaymentType } from './enums/payment-type.enum';
 import { User } from '../user/entities/user.entity';
-<<<<<<< HEAD
+import { UserService } from '../user/user.service';
 import { ExceptionHandler } from '@app/common/exceptions/exceptions.handler';
 import { _400 } from '@app/common/constants/errors-constants';
-=======
-import { UserService } from '../user/user.service';
->>>>>>> e8eb478 (feat: account creation)
 
 @Injectable()
 export class PaymentService {
@@ -32,12 +29,8 @@ export class PaymentService {
 
   async createCheckoutSession(student: User, credits: number) {
     const session = await this.stripe.checkout.sessions.create({
-<<<<<<< HEAD
-      customer_email: student.profile.email, // Ensure the Student entity has an email field
-=======
       customer_email: student.email,
       payment_method_types: ['card'],
->>>>>>> e8eb478 (feat: account creation)
       line_items: [
         {
           price_data: {
