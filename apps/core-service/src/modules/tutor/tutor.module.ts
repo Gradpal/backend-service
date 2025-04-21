@@ -7,6 +7,8 @@ import { UserModule } from '../user/user.module';
 import { MinioClientModule } from '../minio-client/minio-client.module';
 import { User } from '../user/entities/user.entity';
 import { Booking } from '../booking/entities/booking.entity';
+import { CalendarController } from './controllers/calendar.controller';
+import { GoogleCalendarService } from './services/google-calendar.service';
 
 @Module({
   imports: [
@@ -14,8 +16,8 @@ import { Booking } from '../booking/entities/booking.entity';
     forwardRef(() => UserModule),
     MinioClientModule,
   ],
-  providers: [TutorService],
-  controllers: [TutorController],
-  exports: [TutorService],
+  providers: [TutorService, GoogleCalendarService],
+  controllers: [TutorController, CalendarController],
+  exports: [TutorService, TypeOrmModule],
 })
 export class TutorModule {}

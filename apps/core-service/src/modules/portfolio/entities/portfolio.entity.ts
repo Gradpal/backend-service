@@ -85,6 +85,26 @@ export class Portfolio extends BaseEntity {
   @Column({ type: 'json', nullable: true })
   weekelyAvailability: any;
 
+  @Column({ type: 'json', nullable: true })
+  google_calendar_credentials: {
+    access_token: string;
+    refresh_token: string;
+    expiry_date: number;
+  };
+
+  @Column({ type: 'boolean', default: false })
+  google_calendar_linked: boolean;
+
+  @Column({ type: 'json', nullable: true })
+  apple_calendar_credentials: {
+    access_token: string;
+    refresh_token: string;
+    expiry_date: number;
+  };
+
+  @Column({ type: 'boolean', default: false })
+  apple_calendar_linked: boolean;
+
   @Column({ type: 'integer', default: 0 })
   totalStudents: number;
 
