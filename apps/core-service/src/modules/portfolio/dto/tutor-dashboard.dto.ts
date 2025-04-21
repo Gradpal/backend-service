@@ -24,8 +24,8 @@ export class UpcomingAppointmentDto {
   static fromEntity(booking: Booking): UpcomingAppointmentDto {
     const dto = new UpcomingAppointmentDto();
     dto.id = booking.id;
-    dto.studentName = `${booking.student.profile.firstName} ${booking.student.profile.lastName}`;
-    dto.studentProfilePicture = booking.student.profile.profilePicture;
+    dto.studentName = `${booking.student.firstName} ${booking.student.lastName}`;
+    dto.studentProfilePicture = booking.student.profilePicture;
     dto.sessionDate = booking.sessionDate;
     dto.sessionTime = booking.sessionTime;
     dto.subject = booking.sessionType;

@@ -6,15 +6,7 @@ import { AuthGuard } from '@core-service/guards/auth.guard';
 import { CoreServiceConfigService } from '@core-service/configs/core-service-config.service';
 import { CoreServiceConfigModule } from '@core-service/configs/core-service-config.module';
 import { UserModule } from '../user/user.module';
-import { TutorModule } from '../tutor/tutor.module';
-import { StudentModule } from '../student/student.module';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { Tutor } from '../tutor/entities/tutor.entity';
-import { Student } from '../student/entities/student.entity';
-import { User } from '../user/entities/user.entity';
-import { PaymentModule } from '../payment/payment.module';
 import { PaymentService } from '../payment/payment.service';
-import { Payment } from '../payment/entities/payment.entity';
 
 @Global()
 @Module({
@@ -30,9 +22,6 @@ import { Payment } from '../payment/entities/payment.entity';
       }),
     }),
     UserModule,
-    TutorModule,
-    StudentModule,
-    TypeOrmModule.forFeature([Tutor, Student, Payment,User]),
   ],
   controllers: [AuthController],
   providers: [

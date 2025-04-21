@@ -11,6 +11,7 @@ import { NotificationModule } from './modules/notification/notification.module';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { ConfigModule } from '@nestjs/config';
 import { createMailerConfig } from './configs/mailer.config';
+import { SlackModule } from './modules/slack/slack.module';
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { createMailerConfig } from './configs/mailer.config';
     ExceptionModule,
     PlatformHandlerModule,
     NotificationModule,
+    SlackModule,
   ],
   controllers: [],
   providers: [],

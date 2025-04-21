@@ -1,6 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsString, IsOptional, IsBoolean } from 'class-validator';
-import { Visibility } from '../../tutor/dto/visibility.dto';
 
 export class UpdateStudentProfileDto {
   @ApiProperty()

@@ -1,6 +1,4 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { User } from '../../user/entities/user.entity';
-import { Tutor } from '../../tutor/entities/tutor.entity';
 import { BookingStatus } from '../entities/booking.entity';
 
 export class TimelineEvent {
@@ -40,7 +38,6 @@ export class SessionDetailsDto {
     id: string;
     name: string;
     university: string;
-    isVerified: boolean;
     profilePicture: string;
     countryCode: string;
   };

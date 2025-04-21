@@ -1,17 +1,16 @@
 import { BaseEntity } from '@app/common/database/base.entity';
-import { Student } from '@core-service/modules/student/entities/student.entity';
-import { Tutor } from '@core-service/modules/tutor/entities/tutor.entity';
+import { User } from '@core-service/modules/user/entities/user.entity';
 import { Entity, Column, ManyToOne, JoinColumn } from 'typeorm';
 
 @Entity()
 export class ClassSession extends BaseEntity {
-  @ManyToOne(() => Tutor)
+  @ManyToOne(() => User)
   @JoinColumn({ name: 'tutor_id' })
-  tutor: Tutor;
+  tutor: User;
 
-  @ManyToOne(() => Student)
+  @ManyToOne(() => User)
   @JoinColumn({ name: 'student_id' })
-  student: Student;
+  student: User;
 
   @Column({ type: 'varchar', length: 255, nullable: false })
   subject: string;

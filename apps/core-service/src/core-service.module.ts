@@ -15,12 +15,10 @@ import { NotificationModule } from './integrations/notification/notification.mod
 import { MinioClientModule } from './modules/minio-client/minio-client.module';
 import { REDIS_CONST } from './common/constants/all.constants';
 import { BrainModule } from '@app/common/brain/brain.module';
-import { TutorModule } from './modules/tutor/tutor.module';
-import { StudentController } from './modules/student/student.controller';
-import { StudentModule } from './modules/student/student.module';
 import { PaymentModule } from './modules/payment/payment.module';
 import { ClassSessionModule } from './modules/class-session/class-session.module';
 import { BookingModule } from './modules/booking/booking.module';
+import { PortfolioModule } from './modules/portfolio/portfolio.module';
 
 @Module({
   imports: [
@@ -46,13 +44,11 @@ import { BookingModule } from './modules/booking/booking.module';
     JwtModule,
     NotificationModule,
     MinioClientModule,
-    TutorModule,
-    StudentModule,
     PaymentModule,
     ClassSessionModule,
     BookingModule,
+    PortfolioModule,
   ],
-  controllers: [StudentController],
   providers: [
     {
       provide: APP_FILTER,

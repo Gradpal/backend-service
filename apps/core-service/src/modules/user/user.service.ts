@@ -5,7 +5,7 @@ import { Repository } from 'typeorm';
 import { CreateUserDTO } from './dto/create-user.dto';
 import * as bcrypt from 'bcryptjs';
 import { ExceptionHandler } from '@app/common/exceptions/exceptions.handler';
-import { _400, _404, _409 } from '@app/common/constants/errors-constants';
+import { _404, _409 } from '@app/common/constants/errors-constants';
 import { NotificationPreProcessor } from '@core-service/integrations/notification/notification.preprocessor';
 import { EUserStatus } from './enums/user-status.enum';
 import { EUserRole } from './enums/user-role.enum';
@@ -16,7 +16,6 @@ import { plainToClass } from 'class-transformer';
 import { PlatformQueuePayload } from '@app/common/interfaces/shared-queues/platform-queue-payload.interface';
 import { BrainService } from '@app/common/brain/brain.service';
 import { MinioClientService } from '../minio-client/minio-client.service';
-import { EmailTemplates } from '@core-service/configs/email-template-configs/email-templates.config';
 import { ConfirmUserProfileDto } from './dto/confirm-profile.dto';
 import {
   generateAlphaNumericCode,
@@ -24,6 +23,7 @@ import {
 } from '@core-service/common/helpers/all.helpers';
 import { UpdateSettingsDto } from './dto/update-settings.dto';
 import { USER_BY_EMAIL_CACHE } from '@core-service/common/constants/brain.constants';
+import { EmailTemplates } from '@core-service/configs/email-template-configs/email-templates.config';
 
 @Injectable()
 export class UserService {
@@ -31,10 +31,10 @@ export class UserService {
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
     private readonly notificationProcessor: NotificationPreProcessor,
-    private readonly configService: CoreServiceConfigService,
     private readonly exceptionHandler: ExceptionHandler,
     private readonly brainService: BrainService,
     private readonly minioService: MinioClientService,
+    private readonly configService: CoreServiceConfigService,
   ) {}
 
   async confirmUserProfile(confirmProfileDto: ConfirmUserProfileDto) {
@@ -58,34 +58,40 @@ export class UserService {
       this.exceptionHandler.throwConflict(_409.PHONE_NUMBER_ALREADY_EXISTS);
     }
 
-    // Create user without file fields first
-    const { profilePicture: _, ...userDataWithoutFiles } = createUserDto;
-    const userEntity: User = this.userRepository.create(userDataWithoutFiles);
+    const cacheKey = this.brainService.getCacheKey(createUserDto.email);
 
-    // Handle profile picture upload
-    if (profilePicture) {
-      userEntity.profilePicture =
-        await this.minioService.uploadFile(profilePicture);
+    const otp = await this.brainService.generateOTP(createUserDto.email);
+
+    await this.brainService.memorize<CreateUserDTO>(
+      cacheKey,
+      { ...createUserDto, profilePicture: profilePicture },
+      USER_BY_EMAIL_CACHE.ttl,
+    );
+
+    await this.notificationProcessor.sendTemplateEmail(
+      EmailTemplates.USER_ONBOARDING_VERIFICATION,
+      [createUserDto.email],
+      {
+        userName: createUserDto?.firstName
+          ? createUserDto?.firstName
+          : createUserDto?.email,
+        otp: otp,
+        otpValidityDuration: 12,
+        verificationUrl: `${this.configService.clientUrl}user/onboarding/verify-email/?otp=${otp}&email=${createUserDto.email}`,
+      },
+    );
+    console.log('Email sent');
+  }
+
+  async getUserEntityFromDto(createUserDto: CreateUserDTO) {
+    if (await this.existByEmail(createUserDto.email)) {
+      this.exceptionHandler.throwConflict(_409.USER_ALREADY_EXISTS);
     }
-
-    userEntity.password = await bcrypt.hash(generateAlphaNumericCode(8), 10);
-    userEntity.referalCode = generateAlphaNumericCode(10);
-
-    const [savedUser] = await Promise.all([
-      this.userRepository.save(userEntity),
-      this.notificationProcessor.sendTemplateEmail(
-        EmailTemplates.WELCOME,
-        [userEntity.email],
-        {
-          userName: userEntity.userName,
-          otpValidityDuration: 3,
-          otp: '34',
-          verificationUrl: `${this.configService.clientUrl}activate/`,
-        },
-      ),
-    ]);
-
-    return plainToClass(User, savedUser);
+    const userEntity = this.userRepository.create({
+      ...createUserDto,
+      profilePicture: '',
+    });
+    return userEntity;
   }
 
   async createAdmin(createUserDto: CreateAdminDTO) {
@@ -93,11 +99,9 @@ export class UserService {
       this.exceptionHandler.throwConflict(_409.USER_ALREADY_EXISTS);
     }
 
-    // Create admin without file fields first
     const { profilePicture: _, ...adminDataWithoutFiles } = createUserDto;
     let user: User = this.userRepository.create(adminDataWithoutFiles);
 
-    // Handle profile picture upload if provided
     if (createUserDto.profilePicture) {
       user.profilePicture = await this.minioService.uploadFile(
         createUserDto.profilePicture,
@@ -120,17 +124,20 @@ export class UserService {
   ) {
     const query = this.userRepository.createQueryBuilder('user');
     const searchKey = nameKey || '';
+
     if (status) {
       query.andWhere('user.status = :status', { status });
     }
-    query
-      .andWhere('user.role = :role', { role })
-      .andWhere(
-        '(user.firstName ILIKE :keyword OR user.lastName ILIKE :keyword OR user.email ILIKE :keyword)',
-        {
-          keyword: `%${searchKey}%`,
-        },
-      );
+    if (role) {
+      query.andWhere('user.role = :role', { role });
+    }
+
+    query.andWhere(
+      '(user.firstName ILIKE :keyword OR user.lastName ILIKE :keyword OR user.email ILIKE :keyword)',
+      {
+        keyword: `%${searchKey}%`,
+      },
+    );
 
     const [data, total] = await query
       .skip((page - 1) * limit)
@@ -149,7 +156,7 @@ export class UserService {
     return await this.userRepository.findOne({ where: { email } });
   }
 
-  async findByReferalCode(code: string) {
+  async findByReferralCode(code: string) {
     const user = await this.userRepository.findOne({
       where: { referalCode: code },
     });
@@ -253,5 +260,9 @@ export class UserService {
     });
 
     return users;
+  }
+
+  async save(user: User) {
+    return await this.userRepository.save(user);
   }
 }

@@ -1,4 +1,4 @@
-export class Institution {
+export class InstitutionDto {
   name: string;
   degree_type: string;
   year_started: number;

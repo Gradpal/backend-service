@@ -7,7 +7,6 @@ import {
   Query,
   Delete,
   Patch,
-  Req,
   UseInterceptors,
   UploadedFile,
 } from '@nestjs/common';
@@ -24,8 +23,6 @@ import {
   ApiResponse,
 } from '@nestjs/swagger';
 import { CreateUserDTO } from './dto/create-user.dto';
-import { _errors } from '@app/common/helpers/shared.helpers';
-import { _404, _409 } from '@app/common/constants/errors-constants';
 import {
   AuthUser,
   PreAuthorize,

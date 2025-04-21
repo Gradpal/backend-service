@@ -7,6 +7,7 @@ import {
   RESET_PASSWORD_CACHE,
   USER_BY_EMAIL_CACHE,
 } from '@core-service/common/constants/brain.constants';
+import { generateRandomOTP } from '@core-service/common/helpers/all.helpers';
 /**
  * This class here, plays the role of your brain.
  *
@@ -155,5 +156,14 @@ export class BrainService {
     }
     await this.forget(key);
     return true;
+  }
+
+  //  generating OTP
+  async generateOTP(userId: string): Promise<number> {
+    const otp = generateRandomOTP();
+    const key = `${RESET_PASSWORD_CACHE.name}:${userId}`;
+
+    await this.memorize(key, otp, RESET_PASSWORD_CACHE.ttl);
+    return otp;
   }
 }
