@@ -3,12 +3,19 @@ import { google } from 'googleapis';
 import { ConfigService } from '@nestjs/config';
 import { Tutor } from '../entities/tutor.entity';
 import { CalendarEvent, CalendarSyncResponse } from '../dto/calendar.dto';
+import { User } from '@core-service/modules/user/entities/user.entity';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class GoogleCalendarService {
   private oauth2Client: any;
 
-  constructor(private configService: ConfigService) {
+  constructor(
+    private configService: ConfigService,
+    @InjectRepository(Tutor)
+    private readonly tutorRepository: Repository<Tutor>,
+  ) {
     this.oauth2Client = new google.auth.OAuth2(
       this.configService.getOrThrow('GOOGLE_CLIENT_ID'),
       this.configService.getOrThrow('GOOGLE_CLIENT_SECRET'),
@@ -16,24 +23,34 @@ export class GoogleCalendarService {
     );
   }
 
-  getAuthUrl(): string {
+  getAuthUrl(token?: string): string {
     const scopes = [
       'https://www.googleapis.com/auth/calendar',
       'https://www.googleapis.com/auth/calendar.events',
     ];
+    const state = token;
+
     const response = this.oauth2Client.generateAuthUrl({
       access_type: 'offline',
       scope: scopes,
       prompt: 'consent',
       redirect_uri: this.configService.getOrThrow('GOOGLE_REDIRECT_URI'),
+      state,
     });
     console.log(response, '---->');
     return response;
   }
 
-  async getTokens(code: string) {
+  async handleCallback(code: string, user: User) {
     const { tokens } = await this.oauth2Client.getToken(code);
-    return tokens;
+    // update user google calendar credentials
+    const tutor = await this.tutorRepository.findOne({
+      where: { profile: { id: user.id } },
+    });
+    tutor.google_calendar_credentials = tokens;
+    tutor.google_calendar_linked = true;
+    await this.tutorRepository.save(tutor);
+    return { tokens };
   }
 
   async syncCalendar(tutor: Tutor): Promise<CalendarSyncResponse> {

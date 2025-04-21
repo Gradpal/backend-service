@@ -44,6 +44,8 @@ export class RolesGuard implements CanActivate {
         secret: this.configService.jwtSecret,
       });
       if (requiredRoles.includes(decodedToken.role)) {
+        console.log(decodedToken, '---->');
+        req.user = decodedToken;
         return true;
       }
     } catch (error) {

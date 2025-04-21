@@ -8,6 +8,8 @@ import {
   Param,
   UseGuards,
   Inject,
+  Query,
+  Req,
 } from '@nestjs/common';
 import { GoogleCalendarService } from '../services/google-calendar.service';
 import { CalendarEvent, GoogleCalendarCredentials } from '../dto/calendar.dto';
@@ -15,7 +17,13 @@ import { TutorService } from '../tutor.service';
 import { Tutor } from '../entities/tutor.entity';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiQuery, ApiTags } from '@nestjs/swagger';
+import { User } from '@core-service/modules/user/entities/user.entity';
+import {
+  AuthUser,
+  PreAuthorize,
+} from '@core-service/decorators/auth.decorator';
+import { EUserRole } from '@core-service/modules/user/enums/user-role.enum';
 
 @Controller('tutor/calendar')
 @ApiTags('Tutor Calendar')
@@ -28,14 +36,16 @@ export class CalendarController {
     private readonly tutorRepository: Repository<Tutor>,
   ) {}
 
+  @PreAuthorize(EUserRole.TUTOR)
   @Get('google/auth-url')
-  async getGoogleAuthUrl() {
-    return this.googleCalendarService.getAuthUrl();
+  async getGoogleAuthUrl(@Req() req) {
+    return this.googleCalendarService.getAuthUrl(req.user);
   }
 
   @Post('google/link')
-  async linkGoogleCalendar(@Body() credentials: { code: string }) {
-    return this.googleCalendarService.getTokens(credentials.code);
+  @PreAuthorize(EUserRole.TUTOR)
+  async linkGoogleCalendar(@Body() data: { code: string }, @Req() req) {
+    return this.googleCalendarService.handleCallback(data.code, req.user);
   }
 
   @Post('sync')
