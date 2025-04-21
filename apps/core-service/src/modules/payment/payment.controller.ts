@@ -24,7 +24,6 @@ import { BuyCreditsDto } from './dtos/buy-credit.dto';
 export class PaymentController {
   constructor(private readonly paymentService: PaymentService) {}
 
-  // Handle Stripe Webhook Events
   @Post('webhook')
   @Public()
   async handleWebhook(@Req() req, @Res() res) {
@@ -52,17 +51,21 @@ export class PaymentController {
     },
   })
   @PreAuthorize(EUserRole.STUDENT)
+  @AuthUser()
   async buyCredits(
     @Body() body: BuyCreditsDto,
-    @AuthUser() user: User,
+    @Req() req,
   ): Promise<Stripe.Checkout.Session | { error: string }> {
-    return this.paymentService.createCheckoutSession(user, body.credits);
+    return this.paymentService.createCheckoutSession(
+      req.user as User,
+      body.credits,
+    );
   }
 
   @Post('create')
   @PreAuthorize(EUserRole.TUTOR)
   @ApiOperation({ summary: 'Create a new Stripe account for the user' })
-  async createStripeAccount(@AuthUser() user: User) {
+  async createStripeAccount(@Req() user: User) {
     const stripeAccountId = await this.paymentService.createStripeAccount(user);
     return { stripeAccountId };
   }
@@ -70,12 +73,12 @@ export class PaymentController {
   @Get('status')
   @PreAuthorize(EUserRole.TUTOR)
   @ApiOperation({ summary: 'Check if user can proceed with payments' })
-  async checkPaymentCapability(@AuthUser() user: User) {
-    const { stripeAccountId } = user;
-    if (!stripeAccountId) {
+  async checkPaymentCapability(@Req() req) {
+    const user: User = req.user as User;
+    if (!user.stripeAccountId) {
       return { canProceedPayments: false, message: 'No Stripe account found' };
     }
-    return this.paymentService.checkPaymentCapability(stripeAccountId);
+    return this.paymentService.checkPaymentCapability(user.stripeAccountId);
   }
 
   @Post('session/complete')
@@ -91,7 +94,6 @@ export class PaymentController {
   })
   async markSessionAsComplete(
     @Body() body: { sessionId: string; recipientStripeAccountId: string },
-    @AuthUser() user: User,
   ) {
     const { sessionId, recipientStripeAccountId } = body;
     return this.paymentService.markSessionAsComplete(

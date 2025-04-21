@@ -1,11 +1,10 @@
-import { Body, Controller, Get, Param, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Req } from '@nestjs/common';
 import { ApiBearerAuth, ApiBody, ApiTags } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { Public } from '@app/common/decorators/public.decorator';
 import { LoginDTO } from './dto/login.dto';
 import { ActivateAccount } from './dto/activate-account.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
-import { AuthUser } from '@core-service/decorators/auth.decorator';
 import { User } from '../user/entities/user.entity';
 import { ForgotPasswordDTO } from './dto/forgot-password.dto';
 
@@ -59,7 +58,7 @@ export class AuthController {
   }
 
   @Get('/get-profile')
-  async getProfile(@AuthUser() user: User) {
-    return user;
+  async getProfile(@Req() req) {
+    return req.user as User;
   }
 }

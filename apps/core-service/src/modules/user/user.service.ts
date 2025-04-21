@@ -52,7 +52,7 @@ export class UserService {
       this.exceptionHandler.throwConflict(_409.USER_ALREADY_EXISTS);
     }
     const existingUserWithPhone = await this.userRepository.findOne({
-      where: { phone_number: createUserDto.phoneNumber },
+      where: { phoneNumber: createUserDto.phoneNumber },
     });
     if (existingUserWithPhone) {
       this.exceptionHandler.throwConflict(_409.PHONE_NUMBER_ALREADY_EXISTS);

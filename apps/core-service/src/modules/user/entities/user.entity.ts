@@ -41,6 +41,9 @@ export class User extends BaseEntity {
   @Column()
   referalCode: string;
 
+  @Column({ nullable: true })
+  stripeAccountId: string;
+
   @Column({ default: 0 })
   credits: number;
 

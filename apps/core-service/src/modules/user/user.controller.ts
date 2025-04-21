@@ -9,6 +9,7 @@ import {
   Patch,
   UseInterceptors,
   UploadedFile,
+  Req,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import {
@@ -115,10 +116,10 @@ export class UserController {
   @ApiOperation({ summary: 'Update user settings' })
   @ApiResponse({ status: 200, type: User })
   async updateSettings(
-    @AuthUser() user: User,
+    @Req() req,
     @Body() updateSettingsDto: UpdateSettingsDto,
   ): Promise<User> {
-    return this.userService.updateSettings(user, updateSettingsDto);
+    return this.userService.updateSettings(req.user as User, updateSettingsDto);
   }
 
   @Delete('/:id')
