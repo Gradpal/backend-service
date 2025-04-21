@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Patch, Post, Req } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post } from '@nestjs/common';
 import { ApiBearerAuth, ApiBody, ApiTags } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { Public } from '@app/common/decorators/public.decorator';
@@ -6,11 +6,8 @@ import { LoginDTO } from './dto/login.dto';
 import { ActivateAccount } from './dto/activate-account.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { AuthUser } from '@core-service/decorators/auth.decorator';
-import { plainToClass } from 'class-transformer';
 import { User } from '../user/entities/user.entity';
-import { RegisterDTO } from './dto/register.dto';
 import { ForgotPasswordDTO } from './dto/forgot-password.dto';
-import { CreateUserDTO } from '../user/dto/create-user.dto';
 
 @Controller('auth')
 @ApiTags('Auth')
@@ -18,12 +15,12 @@ import { CreateUserDTO } from '../user/dto/create-user.dto';
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  @Public()
-  @Post('/register')
-  @ApiBody({ type: RegisterDTO })
-  async register(@Body() dto: CreateUserDTO) {
-    return await this.authService.register(dto);
-  }
+  // @Public()
+  // @Post('/register')
+  // @ApiBody({ type: RegisterDTO })
+  // async register(@Body() dto: RegisterDTO) {
+  //   return await this.authService.register(dto);
+  // }
 
   @Public()
   @Post('/login')

@@ -137,6 +137,10 @@ export const _409 = {
     code: 'USER_ALREADY_EXISTS',
     message: 'User already exists',
   },
+  PROFILE_ALREADY_EXISTS: {
+    code: 'PROFILE_ALREADY_EXISTS',
+    message: 'The provided user already has a profile set',
+  },
   DATABASE_RECORD_ALREADY_EXISTS: {
     code: 'DATABASE_RECORD_ALREADY_EXISTS',
     message: 'Record already exists in the database',

@@ -1,5 +1,5 @@
+import { User } from '@core-service/modules/user/entities/user.entity';
 import { ApiProperty } from '@nestjs/swagger';
-import { Tutor } from '../../tutor/entities/tutor.entity';
 
 export class DashboardStatsDto {
   @ApiProperty()
@@ -101,14 +101,13 @@ export class SavedTutorDto {
   @ApiProperty()
   repeatStudents: number;
 
-  constructor(tutor: Tutor) {
+  constructor(tutor: User) {
     this.id = tutor.id;
-    this.name = tutor.profile?.firstName + ' ' + tutor.profile?.lastName;
-    this.avatar = tutor.profile?.profilePicture || '';
-    this.institution = tutor.university || '';
-    this.verified = tutor.isVerified || false;
-    this.country = tutor.profile?.country_of_residence || '';
-    this.time_zone = tutor.timezone || '';
+    this.name = tutor?.firstName + ' ' + tutor?.lastName;
+    this.avatar = tutor?.profilePicture || '';
+    this.institution = tutor.portfolio.university || '';
+    this.country = tutor.portfolio?.countryOfResidence || '';
+    this.time_zone = tutor.portfolio.timezone || '';
     // These fields need to be calculated from reviews/sessions
     this.rating = 0;
     this.totalStudents = 0;

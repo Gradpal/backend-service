@@ -1,14 +1,8 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  OneToOne,
-  JoinColumn,
-} from 'typeorm';
+import { Entity, Column, OneToOne, JoinColumn } from 'typeorm';
 import { EUserRole } from '../enums/user-role.enum';
 import { EUserStatus } from '../enums/user-status.enum';
 import { BaseEntity } from '@app/common/database/base.entity';
-import { Tutor } from '../../tutor/entities/tutor.entity';
+import { Portfolio } from '@core-service/modules/portfolio/entities/portfolio.entity';
 
 @Entity()
 export class User extends BaseEntity {
@@ -18,26 +12,23 @@ export class User extends BaseEntity {
   @Column({ type: 'varchar', length: 100, nullable: true })
   lastName: string;
 
-  @Column({ type: 'varchar', length: 100, nullable: true })
-  userName: string;
-
   @Column()
   email: string;
 
   @Column()
   password: string;
 
-  @Column({ name: 'profile_photo' })
+  @Column()
+  userName: string;
+
+  @Column({ nullable: true })
   profilePicture: string;
 
-  @Column({ type: 'text', nullable: true })
-  country_of_residence: string;
-
-  @Column({ type: 'enum', enum: EUserRole })
+  @Column()
   role: EUserRole;
 
-  @Column({ type: 'varchar', length: 20, unique: true, nullable: true })
-  phone_number: string;
+  @Column()
+  phoneNumber: string;
 
   @Column({
     nullable: false,
@@ -47,19 +38,13 @@ export class User extends BaseEntity {
   })
   status: EUserStatus;
 
-  @Column({ type: 'text', unique: true, nullable: true })
+  @Column()
   referalCode: string;
 
-  @Column({ type: 'varchar', length: 20, unique: true,nullable:true })
-  userCode: string;
+  @Column({ default: 0 })
+  credits: number;
 
-  @Column({ type: 'timestamp', nullable: true })
-  lastSeen: Date;
-
-  @OneToOne(() => Tutor, (tutor) => tutor.profile)
-  tutor: Tutor;
-  @Column({ type: 'varchar', length: 255, nullable: true })
-  stripeAccountId: string;
-
-  referer?: User;
+  @OneToOne(() => Portfolio)
+  @JoinColumn({ name: 'portfolio_id' })
+  portfolio: Portfolio;
 }

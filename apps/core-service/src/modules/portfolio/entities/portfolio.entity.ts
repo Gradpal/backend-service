@@ -1,44 +1,55 @@
-import { Person } from '@app/common/database/person.entity';
-import { Column, Entity, OneToOne, JoinColumn } from 'typeorm';
-import { Visibility } from '../dto/visibility.dto';
-import { Institution } from '../dto/institution.dto';
+import { BaseEntity } from '@app/common/database/base.entity';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  JoinTable,
+  ManyToMany,
+  OneToOne,
+} from 'typeorm';
 import { User } from '../../user/entities/user.entity';
+import { EducationRecord } from './education-record.entity';
 
-@Entity()
-export class Tutor extends Person {
-  @OneToOne(() => User, (user) => user.tutor)
-  @JoinColumn({ name: 'profile_id' })
-  profile: User;
+@Entity('portfolio')
+export class Portfolio extends BaseEntity {
+  @Column({ nullable: true })
+  countryOfResidence: string;
+
+  @Column({ nullable: true })
+  currentTimezone: string;
+
+  @Column({ nullable: true })
+  timezoneDisplayFormat: string;
+
+  @Column()
+  religiousAffiliation: string;
+
+  @Column({ nullable: true })
+  appleCalendarToken: string;
+
+  @Column({ nullable: true })
+  googleCalendarToken: string;
 
   @Column({ type: 'json', nullable: true })
-  countries_of_citizenship: string[];
+  countriesOfCitizenship: string[];
 
   @Column({ type: 'varchar', nullable: true })
   timezone: string;
 
   @Column({ type: 'json', nullable: true })
-  religious_affiliation: Visibility<string>;
-
-  @Column({ type: 'json', nullable: true })
-  languages: Visibility<string[]>;
-
-  @Column({ type: 'json', nullable: true })
-  gender: Visibility<string>;
-
-  @Column({ type: 'json', nullable: true })
   session_type: string[];
 
   @Column({ type: 'json', nullable: true })
-  academic_subjects: string[];
+  academicSubjects: string[];
 
   @Column({ type: 'json', nullable: true })
-  payment_info: any;
+  paymentInfo: any;
 
   @Column({ type: 'boolean', default: false })
   isVerified: boolean;
 
   @Column({ type: 'varchar', nullable: true })
-  highest_degree: string;
+  highestDegree: string;
 
   @Column({ type: 'varchar', nullable: true })
   university: string;
@@ -49,23 +60,24 @@ export class Tutor extends Person {
   @Column({ type: 'decimal', nullable: true })
   hourlyRate: number;
 
-  @Column({ type: 'json', nullable: true })
-  institutions: Institution[];
+  @ManyToMany(() => EducationRecord, { cascade: true })
+  @JoinTable()
+  educationRecords: EducationRecord[];
 
   @Column({ type: 'text', nullable: true })
-  introductory_video: string;
+  introductoryVideo: string;
 
   @Column({ type: 'text', nullable: true })
-  personal_statement: string;
+  personalStatement: string;
 
   @Column({ type: 'boolean', nullable: true })
-  complying_with_rules: boolean;
+  complyingWithRules: boolean;
 
   @Column({ type: 'json', nullable: true })
   reviews: any;
 
   @Column({ type: 'json', nullable: true })
-  weekely_availability: any;
+  weekelyAvailability: any;
 
   @Column({ type: 'integer', default: 0 })
   totalStudents: number;
@@ -85,6 +97,10 @@ export class Tutor extends Person {
   @Column({ type: 'decimal', default: 5.0 })
   rating: number;
 
-  @Column({ type: 'timestamp', nullable: true })
-  last_seen: Date;
+  @Column({ type: 'json', nullable: true })
+  spokenLanguages: string[];
+
+  @OneToOne(() => Portfolio)
+  @JoinColumn({ name: 'owner_id' })
+  owner: User;
 }

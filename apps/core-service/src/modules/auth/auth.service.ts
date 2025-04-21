@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { UserService } from '../user/user.service';
 import { LoginDTO, LoginResDto } from './dto/login.dto';
-import * as bcrypt from 'bcryptjs';
 import { ExceptionHandler } from '@app/common/exceptions/exceptions.handler';
 import { _400, _401, _404 } from '@app/common/constants/errors-constants';
 import { EUserStatus } from '../user/enums/user-status.enum';
@@ -18,28 +17,28 @@ import {
   FAILED_LOGIN_ATTEMPT,
   RESET_PASSWORD_CACHE,
 } from '@core-service/common/constants/brain.constants';
-import { MAX_FAILED_ATTEMPTS } from '@core-service/common/constants/all.constants';
-import { hashPassword } from '@core-service/common/helpers/all.helpers';
-import { EUserRole } from '../user/enums/user-role.enum';
-import { StudentService } from '../student/student.service';
-import { TutorService } from '../tutor/tutor.service';
-import { CreateTutorDto } from '../tutor/dto/create-tutor.dto';
-import { RegisterDTO } from './dto/register.dto';
+import {
+  MAX_FAILED_ATTEMPTS,
+  REFERRAL_CODE_CREDISTS,
+} from '@core-service/common/constants/all.constants';
+import {
+  generateAlphaNumericCode,
+  hashPassword,
+} from '@core-service/common/helpers/all.helpers';
 import { CreateUserDTO } from '../user/dto/create-user.dto';
-import { PaymentService } from '../payment/payment.service';
+import { MinioClientService } from '../minio-client/minio-client.service';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly userService: UserService,
-    private readonly studentService: StudentService,
-    private readonly tutorService: TutorService,
     private readonly config: CoreServiceConfigService,
     private readonly jwt: JwtService,
     private readonly exceptionHandler: ExceptionHandler,
     private readonly notificationProcessor: NotificationPreProcessor,
     private readonly brainService: BrainService,
-    private readonly paymentService: PaymentService,
+    private readonly minioService: MinioClientService,
+    private readonly configService: CoreServiceConfigService,
   ) {}
   async login(dto: LoginDTO): Promise<LoginResDto> {
     if (!(await this.userService.existByEmail(dto.email))) {
@@ -75,42 +74,54 @@ export class AuthService {
     const isOtpValid = await this.verifyOTP(id, otp);
     if (!isOtpValid) this.exceptionHandler.throwBadRequest(_400.INVALID_OTP);
   }
+
   async verifyAccount(dto: ActivateAccount): Promise<User> {
-    const account: User = await this.userService.findByEmail(dto.email);
-    await this.verifyOtp(account.id, dto.otp);
-    account.status = EUserStatus.ACTIVE;
+    await this.verifyOtp(dto.email, dto.otp);
+    const cacheKey = this.brainService.getCacheKey(dto.email);
 
-    // Create Stripe account for the user
-    const stripeAccountId =
-      await this.paymentService.createStripeAccount(account);
-    account.stripeAccountId = stripeAccountId;
+    const createUserDto: CreateUserDTO =
+      await this.brainService.remindMe(cacheKey);
 
-    if (account.role === EUserRole.STUDENT) {
-      await this.studentService.saveStudent(account);
+    const hashedPassword = await hashPassword(createUserDto.password);
+
+    const userEntity: User =
+      await this.userService.getUserEntityFromDto(createUserDto);
+
+    if (createUserDto.profilePicture) {
+      userEntity.profilePicture = await this.minioService.uploadFile(
+        createUserDto.profilePicture,
+      );
     }
 
-    if (account.role === EUserRole.TUTOR) {
-      const tutorDto: CreateTutorDto = {
-        profileId: account.id,
-        firstName: account.firstName,
-        lastName: account.lastName,
-        email: account.email,
-        userName: account.userName,
-        phoneNumber: account.phone_number,
-        countryOfResidence: account.country_of_residence,
-        country: account.country_of_residence,
-        refererId: account.referer?.id || '',
-        citizenship: account.country_of_residence,
-        location: account.country_of_residence,
-        referralCode: account.referalCode,
-        password: account.password,
-        role: account.role,
-        profilePicture: null,
-      };
-      await this.tutorService.create(tutorDto);
+    userEntity.referalCode = generateAlphaNumericCode(10);
+    userEntity.password = hashedPassword;
+    userEntity.status = EUserStatus.ACTIVE;
+
+    if (createUserDto.referralCode) {
+      const referrer = await this.userService.findByReferralCode(
+        createUserDto.referralCode,
+      );
+      referrer.credits += REFERRAL_CODE_CREDISTS;
+      await this.userService.saveUser(referrer);
     }
 
-    return await this.userService.saveUser(account);
+    const [savedUser, otp] = await Promise.all([
+      this.userService.save(userEntity),
+      this.brainService.forget(cacheKey),
+    ]);
+
+    await this.notificationProcessor.sendTemplateEmail(
+      EmailTemplates.WELCOME,
+      [userEntity.email],
+      {
+        userName: userEntity.userName,
+        otpValidityDuration: RESET_PASSWORD_CACHE.ttl,
+        otp: otp,
+        verificationUrl: `${this.configService.clientUrl}activate/`,
+      },
+    );
+
+    return plainToClass(User, savedUser);
   }
   async sendOpt(email: string) {
     const account: User = await this.userService.findByEmail(email);
@@ -120,7 +131,7 @@ export class AuthService {
       [account.email],
       {
         userName: account.userName,
-        otp: `${otp}`,
+        otp: otp,
         otpValidityDuration: 12,
         verificationUrl: `${this.config.clientUrl}auth/reset-password/?email=${account.email}&verification_code=${otp}`,
       },
@@ -153,7 +164,6 @@ export class AuthService {
     return Math.floor(Math.random() * (max - min + 1)) + min;
   }
 
-  //  generating OTP
   private async generateOTP(userId: string): Promise<number> {
     const otp = this.generateRandomOTP();
     const key = `${RESET_PASSWORD_CACHE.name}:${userId}`;
@@ -162,7 +172,6 @@ export class AuthService {
     return otp;
   }
 
-  //  verifying OTP
   private async verifyOTP(userId: string, otp: number): Promise<boolean> {
     const key = `${RESET_PASSWORD_CACHE.name}:${userId}`;
     const storedOTP = await this.brainService.remindMe<number>(key);
@@ -170,7 +179,6 @@ export class AuthService {
     if (!storedOTP || storedOTP !== otp) {
       return false;
     }
-    // Clean up after successful verification
     await this.brainService.forget(key);
     return true;
   }
@@ -179,7 +187,6 @@ export class AuthService {
     key: string,
     failedAttempts: number,
   ): Promise<void> {
-    // Increment the failed login attempts or initialize it if not present
     if (failedAttempts === null) {
       await this.brainService.memorize(key, 1, FAILED_LOGIN_ATTEMPT.ttl);
     } else {
@@ -199,28 +206,6 @@ export class AuthService {
         secret: this.config.jwtSecret,
       },
     );
-  }
-
-  async register(dto: CreateUserDTO): Promise<User> {
-    if (await this.userService.existByEmail(dto.email)) {
-      this.exceptionHandler.throwBadRequest(_400.INVALID_USER_ID);
-    }
-
-    const hashedPassword = await hashPassword(dto.password);
-    dto.password = hashedPassword;
-    const user = await this.userService.create(dto);
-
-    const otp = await this.generateOTP(user.id);
-    await this.notificationProcessor.sendTemplateEmail(
-      EmailTemplates.VERIFICATION,
-      [user.email],
-      {
-        userName: user.firstName,
-        verificationUrl: `${this.config.getFrontendUrl()}/verify-email?otp=${otp}`,
-      },
-    );
-
-    return user;
   }
 
   async forgotPassword(email: string): Promise<{ message: string }> {

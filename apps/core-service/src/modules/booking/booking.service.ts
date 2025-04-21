@@ -5,26 +5,22 @@ import { Booking, BookingStatus } from './entities/booking.entity';
 import { BookingRequestDto } from './dto/booking-request.dto';
 import { SessionDetailsDto, TimelineEvent } from './dto/session-details.dto';
 import { User } from '../user/entities/user.entity';
-import { Tutor } from '../tutor/entities/tutor.entity';
-import { Student } from '../student/entities/student.entity';
 import { ExceptionHandler } from '@app/common/exceptions/exceptions.handler';
 import { _404, _400, _403 } from '@app/common/constants/errors-constants';
 import { MinioClientService } from '../minio-client/minio-client.service';
-import { EUserRole } from '../user/enums/user-role.enum';
+import { UserService } from '../user/user.service';
+import { PortfolioService } from '../portfolio/portfolio.service';
+import { Portfolio } from '../portfolio/entities/portfolio.entity';
 
 @Injectable()
 export class BookingService {
   constructor(
     @InjectRepository(Booking)
     private readonly bookingRepository: Repository<Booking>,
-    @InjectRepository(Tutor)
-    private readonly tutorRepository: Repository<Tutor>,
-    @InjectRepository(User)
-    private readonly userRepository: Repository<User>,
-    @InjectRepository(Student)
-    private readonly studentRepository: Repository<Student>,
     private readonly exceptionHandler: ExceptionHandler,
     private readonly minioService: MinioClientService,
+    private readonly userService: UserService,
+    private readonly portfolioService: PortfolioService,
   ) {}
 
   async createBooking(
@@ -32,25 +28,12 @@ export class BookingService {
     bookingRequestDto: BookingRequestDto,
     materials?: Express.Multer.File,
   ): Promise<Booking> {
-    // Find tutor
-    const tutor = await this.tutorRepository.findOne({
-      where: { profile: { id: bookingRequestDto.tutorId } },
-      relations: ['profile'],
-    });
+    const tutor = await this.userService.findOne(bookingRequestDto.tutorId);
+
     if (!tutor) {
       this.exceptionHandler.throwNotFound(_404.TUTOR_NOT_FOUND);
     }
-
-    // Find student record
-    const studentRecord = await this.studentRepository.findOne({
-      where: { profile: { id: student.id } },
-    });
-    if (!studentRecord) {
-      this.exceptionHandler.throwNotFound(_404.STUDENT_NOT_FOUND);
-    }
-
-    // Verify student has enough credits
-    if (studentRecord.credits < bookingRequestDto.creditsToUse) {
+    if (student.credits < bookingRequestDto.creditsToUse) {
       this.exceptionHandler.throwBadRequest(_400.INSUFFICIENT_CREDITS);
     }
 
@@ -70,9 +53,8 @@ export class BookingService {
       materialsUrl = await this.minioService.uploadFile(materials);
     }
 
-    // Create booking
     const booking = this.bookingRepository.create({
-      student: studentRecord,
+      student: student,
       tutor,
       sessionType: bookingRequestDto.sessionType,
       sessionDate: bookingRequestDto.selectedDate,
@@ -83,13 +65,9 @@ export class BookingService {
       status: BookingStatus.PENDING,
     });
 
-    // Save booking
     const savedBooking = await this.bookingRepository.save(booking);
-
-    // Deduct credits from student
-    studentRecord.credits -= bookingRequestDto.creditsToUse;
-    await this.studentRepository.save(studentRecord);
-
+    student.credits -= bookingRequestDto.creditsToUse;
+    await this.userService.save(student);
     return savedBooking;
   }
 
@@ -111,35 +89,29 @@ export class BookingService {
   }
 
   async getStudentBookings(studentId: string): Promise<Booking[]> {
-    // Find student record first
-    const studentRecord = await this.studentRepository.findOne({
-      where: { id: studentId },
-    });
+    const student = await this.userService.findOne(studentId);
 
-    if (!studentRecord) {
+    if (!student) {
       this.exceptionHandler.throwNotFound(_404.STUDENT_NOT_FOUND);
     }
 
     return this.bookingRepository.find({
-      where: { student: { id: studentRecord.id } },
-      relations: ['tutor', 'tutor.profile'],
+      where: { student: { id: student.id } },
+      relations: ['tutor'],
       order: { createdAt: 'DESC' },
     });
   }
 
   async getTutorBookings(tutorId: string): Promise<Booking[]> {
-    // Find tutor record first
-    const tutorRecord = await this.tutorRepository.findOne({
-      where: { profile: { id: tutorId } },
-    });
+    const tutor = await this.userService.findOne(tutorId);
 
-    if (!tutorRecord) {
+    if (!tutor) {
       this.exceptionHandler.throwNotFound(_404.TUTOR_NOT_FOUND);
     }
 
     return this.bookingRepository.find({
-      where: { tutor: { id: tutorRecord.id } },
-      relations: ['student', 'student.profile'],
+      where: { tutor: { id: tutor.id } },
+      relations: ['student'],
       order: { createdAt: 'DESC' },
     });
   }
@@ -163,18 +135,17 @@ export class BookingService {
       this.exceptionHandler.throwForbidden(_403.UNAUTHORIZED_TO_UPDATE_BOOKING);
     }
 
-    // If rejecting or cancelling, refund credits to student
     if (
       (status === BookingStatus.REJECTED ||
         status === BookingStatus.CANCELLED) &&
       booking.status === BookingStatus.PENDING
     ) {
-      const studentRecord = await this.studentRepository.findOne({
-        where: { profile: { id: booking.student.id } },
-      });
+      const studentRecord: User = await this.userService.findOne(
+        booking.student.id,
+      );
       if (studentRecord) {
         studentRecord.credits += booking.creditsUsed;
-        await this.studentRepository.save(studentRecord);
+        await this.userService.save(studentRecord);
       }
     }
 
@@ -185,7 +156,7 @@ export class BookingService {
   async getSessionDetails(bookingId: string): Promise<SessionDetailsDto> {
     const booking = await this.bookingRepository.findOne({
       where: { id: bookingId },
-      relations: ['tutor', 'tutor.profile', 'student', 'student.profile'],
+      relations: ['tutor', 'tutor.portfolio', 'student', 'student.portfolio'],
     });
 
     if (!booking) {
@@ -197,7 +168,7 @@ export class BookingService {
       {
         action: 'Session request submitted to tutor',
         timestamp: booking.createdAt,
-        by: `${booking.student.profile.firstName} ${booking.student.profile.lastName}`,
+        by: `${booking.student.firstName} ${booking.student.lastName}`,
       },
     ];
 
@@ -205,13 +176,13 @@ export class BookingService {
       timeline.push({
         action: 'Tutor accepted session',
         timestamp: booking.updatedAt,
-        by: `${booking.tutor.profile.firstName} ${booking.tutor.profile.lastName}`,
+        by: `${booking.tutor.firstName} ${booking.tutor.lastName}`,
       });
     } else if (booking.status === BookingStatus.REJECTED) {
       timeline.push({
         action: 'Tutor rejected session',
         timestamp: booking.updatedAt,
-        by: `${booking.tutor.profile.firstName} ${booking.tutor.profile.lastName}`,
+        by: `${booking.tutor.firstName} ${booking.tutor.lastName}`,
       });
     }
 
@@ -220,20 +191,19 @@ export class BookingService {
       id: booking.id,
       sessionDate: booking.sessionDate,
       sessionTime: booking.sessionTime,
-      timezone: booking.tutor.timezone || 'UTC',
+      timezone: booking.tutor.portfolio.timezone || 'UTC',
       tutor: {
         id: booking.tutor.id,
-        name: `${booking.tutor.profile.firstName} ${booking.tutor.profile.lastName.charAt(0)}.`,
-        university: booking.tutor.university,
-        isVerified: booking.tutor.isVerified,
-        profilePicture: booking.tutor.profile.profilePicture,
-        countryCode: booking.tutor.countries_of_citizenship?.[0] || '',
+        name: `${booking.tutor.firstName} ${booking.tutor.lastName.charAt(0)}.`,
+        university: booking.tutor.portfolio.university,
+        profilePicture: booking.tutor.profilePicture,
+        countryCode: booking.tutor.portfolio.countriesOfCitizenship?.[0] || '',
       },
       student: {
         id: booking.student.id,
-        name: `${booking.student.profile.firstName} ${booking.student.profile.lastName}`,
-        email: booking.student.profile.email,
-        profilePicture: booking.student.profile.profilePicture,
+        name: `${booking.student.firstName} ${booking.student.lastName}`,
+        email: booking.student.email,
+        profilePicture: booking.student.profilePicture,
       },
       subject: booking.sessionType,
       duration: '90 minutes',

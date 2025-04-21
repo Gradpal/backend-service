@@ -9,3 +9,4 @@ export const REDIS_CONST = {
   APP_PREFIX: 'gradpal-core-service',
 };
 export const MAX_FAILED_ATTEMPTS = 5;
+export const REFERRAL_CODE_CREDISTS = 2;

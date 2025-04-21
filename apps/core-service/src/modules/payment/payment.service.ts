@@ -2,25 +2,27 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import Stripe from 'stripe';
-import { Student } from '../student/entities/student.entity';
 import { CoreServiceConfigService } from '@core-service/configs/core-service-config.service';
 import { Payment } from './entities/payment.entity';
 import { EPaymentType } from './enums/payment-type.enum';
 import { User } from '../user/entities/user.entity';
+<<<<<<< HEAD
 import { ExceptionHandler } from '@app/common/exceptions/exceptions.handler';
 import { _400 } from '@app/common/constants/errors-constants';
+=======
+import { UserService } from '../user/user.service';
+>>>>>>> e8eb478 (feat: account creation)
 
 @Injectable()
 export class PaymentService {
   private stripe: Stripe;
 
   constructor(
-    @InjectRepository(Student)
-    private readonly studentRepository: Repository<Student>,
     private readonly configService: CoreServiceConfigService,
     private readonly exceptionHandler: ExceptionHandler,
     @InjectRepository(Payment)
     private readonly paymentRepository: Repository<Payment>,
+    private readonly userService: UserService,
   ) {
     const stripeKey = this.configService.getStripeSecretKey;
     this.stripe = new Stripe(stripeKey, {
@@ -28,22 +30,14 @@ export class PaymentService {
     });
   }
 
-  async createCheckoutSession(user: User, credits: number) {
-    const student = await this.studentRepository.findOne({
-      where: {
-        profile: {
-          id: user.id,
-        },
-      },
-      relations: ['profile'],
-    });
-
-    if (!student) {
-      throw new Error('Student not found');
-    }
-
+  async createCheckoutSession(student: User, credits: number) {
     const session = await this.stripe.checkout.sessions.create({
+<<<<<<< HEAD
       customer_email: student.profile.email, // Ensure the Student entity has an email field
+=======
+      customer_email: student.email,
+      payment_method_types: ['card'],
+>>>>>>> e8eb478 (feat: account creation)
       line_items: [
         {
           price_data: {
@@ -76,18 +70,14 @@ export class PaymentService {
       const amount = Number(session.amount_total) / 100;
       if (!studentId || !credits) return;
 
-      const student = await this.studentRepository.findOne({
-        where: { id: studentId },
-        relations: ['profile'],
-      });
+      const student = await this.userService.findOne(studentId);
       if (!student) return;
 
-      student.credits += credits; // Add purchased credits
-      await this.studentRepository.save(student);
+      student.credits += credits;
+      await this.userService.save(student);
 
-      // Record payment in the database
       const payment = this.paymentRepository.create({
-        user: student.profile, // Assuming Student extends User
+        user: student,
         amount,
         currency: session.currency || 'USD',
         stripe_checkout_session_id: session.id,
@@ -99,10 +89,8 @@ export class PaymentService {
   }
 
   async validateWebhookEvent(req: any): Promise<Stripe.Event | null> {
-    return req.body;
     const sig = req.headers['stripe-signature'];
     const endpointSecret = this.configService.getStripeWebsookSecret;
-
     try {
       return this.stripe.webhooks.constructEvent(req.body, sig, endpointSecret);
     } catch (err) {

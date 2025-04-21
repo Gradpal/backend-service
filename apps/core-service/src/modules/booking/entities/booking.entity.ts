@@ -1,3 +1,4 @@
+import { User } from '@core-service/modules/user/entities/user.entity';
 import {
   Entity,
   PrimaryGeneratedColumn,
@@ -6,8 +7,6 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { Tutor } from '../../tutor/entities/tutor.entity';
-import { Student } from '../../student/entities/student.entity';
 
 export enum BookingStatus {
   PENDING = 'pending',
@@ -22,11 +21,11 @@ export class Booking {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @ManyToOne(() => Student)
-  student: Student;
+  @ManyToOne(() => User)
+  student: User;
 
-  @ManyToOne(() => Tutor)
-  tutor: Tutor;
+  @ManyToOne(() => User)
+  tutor: User;
 
   @Column()
   sessionType: string;
