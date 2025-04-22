@@ -136,8 +136,8 @@ export class PaymentService {
       ) {
         const accountLink = await this.stripe.accountLinks.create({
           account: stripeAccountId,
-          refresh_url: `${this.configService.clientUrl}/stripe/refresh`,
-          return_url: `${this.configService.clientUrl}/stripe/return`,
+          refresh_url: `${this.configService.clientUrl}/tutor/account-setup`,
+          return_url: `${this.configService.clientUrl}/tutor/account-setup`,
           type: 'account_onboarding',
         });
 

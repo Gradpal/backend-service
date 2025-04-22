@@ -129,4 +129,9 @@ export class Portfolio extends BaseEntity {
   @OneToOne(() => Portfolio)
   @JoinColumn({ name: 'owner_id' })
   owner: User;
+  @Column({ type: 'timestamp', nullable: true })
+  last_seen: Date;
+
+  @Column({ type: 'boolean', default: false })
+  terms_and_conditions_agreed: boolean;
 }

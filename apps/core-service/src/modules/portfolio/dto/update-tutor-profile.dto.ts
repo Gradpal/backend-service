@@ -114,4 +114,9 @@ export class UpdateTutorProfileDto {
   @ApiProperty({ required: false })
   @IsOptional()
   weekely_availability?: any;
+
+  @ApiProperty({ required: false })
+  @IsBoolean()
+  @IsOptional()
+  terms_and_conditions_agreed?: boolean;
 }

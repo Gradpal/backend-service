@@ -337,6 +337,10 @@ export class TutorService {
       tutor.highest_degree = updateDataWithoutFiles.highest_degree;
     }
 
+    if (updateDataWithoutFiles.terms_and_conditions_agreed) {
+      tutor.terms_and_conditions_agreed =
+        updateDataWithoutFiles.terms_and_conditions_agreed;
+    }
     const savedTutor = await this.tutorRepository.save(tutor);
     return savedTutor;
   }

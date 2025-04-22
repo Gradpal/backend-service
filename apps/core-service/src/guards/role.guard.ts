@@ -11,6 +11,7 @@ import {
 import { Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
 import { handleTokenError } from './helper';
+import { UserService } from '@core-service/modules/user/user.service';
 @Injectable()
 export class RolesGuard implements CanActivate {
   constructor(
@@ -19,6 +20,7 @@ export class RolesGuard implements CanActivate {
     @Inject(CoreServiceConfigService)
     private readonly configService: CoreServiceConfigService,
     private readonly exceptionHandler: ExceptionHandler,
+    private readonly userService: UserService,
   ) {}
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const requiredRoles = this.reflector.getAllAndOverride<string[]>(
@@ -45,7 +47,8 @@ export class RolesGuard implements CanActivate {
       });
       if (requiredRoles.includes(decodedToken.role)) {
         console.log(decodedToken, '---->');
-        req.user = decodedToken;
+        const userFromDb = await this.userService.findOne(decodedToken.id);
+        req.user = userFromDb;
         return true;
       }
     } catch (error) {
