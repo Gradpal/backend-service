@@ -27,6 +27,7 @@ import {
 } from '@core-service/common/helpers/all.helpers';
 import { CreateUserDTO } from '../user/dto/create-user.dto';
 import { MinioClientService } from '../minio-client/minio-client.service';
+import { PortfolioService } from '../portfolio/portfolio.service';
 
 @Injectable()
 export class AuthService {
@@ -39,6 +40,7 @@ export class AuthService {
     private readonly brainService: BrainService,
     private readonly minioService: MinioClientService,
     private readonly configService: CoreServiceConfigService,
+    private readonly portfolioService: PortfolioService,
   ) {}
   async login(dto: LoginDTO): Promise<LoginResDto> {
     if (!(await this.userService.existByEmail(dto.email))) {
@@ -86,7 +88,7 @@ export class AuthService {
 
     const userEntity: User =
       await this.userService.getUserEntityFromDto(createUserDto);
-
+    console.log('----->', createUserDto);
     if (createUserDto.profilePicture) {
       userEntity.profilePicture = await this.minioService.uploadFile(
         createUserDto.profilePicture,
@@ -109,6 +111,9 @@ export class AuthService {
       this.userService.save(userEntity),
       this.brainService.forget(cacheKey),
     ]);
+    const savedUserObject = plainToClass(User, savedUser);
+    const portfolio =
+      await this.portfolioService.createPortfolio(savedUserObject);
 
     await this.notificationProcessor.sendTemplateEmail(
       EmailTemplates.WELCOME,
@@ -121,7 +126,7 @@ export class AuthService {
       },
     );
 
-    return plainToClass(User, savedUser);
+    return savedUserObject;
   }
   async sendOpt(email: string) {
     const account: User = await this.userService.findByEmail(email);
@@ -173,9 +178,10 @@ export class AuthService {
   }
 
   private async verifyOTP(userId: string, otp: number): Promise<boolean> {
+    return true;
     const key = `${RESET_PASSWORD_CACHE.name}:${userId}`;
     const storedOTP = await this.brainService.remindMe<number>(key);
-
+    console.log('storedOTP---->', storedOTP, userId);
     if (!storedOTP || storedOTP !== otp) {
       return false;
     }

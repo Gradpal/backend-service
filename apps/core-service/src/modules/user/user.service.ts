@@ -25,13 +25,8 @@ import { UpdateSettingsDto } from './dto/update-settings.dto';
 import { USER_BY_EMAIL_CACHE } from '@core-service/common/constants/brain.constants';
 import { EmailTemplates } from '@core-service/configs/email-template-configs/email-templates.config';
 import { Booking } from '../booking/entities/booking.entity';
-import { WeeklyAvailabilityDto } from '../tutor/dto/weekly-availability.dto';
-import { UpdateTutorProfileDto } from '../tutor/dto/update-tutor-profile.dto';
-import { TutorProfileDto } from '../tutor/dto/tutor-profile.dto';
-import { WeeklyScheduleDto } from '../tutor/dto/schedule-slot.dto';
 import { SessionDetailsDto } from '../booking/dto/session-details.dto';
-import { SessionInvitationDto } from '../tutor/dto/session-invitation.dto';
-import { TutorDashboardDto } from '../tutor/dto/tutor-dashboard.dto';
+import { MoreThanOrEqual } from 'typeorm';
 
 @Injectable()
 export class UserService {
@@ -180,7 +175,7 @@ export class UserService {
   async findOne(id: string) {
     const user = await this.userRepository.findOne({
       where: { id },
-      relations: ['tutor'],
+      relations: ['portfolio'],
     });
     return user;
   }
@@ -276,147 +271,5 @@ export class UserService {
 
   async save(user: User) {
     return await this.userRepository.save(user);
-  }
-
-  async updateTutorProfile(
-    id: string,
-    updateTutorProfileDto: UpdateTutorProfileDto,
-    files?: Express.Multer.File[],
-  ): Promise<User> {
-    const user = await this.userRepository.findOneBy({ id });
-    if (!user) {
-      this.exceptionHandler.throwNotFound(_404.USER_NOT_FOUND);
-    }
-
-    if (user.role !== EUserRole.TUTOR) {
-      this.exceptionHandler.throwNotFound(_404.TUTOR_NOT_FOUND);
-    }
-
-    // Update tutor data with proper visibility structure
-    if (updateTutorProfileDto.languages) {
-      user.languages = {
-        value: updateTutorProfileDto.languages.value,
-        visible: updateTutorProfileDto.languages.visible,
-      };
-    }
-    if (updateTutorProfileDto.religious_affiliation) {
-      user.religiousAffiliation = {
-        value: updateTutorProfileDto.religious_affiliation.value,
-        visible: updateTutorProfileDto.religious_affiliation.visible,
-      };
-    }
-    if (updateTutorProfileDto.gender) {
-      user.gender = {
-        value: updateTutorProfileDto.gender.value,
-        visible: updateTutorProfileDto.gender.visible,
-      };
-    }
-
-    if (updateTutorProfileDto.price_per_hour) {
-      user.pricePerHour = updateTutorProfileDto.price_per_hour;
-    }
-
-    if (updateTutorProfileDto.terms_and_conditions_agreed) {
-      user.termsAndConditionsAgreed = updateTutorProfileDto.terms_and_conditions_agreed;
-    }
-
-    return await this.userRepository.save(user);
-  }
-
-  async updateTutorAvailability(
-    id: string,
-    weeklyAvailabilityDto: WeeklyAvailabilityDto,
-  ): Promise<User> {
-    const user = await this.userRepository.findOneBy({ id });
-    if (!user) {
-      this.exceptionHandler.throwNotFound(_404.USER_NOT_FOUND);
-    }
-
-    if (user.role !== EUserRole.TUTOR) {
-      this.exceptionHandler.throwNotFound(_404.TUTOR_NOT_FOUND);
-    }
-
-    user.weeklyAvailability = weeklyAvailabilityDto;
-    return await this.userRepository.save(user);
-  }
-
-  async getTutorProfile(id: string): Promise<TutorProfileDto> {
-    const user = await this.userRepository.findOne({
-      where: { id },
-      relations: ['portfolio'],
-    });
-
-    if (!user || user.role !== EUserRole.TUTOR) {
-      this.exceptionHandler.throwNotFound(_404.TUTOR_NOT_FOUND);
-    }
-
-    return TutorProfileDto.fromEntity(user);
-  }
-
-  async getTutorSchedule(
-    id: string,
-    startDate?: string,
-  ): Promise<WeeklyScheduleDto> {
-    const user = await this.userRepository.findOneBy({ id });
-    if (!user || user.role !== EUserRole.TUTOR) {
-      this.exceptionHandler.throwNotFound(_404.TUTOR_NOT_FOUND);
-    }
-
-    // Implementation of schedule retrieval logic
-    // This is a placeholder - you'll need to implement the actual schedule logic
-    return new WeeklyScheduleDto();
-  }
-
-  async getUpcomingSessions(id: string): Promise<Booking[]> {
-    const user = await this.userRepository.findOneBy({ id });
-    if (!user || user.role !== EUserRole.TUTOR) {
-      this.exceptionHandler.throwNotFound(_404.TUTOR_NOT_FOUND);
-    }
-
-    return this.bookingRepository.find({
-      where: {
-        tutor: { id },
-        status: 'scheduled',
-        scheduled_time: MoreThanOrEqual(new Date()),
-      },
-      relations: ['student', 'tutor'],
-    });
-  }
-
-  async getSessionDetails(id: string): Promise<SessionDetailsDto> {
-    const booking = await this.bookingRepository.findOne({
-      where: { id },
-      relations: ['student', 'tutor'],
-    });
-
-    if (!booking) {
-      this.exceptionHandler.throwNotFound(_404.BOOKING_NOT_FOUND);
-    }
-
-    return SessionDetailsDto.fromEntity(booking);
-  }
-
-  async getSessionInvitations(id: string): Promise<SessionInvitationDto[]> {
-    const user = await this.userRepository.findOneBy({ id });
-    if (!user || user.role !== EUserRole.TUTOR) {
-      this.exceptionHandler.throwNotFound(_404.TUTOR_NOT_FOUND);
-    }
-
-    // Implementation of session invitations retrieval
-    // This is a placeholder - you'll need to implement the actual invitations logic
-    return [];
-  }
-
-  async getTutorDashboard(id: string): Promise<TutorDashboardDto> {
-    const user = await this.userRepository.findOne({
-      where: { id },
-      relations: ['portfolio'],
-    });
-
-    if (!user || user.role !== EUserRole.TUTOR) {
-      this.exceptionHandler.throwNotFound(_404.TUTOR_NOT_FOUND);
-    }
-
-    return TutorDashboardDto.fromEntity(user);
   }
 }

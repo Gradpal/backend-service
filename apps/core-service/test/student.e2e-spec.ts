@@ -89,7 +89,7 @@ describe('StudentController (e2e)', () => {
         password: await hashPassword('testPassword123'),
         role: EUserRole.STUDENT,
         status: EUserStatus.ACTIVE,
-        country_of_residence: 'USA',
+        countryOfResidence: 'USA',
         phone_number: '+1234567890',
         userCode: 'STU123',
         profilePicture: 'https://example.com/default-profile.jpg',
@@ -99,7 +99,7 @@ describe('StudentController (e2e)', () => {
       testStudent = await studentRepository.save({
         profileId: testStudentUser.id,
         credits: 100,
-        country_of_residence: 'USA',
+        countryOfResidence: 'USA',
         current_timezone: 'UTC',
         timezone_display_format: '24h',
         religious_affiliation: 'None',

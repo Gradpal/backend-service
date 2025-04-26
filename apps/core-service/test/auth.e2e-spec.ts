@@ -82,7 +82,7 @@ describe('AuthController (e2e)', () => {
         password: await hashPassword('password123'),
         role: EUserRole.STUDENT,
         status: EUserStatus.ACTIVE,
-        country_of_residence: 'USA',
+        countryOfResidence: 'USA',
         phone_number: '+1234567890',
         profilePicture: 'https://example.com/default-profile.jpg',
       });

@@ -50,23 +50,4 @@ export class User extends BaseEntity {
   @OneToOne(() => Portfolio)
   @JoinColumn({ name: 'portfolio_id' })
   portfolio: Portfolio;
-
-  // Tutor specific fields
-  @Column({ type: 'json', nullable: true })
-  weeklyAvailability: any;
-
-  @Column({ type: 'json', nullable: true })
-  languages: { value: string[]; visible: boolean };
-
-  @Column({ type: 'json', nullable: true })
-  religiousAffiliation: { value: string; visible: boolean };
-
-  @Column({ type: 'json', nullable: true })
-  gender: { value: string; visible: boolean };
-
-  @Column({ type: 'decimal', precision: 10, scale: 2, nullable: true })
-  pricePerHour: number;
-
-  @Column({ type: 'boolean', default: false })
-  termsAndConditionsAgreed: boolean;
 }

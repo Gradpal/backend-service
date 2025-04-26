@@ -2,6 +2,7 @@ import {
   IsArray,
   IsBoolean,
   IsDecimal,
+  IsNumber,
   IsOptional,
   IsString,
 } from 'class-validator';
@@ -10,18 +11,17 @@ import { ApiProperty } from '@nestjs/swagger';
 
 class InstitutionUpdate {
   name: string;
-  degree_type: string;
-  start_year: number;
-  end_year: number;
-  academic_transcript: Express.Multer.File;
-  degree_certificate: Express.Multer.File;
+  degreeType: string;
+  startYear: number;
+  endYear: number;
+  academicTranscript: Express.Multer.File;
+  degreeCertificate: Express.Multer.File;
 }
 
-export class UpdateTutorProfileDto {
+export class UpdatePortfolioProfileDto {
   @ApiProperty({ type: [String], required: false })
-  @IsArray()
   @IsOptional()
-  countries_of_citizenship?: string[];
+  countriesOfCitizenship?: string[];
 
   @ApiProperty({ required: false })
   @IsString()
@@ -35,7 +35,7 @@ export class UpdateTutorProfileDto {
 
   @ApiProperty({ type: Visibility<string>, required: false })
   @IsOptional()
-  religious_affiliation?: Visibility<string>;
+  religiousAffiliation?: Visibility<string>;
 
   @ApiProperty({ type: Visibility<string[]>, required: false })
   @IsOptional()
@@ -48,12 +48,12 @@ export class UpdateTutorProfileDto {
   @ApiProperty({ type: [String], required: false })
   @IsArray()
   @IsOptional()
-  session_type?: string[];
+  sessionType?: string[];
 
   @ApiProperty({ type: [String], required: false })
   @IsArray()
   @IsOptional()
-  academic_subjects?: string[];
+  academicSubjects?: string[];
 
   @ApiProperty({ required: false })
   @IsOptional()
@@ -72,7 +72,7 @@ export class UpdateTutorProfileDto {
   @ApiProperty({ required: false })
   @IsString()
   @IsOptional()
-  country_of_residence?: string;
+  countryOfResidence?: string;
 
   @ApiProperty({ required: false })
   @IsString()
@@ -95,12 +95,12 @@ export class UpdateTutorProfileDto {
 
   @ApiProperty({ type: 'string', format: 'binary', required: false })
   @IsOptional()
-  introductory_video?: Express.Multer.File;
+  introductoryVideo?: Express.Multer.File;
 
   @ApiProperty({ required: false })
   @IsString()
   @IsOptional()
-  personal_statement?: string;
+  personalStatement?: string;
 
   @ApiProperty({ required: false })
   @IsBoolean()
@@ -115,8 +115,6 @@ export class UpdateTutorProfileDto {
   @IsOptional()
   weekely_availability?: any;
 
-  @ApiProperty({ required: false })
-  @IsBoolean()
   @IsOptional()
-  terms_and_conditions_agreed?: boolean;
+  termsAndConditionsAgreed?: boolean;
 }

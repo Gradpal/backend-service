@@ -102,6 +102,18 @@ export class CoreServiceConfigService {
     return this.configService.getOrThrow('STRIPE_WEBHOOK_SECRET');
   }
 
+  get googleClientId(): string {
+    return this.configService.getOrThrow('GOOGLE_CLIENT_ID');
+  }
+
+  get googleClientSecret(): string {
+    return this.configService.getOrThrow('GOOGLE_CLIENT_SECRET');
+  }
+
+  get googleRedirectUri(): string {
+    return this.configService.getOrThrow('GOOGLE_REDIRECT_URI');
+  }
+
   STRIPE_WEBHOOK_SECRET;
 
   getFrontendUrl(): string {

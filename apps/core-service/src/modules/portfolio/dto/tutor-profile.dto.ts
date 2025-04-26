@@ -1,5 +1,6 @@
-import { User } from '@core-service/modules/user/entities/user.entity';
 import { ApiProperty } from '@nestjs/swagger';
+import { User } from '../../user/entities/user.entity';
+import { Portfolio } from '../entities/portfolio.entity';
 
 export class TutorProfileDto {
   @ApiProperty()
@@ -22,12 +23,6 @@ export class TutorProfileDto {
 
   @ApiProperty()
   timezone: string;
-
-  @ApiProperty()
-  userCode: string;
-
-  @ApiProperty()
-  lastSeen: Date;
 
   @ApiProperty()
   rating: number;
@@ -62,25 +57,52 @@ export class TutorProfileDto {
   @ApiProperty()
   introductoryVideo: string;
 
-  static fromEntity(tutor: User): TutorProfileDto {
+  @ApiProperty()
+  weeklyAvailability: {
+    day: string;
+    slots: {
+      start: string;
+      end: string;
+    }[];
+  }[];
+
+  @ApiProperty()
+  educationRecords: {
+    institution: string;
+    degree: string;
+    fieldOfStudy: string;
+    startDate: Date;
+    endDate?: Date;
+  }[];
+
+  static fromEntity(user: User, portfolio: Portfolio): TutorProfileDto {
     const dto = new TutorProfileDto();
-    dto.id = tutor.id;
-    dto.name = `${tutor?.firstName} ${tutor?.lastName}`;
-    dto.profilePicture = tutor?.profilePicture;
-    dto.university = tutor.portfolio.university;
-    dto.isVerified = tutor.portfolio.isVerified;
-    dto.country = tutor.portfolio?.countryOfResidence;
-    dto.timezone = tutor.portfolio.timezone;
-    dto.rating = tutor.portfolio.rating;
-    dto.totalStudents = tutor.portfolio.totalStudents;
-    dto.totalLessons = tutor.portfolio.totalLessons;
-    dto.attendanceRate = tutor.portfolio.attendanceRate;
-    dto.responseRate = tutor.portfolio.responseRate;
-    dto.repeatStudents = tutor.portfolio.repeatStudents;
-    dto.personalStatement = tutor.portfolio.personalStatement;
-    dto.lessonTypes = tutor.portfolio.session_type || [];
-    dto.academicSubjects = tutor.portfolio.academicSubjects || [];
-    dto.introductoryVideo = tutor.portfolio.introductoryVideo;
+    dto.id = user.id;
+    dto.name = `${user.firstName} ${user.lastName}`;
+    dto.profilePicture = user.profilePicture;
+    dto.university = portfolio.university;
+    dto.isVerified = portfolio.isVerified;
+    dto.country = portfolio.countryOfResidence;
+    dto.timezone = portfolio.timezone;
+    dto.rating = portfolio.rating;
+    dto.totalStudents = portfolio.totalStudents;
+    dto.totalLessons = portfolio.totalLessons;
+    dto.attendanceRate = portfolio.attendanceRate;
+    dto.responseRate = portfolio.responseRate;
+    dto.repeatStudents = portfolio.repeatStudents;
+    dto.personalStatement = portfolio.personalStatement;
+    dto.languages = portfolio.languages?.value || [];
+    dto.lessonTypes = portfolio.sessionType || [];
+    dto.academicSubjects = portfolio.academicSubjects || [];
+    dto.introductoryVideo = portfolio.introductoryVideo;
+    dto.weeklyAvailability = portfolio.weeklyAvailability;
+    dto.educationRecords = portfolio.educationRecords?.map((record) => ({
+      institution: record.institution,
+      degree: record.degree,
+      fieldOfStudy: record.fieldOfStudy,
+      startDate: record.startDate,
+      endDate: record.endDate,
+    }));
     return dto;
   }
 }
