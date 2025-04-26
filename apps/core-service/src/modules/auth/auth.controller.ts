@@ -14,13 +14,6 @@ import { ForgotPasswordDTO } from './dto/forgot-password.dto';
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  // @Public()
-  // @Post('/register')
-  // @ApiBody({ type: RegisterDTO })
-  // async register(@Body() dto: RegisterDTO) {
-  //   return await this.authService.register(dto);
-  // }
-
   @Public()
   @Post('/login')
   @ApiBody({ type: LoginDTO })
