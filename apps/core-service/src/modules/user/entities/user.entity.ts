@@ -3,6 +3,7 @@ import { EUserRole } from '../enums/user-role.enum';
 import { EUserStatus } from '../enums/user-status.enum';
 import { BaseEntity } from '@app/common/database/base.entity';
 import { Portfolio } from '@core-service/modules/portfolio/entities/portfolio.entity';
+import { AcademicEmailVerificationDTO } from '../dto/create-user.dto';
 
 @Entity()
 export class User extends BaseEntity {
@@ -46,6 +47,9 @@ export class User extends BaseEntity {
 
   @Column({ default: 0 })
   credits: number;
+
+  @Column({ type: 'json', nullable: true })
+  academicEmailVerfication: AcademicEmailVerificationDTO;
 
   @OneToOne(() => Portfolio)
   @JoinColumn({ name: 'portfolio_id' })

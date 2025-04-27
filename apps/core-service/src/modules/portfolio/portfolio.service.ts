@@ -38,7 +38,6 @@ export class PortfolioService {
     private readonly bookingRepository: Repository<Booking>,
     private readonly userService: UserService,
     private readonly exceptionHandler: ExceptionHandler,
-    private readonly brainService: BrainService,
     private readonly minioService: MinioClientService,
   ) {}
 
