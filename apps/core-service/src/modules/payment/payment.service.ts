@@ -44,11 +44,22 @@ export class PaymentService {
         },
       ],
       mode: 'payment',
-      success_url: `${this.configService.clientUrl}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${this.configService.clientUrl}/payment-failed`,
       metadata: {
         studentId: student.id,
         credits,
+      },
+      redirect_on_completion: 'if_required',
+      ui_mode: 'embedded',
+      after_expiration: {
+        recovery: {
+          enabled: true,
+        },
+      },
+      automatic_tax: {
+        enabled: true,
+      },
+      tax_id_collection: {
+        enabled: true,
       },
     });
 

@@ -8,8 +8,6 @@ import { _409 } from '@app/common/constants/errors-constants';
 import { plainToClass } from 'class-transformer';
 import { BrainService } from '@app/common/brain/brain.service';
 import { User } from '../user/entities/user.entity';
-import { CreateTutorPortfolioDto } from './dto/create-tutor-portfolio.dto';
-import { CreateStudentPortfolioDto } from './dto/create-student-portfolio.dto';
 import { Institution } from './dto/institution.dto';
 import { EducationRecord } from './entities/education-record.entity';
 import { CreateEducationRecordDto } from './dto/create-education-record.dto';
@@ -222,8 +220,8 @@ export class PortfolioService {
           (institution) => ({
             name: institution.name,
             degreeType: institution.degreeType,
-            yearStarted: institution.startYear,
-            yearEnded: institution.endYear,
+            yearStarted: institution.yearStarted,
+            yearEnded: institution.yearEnded,
             academicTranscript: null,
             degreeCertificate: null,
           }),
@@ -307,8 +305,7 @@ export class PortfolioService {
       this.exceptionHandler.throwNotFound(_404.TUTOR_NOT_FOUND);
     }
 
-    portfolio.weeklyAvailability =
-      updatePortfolioAvailabilityDto.weeklyAvailability;
+    portfolio.weeklyAvailability = updatePortfolioAvailabilityDto;
     return await this.portfolioRepository.save(portfolio);
   }
 

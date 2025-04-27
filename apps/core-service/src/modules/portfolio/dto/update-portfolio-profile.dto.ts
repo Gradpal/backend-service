@@ -12,8 +12,8 @@ import { ApiProperty } from '@nestjs/swagger';
 class InstitutionUpdate {
   name: string;
   degreeType: string;
-  startYear: number;
-  endYear: number;
+  yearStarted: number;
+  yearEnded: number;
   academicTranscript: Express.Multer.File;
   degreeCertificate: Express.Multer.File;
 }

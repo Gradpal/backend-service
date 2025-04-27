@@ -61,6 +61,7 @@ const enableValidationPipe = (app: INestApplication) => {
       forbidUnknownValues: true,
       whitelist: true,
       forbidNonWhitelisted: true,
+      transform: true,
     }),
   );
 };

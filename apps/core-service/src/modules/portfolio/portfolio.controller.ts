@@ -24,11 +24,6 @@ import {
 } from '@nestjs/swagger';
 import { EUserRole } from '../user/enums/user-role.enum';
 import { AnyFilesInterceptor, FileInterceptor } from '@nestjs/platform-express';
-import { CreateTutorPortfolioDto } from './dto/create-tutor-portfolio.dto';
-import { CreateStudentPortfolioDto } from './dto/create-student-portfolio.dto';
-import { User } from '../user/entities/user.entity';
-import { AuthUser } from '@core-service/decorators/auth.decorator';
-import { CreatePortfolioDto } from './dto/create-portfolio.dto';
 import { CreateEducationRecordDto } from './dto/create-education-record.dto';
 import { UpdateEducationRecordDto } from './dto/update-education-record.dto';
 import { UpdatePortfolioProfileDto } from './dto/update-portfolio-profile.dto';
@@ -108,7 +103,7 @@ export class PortfolioController {
     );
   }
 
-  @Put(':id/availability')
+  @Post(':id/availability')
   @UseGuards(AuthGuard)
   @ApiOperation({ summary: 'Update portfolio availability' })
   @ApiParam({ name: 'id', description: 'Portfolio ID' })
@@ -117,6 +112,7 @@ export class PortfolioController {
     @Param('id') id: string,
     @Body() updatePortfolioAvailabilityDto: UpdatePortfolioAvailabilityDto,
   ) {
+    console.log(updatePortfolioAvailabilityDto);
     return this.portfolioService.updatePortfolioAvailability(
       id,
       updatePortfolioAvailabilityDto,
