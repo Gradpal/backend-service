@@ -89,7 +89,13 @@ export class EnvironmentVariables {
   @Expose()
   DEFAULT_PASSWORD: string;
   @Expose()
-  STRIPE_SECRET_KEY:string;
+  STRIPE_SECRET_KEY: string;
   @Expose()
-  STRIPE_WEBHOOK_SECRET:string;
+  STRIPE_WEBHOOK_SECRET: string;
+  @Expose()
+  GOOGLE_CLIENT_ID: string;
+  @Expose()
+  GOOGLE_CLIENT_SECRET: string;
+  @Expose()
+  GOOGLE_REDIRECT_URI: string;
 }

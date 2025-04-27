@@ -82,7 +82,7 @@ describe('UserController (e2e)', () => {
         password: hashedPass,
         role: EUserRole.STUDENT,
         status: EUserStatus.ACTIVE,
-        country_of_residence: 'USA',
+        countryOfResidence: 'USA',
         phone_number: '+1234567890',
         userName: 'testuser',
       });

@@ -50,7 +50,7 @@ export class PaymentController {
       },
     },
   })
-  @PreAuthorize(EUserRole.STUDENT)
+  // @PreAuthorize(EUserRole.STUDENT)
   @AuthUser()
   async buyCredits(
     @Body() body: BuyCreditsDto,

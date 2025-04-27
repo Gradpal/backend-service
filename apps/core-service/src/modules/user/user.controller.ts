@@ -10,6 +10,8 @@ import {
   UseInterceptors,
   UploadedFile,
   Req,
+  Put,
+  UploadedFiles,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import {
@@ -95,8 +97,7 @@ export class UserController {
 
   @Get('by-id/:id')
   @ApiQuery({ name: 'id', required: true })
-  @PreAuthorize(EUserRole.SUPER_ADMIN)
-  async getUserById(@Query('id') id: string) {
+  async getUserById(@Param('id') id: string) {
     const user = await this.userService.findOne(id);
     return user;
   }
@@ -133,10 +134,5 @@ export class UserController {
   @Get('/get-students/')
   findAllStudents() {
     return this.userService.findAllStudents();
-  }
-
-  @Get('/get-tutors/')
-  findAllLectures() {
-    return this.userService.findAllTutors();
   }
 }

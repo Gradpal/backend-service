@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
@@ -24,12 +24,17 @@ import {
 import { UpdateSettingsDto } from './dto/update-settings.dto';
 import { USER_BY_EMAIL_CACHE } from '@core-service/common/constants/brain.constants';
 import { EmailTemplates } from '@core-service/configs/email-template-configs/email-templates.config';
+import { Booking } from '../booking/entities/booking.entity';
+import { SessionDetailsDto } from '../booking/dto/session-details.dto';
+import { MoreThanOrEqual } from 'typeorm';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
+    @InjectRepository(Booking)
+    private readonly bookingRepository: Repository<Booking>,
     private readonly notificationProcessor: NotificationPreProcessor,
     private readonly exceptionHandler: ExceptionHandler,
     private readonly brainService: BrainService,
@@ -168,8 +173,10 @@ export class UserService {
   }
 
   async findOne(id: string) {
-    const user = await this.userRepository.findOne({ where: { id } });
-    if (!user) this.exceptionHandler.throwNotFound(_404.USER_NOT_FOUND);
+    const user = await this.userRepository.findOne({
+      where: { id },
+      relations: ['portfolio'],
+    });
     return user;
   }
 

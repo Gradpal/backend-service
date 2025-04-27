@@ -9,6 +9,7 @@ import { UserModule } from '../user/user.module';
 import { PaymentService } from '../payment/payment.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Payment } from '../payment/entities/payment.entity';
+import { PortfolioModule } from '../portfolio/portfolio.module';
 
 @Global()
 @Module({
@@ -24,6 +25,7 @@ import { Payment } from '../payment/entities/payment.entity';
       }),
     }),
     UserModule,
+    PortfolioModule,
   ],
   controllers: [AuthController],
   providers: [

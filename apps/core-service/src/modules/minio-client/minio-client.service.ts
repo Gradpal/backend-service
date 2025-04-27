@@ -38,10 +38,13 @@ export class MinioClientService {
    */
   async uploadFile(file: Express.Multer.File) {
     const fileName = `${Date.now()}-${file.originalname}`;
+    const buffer = Buffer.isBuffer(file.buffer)
+      ? file.buffer
+      : Buffer.from(file.buffer);
     await this.minioClient.putObject(
       this.bucketName,
       fileName,
-      file.buffer,
+      buffer,
       file.size,
     );
     return this.getFilePath(fileName);

@@ -1,18 +1,30 @@
+import { Entity, Column, ManyToOne } from 'typeorm';
 import { BaseEntity } from '@app/common/database/base.entity';
-import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
-import { Institution } from './institution.entity';
+import { Portfolio } from './portfolio.entity';
 
-@Entity('education_record')
+@Entity()
 export class EducationRecord extends BaseEntity {
-  @ManyToOne(() => Institution)
-  @JoinColumn({ name: 'institution_id' })
-  institution: Institution;
-  @Column()
-  degreeType: string;
-  @Column()
-  startYear: string;
-  @Column()
-  endYear: string;
-  @Column()
-  degreeCertificate?: string;
+  @ManyToOne(() => Portfolio, (portfolio) => portfolio.educationRecords)
+  portfolio: Portfolio;
+
+  @Column({ type: 'varchar', length: 255 })
+  institution: string;
+
+  @Column({ type: 'varchar', length: 255 })
+  degree: string;
+
+  @Column({ type: 'varchar', length: 255 })
+  fieldOfStudy: string;
+
+  @Column({ type: 'date' })
+  startDate: Date;
+
+  @Column({ type: 'date', nullable: true })
+  endDate: Date;
+
+  @Column({ type: 'boolean', default: false })
+  isCurrent: boolean;
+
+  @Column({ type: 'text', nullable: true })
+  description: string;
 }
