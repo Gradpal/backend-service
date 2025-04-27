@@ -7,6 +7,8 @@ import {
   ManyToMany,
   OneToOne,
   OneToMany,
+  PrimaryGeneratedColumn,
+  ManyToOne,
 } from 'typeorm';
 import { User } from '../../user/entities/user.entity';
 import { EducationRecord } from './education-record.entity';
@@ -14,8 +16,11 @@ import { Institution } from '../dto/institution.dto';
 
 @Entity('portfolio')
 export class Portfolio extends BaseEntity {
-  @OneToOne(() => User)
-  @JoinColumn({ name: 'user_id' })
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
+
+  @ManyToOne(() => User, (user) => user.portfolio)
+  @JoinColumn()
   user: User;
 
   @Column({ type: 'varchar', length: 255, nullable: true })
@@ -30,7 +35,7 @@ export class Portfolio extends BaseEntity {
   @Column({ type: 'varchar', length: 255, nullable: true })
   timezoneDisplayFormat: string;
 
-  @Column({ type: 'varchar', length: 255, nullable: true })
+  @Column({ type: 'text', nullable: true })
   personalStatement: string;
 
   @Column({ nullable: true })
@@ -42,19 +47,19 @@ export class Portfolio extends BaseEntity {
   @Column({ type: 'json', nullable: true })
   academicSubjects: string[];
 
-  @Column({ type: 'decimal', precision: 10, scale: 2, nullable: true })
+  @Column({ type: 'float', nullable: true })
   rating: number;
 
-  @Column({ type: 'int', default: 0 })
+  @Column({ type: 'int', nullable: true })
   totalStudents: number;
 
-  @Column({ type: 'int', default: 0 })
+  @Column({ type: 'int', nullable: true })
   totalLessons: number;
 
-  @Column({ type: 'decimal', precision: 5, scale: 2, default: 0 })
+  @Column({ type: 'float', nullable: true })
   attendanceRate: number;
 
-  @Column({ type: 'decimal', precision: 5, scale: 2, default: 0 })
+  @Column({ type: 'float', nullable: true })
   responseRate: number;
 
   @Column({ type: 'int', default: 0 })

@@ -1,108 +1,100 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { Expose, Transform } from 'class-transformer';
 import { User } from '../../user/entities/user.entity';
 import { Portfolio } from '../entities/portfolio.entity';
-
+export type TimeSlot = {
+  start: string;
+  end: string;
+};
+export type WeeklyAvailability = {
+  [key: string]: TimeSlot[];
+  sunday: TimeSlot[];
+  monday: TimeSlot[];
+  tuesday: TimeSlot[];
+  wednesday: TimeSlot[];
+  thursday: TimeSlot[];
+  friday: TimeSlot[];
+  saturday: TimeSlot[];
+}; 
 export class TutorProfileDto {
-  @ApiProperty()
+  @Expose()
   id: string;
 
-  @ApiProperty()
-  name: string;
+  @Expose()
+  firstName: string;
 
-  @ApiProperty()
-  profilePicture: string;
+  @Expose()
+  lastName: string;
 
-  @ApiProperty()
-  university: string;
-
-  @ApiProperty()
-  isVerified: boolean;
-
-  @ApiProperty()
-  country: string;
-
-  @ApiProperty()
-  timezone: string;
-
-  @ApiProperty()
+  @Expose()
+  @Transform(({ obj }) => obj.rating || 0)
   rating: number;
 
-  @ApiProperty()
+  @Expose()
+  @Transform(({ obj }) => obj.totalStudents || 0)
   totalStudents: number;
 
-  @ApiProperty()
+  @Expose()
+  @Transform(({ obj }) => obj.totalLessons || 0)
   totalLessons: number;
 
-  @ApiProperty()
+  @Expose()
+  @Transform(({ obj }) => obj.attendanceRate || 0)
   attendanceRate: number;
 
-  @ApiProperty()
+  @Expose()
+  @Transform(({ obj }) => obj.responseRate || 0)
   responseRate: number;
 
-  @ApiProperty()
-  repeatStudents: number;
-
-  @ApiProperty()
+  @Expose()
+  @Transform(({ obj }) => obj.personalStatement || '')
   personalStatement: string;
 
-  @ApiProperty({ type: [String] })
+  @Expose()
+  @Transform(({ obj }) => obj.languages || [])
   languages: string[];
 
-  @ApiProperty({ type: [String] })
-  lessonTypes: string[];
-
-  @ApiProperty({ type: [String] })
-  academicSubjects: string[];
-
-  @ApiProperty()
-  introductoryVideo: string;
-
-  @ApiProperty()
-  weeklyAvailability: {
-    day: string;
-    slots: {
-      start: string;
-      end: string;
-    }[];
+  @Expose()
+  @Transform(({ obj }) => obj.institutions || [])
+  institutions: {
+    name: string;
+    degreeType: string;
+    yearStarted: number;
+    yearEnded: number;
   }[];
 
-  @ApiProperty()
-  educationRecords: {
-    institution: string;
-    degree: string;
-    fieldOfStudy: string;
-    startDate: Date;
-    endDate?: Date;
-  }[];
+  @Expose()
+  @Transform(({ obj }) => obj.introductoryVideo || null)
+  introductoryVideo?: string;
+
+  @Expose()
+  @Transform(({ obj }) => obj.profilePicture || null)
+  profilePicture?: string;
+
+  @Expose()
+  @Transform(({ obj }) => obj.weeklyAvailability || {})
+  weeklyAvailability: WeeklyAvailability;
+
+  @Expose()
+  @Transform(({ obj }) => obj.offeredServices || [])
+  offeredServices: string[];
 
   static fromEntity(user: User, portfolio: Portfolio): TutorProfileDto {
     const dto = new TutorProfileDto();
-    dto.id = user.id;
-    dto.name = `${user.firstName} ${user.lastName}`;
-    dto.profilePicture = user.profilePicture;
-    dto.university = portfolio.university;
-    dto.isVerified = portfolio.isVerified;
-    dto.country = portfolio.countryOfResidence;
-    dto.timezone = portfolio.timezone;
-    dto.rating = portfolio.rating;
-    dto.totalStudents = portfolio.totalStudents;
-    dto.totalLessons = portfolio.totalLessons;
-    dto.attendanceRate = portfolio.attendanceRate;
-    dto.responseRate = portfolio.responseRate;
-    dto.repeatStudents = portfolio.repeatStudents;
-    dto.personalStatement = portfolio.personalStatement;
+    dto.id = portfolio.id;
+    dto.firstName = user.firstName;
+    dto.lastName = user.lastName;
+    dto.rating = portfolio.rating || 0;
+    dto.totalStudents = portfolio.totalStudents || 0;
+    dto.totalLessons = portfolio.totalLessons || 0;
+    dto.attendanceRate = portfolio.attendanceRate || 0;
+    dto.responseRate = portfolio.responseRate || 0;
+    dto.personalStatement = portfolio.personalStatement || '';
     dto.languages = portfolio.languages?.value || [];
-    dto.lessonTypes = portfolio.sessionType || [];
-    dto.academicSubjects = portfolio.academicSubjects || [];
-    dto.introductoryVideo = portfolio.introductoryVideo;
-    dto.weeklyAvailability = portfolio.weeklyAvailability;
-    dto.educationRecords = portfolio.educationRecords?.map((record) => ({
-      institution: record.institution,
-      degree: record.degree,
-      fieldOfStudy: record.fieldOfStudy,
-      startDate: record.startDate,
-      endDate: record.endDate,
-    }));
+    dto.institutions = portfolio.institutions || [];
+    dto.introductoryVideo = portfolio.introductoryVideo || null;
+    dto.profilePicture = user.profilePicture || null;
+    dto.weeklyAvailability = portfolio.weeklyAvailability || {};
+    dto.offeredServices = portfolio.sessionType || [];
     return dto;
   }
 }

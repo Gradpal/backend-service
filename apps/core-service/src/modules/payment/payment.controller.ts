@@ -74,11 +74,12 @@ export class PaymentController {
   @PreAuthorize(EUserRole.TUTOR)
   @ApiOperation({ summary: 'Check if user can proceed with payments' })
   async checkPaymentCapability(@Req() req) {
+    console.log('checkPaymentCapability-------------->');
     const user: User = req.user as User;
     if (!user.stripeAccountId) {
       return { canProceedPayments: false, message: 'No Stripe account found' };
     }
-    return this.paymentService.checkPaymentCapability(user.stripeAccountId);
+    return await this.paymentService.checkPaymentCapability(user.stripeAccountId);
   }
 
   @Post('session/complete')

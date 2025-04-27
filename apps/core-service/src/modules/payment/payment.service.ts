@@ -137,6 +137,7 @@ export class PaymentService {
     accountLink?: string;
     loginLink?: string;
   }> {
+    console.log('stripeAccountId', stripeAccountId);
     try {
       const account = await this.stripe.accounts.retrieve(stripeAccountId);
       const requirements = account.requirements;
