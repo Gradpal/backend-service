@@ -6,7 +6,6 @@ import { UserService } from '../user/user.service';
 import { ExceptionHandler } from '@app/common/exceptions/exceptions.handler';
 import { _409 } from '@app/common/constants/errors-constants';
 import { plainToClass } from 'class-transformer';
-import { BrainService } from '@app/common/brain/brain.service';
 import { User } from '../user/entities/user.entity';
 import { Institution } from './dto/institution.dto';
 import { EducationRecord } from './entities/education-record.entity';
@@ -18,13 +17,13 @@ import { UpdatePortfolioAvailabilityDto } from './dto/update-portfolio-availabil
 import { _404 } from '@app/common/constants/errors-constants';
 import { EUserRole } from '../user/enums/user-role.enum';
 import { TutorProfileDto } from './dto/tutor-profile.dto';
-import { TutorDashboardDto } from './dto/tutor-dashboard.dto';
 import { WeeklyScheduleDto } from '../user/dto/schedule-slot.dto';
 import { SessionInvitationDto } from '../user/dto/session-invitation.dto';
 import { Booking, BookingStatus } from '../booking/entities/booking.entity';
 import { SessionDetailsDto } from '../booking/dto/session-details.dto';
 import { MoreThanOrEqual } from 'typeorm';
 import { MinioClientService } from '../minio-client/minio-client.service';
+import { createPaginatedResponse } from '@app/common/helpers/pagination.helper';
 @Injectable()
 export class PortfolioService {
   constructor(
@@ -402,5 +401,132 @@ export class PortfolioService {
     // Implementation of session invitations retrieval
     // This is a placeholder - you'll need to implement the actual invitations logic
     return [];
+  }
+
+  async basicSearchTutors({
+    name,
+    page = 1,
+    limit = 10,
+  }: {
+    name?: string;
+    page?: number;
+    limit?: number;
+  }) {
+    const query = this.userService
+      .getUserRepository()
+      .createQueryBuilder('user')
+      .where('user.role = :role', { role: 'TUTOR' });
+    if (name) {
+      query.andWhere(
+        '(user.firstName ILIKE :name OR user.lastName ILIKE :name)',
+        { name: `%${name}%` },
+      );
+    }
+    query.skip((page - 1) * limit).take(limit);
+    const [tutors, count] = await query.getManyAndCount();
+    return {
+      data: tutors,
+      total: count,
+      page,
+      limit,
+    };
+  }
+
+  async advancedSearchTutors({
+    subject,
+    language,
+    country,
+    priceMin,
+    priceMax,
+    name,
+    degree,
+    school,
+    category,
+    gender,
+    religion,
+    nationality,
+    dates,
+    page = 1,
+    limit = 10,
+  }: {
+    subject?: string;
+    language?: string;
+    country?: string;
+    priceMin?: number;
+    priceMax?: number;
+    name?: string;
+    degree?: string;
+    school?: string;
+    category?: string;
+    gender?: string;
+    religion?: string;
+    nationality?: string;
+    dates?: string;
+    page?: number;
+    limit?: number;
+  }) {
+    console.log(
+      name,
+      country,
+      subject,
+      language,
+      priceMin,
+      priceMax,
+      category,
+      gender,
+      religion,
+      nationality,
+      dates,
+      page,
+      limit,
+    );
+    const query = this.portfolioRepository
+      .createQueryBuilder('portfolio')
+      .leftJoinAndSelect('portfolio.user', 'user')
+      .where('user.role = :role', { role: EUserRole.TUTOR });
+
+    if (name) {
+      query.andWhere(
+        '(user.firstName ILIKE :name OR user.lastName ILIKE :name)',
+        { name: `%${name}%` },
+      );
+    }
+    if (country) {
+      query.andWhere('portfolio.countryOfResidence = :country', { country });
+    }
+    if (subject) {
+      query.andWhere(':subject = ANY(portfolio.academicSubjects)', { subject });
+    }
+    if (language) {
+      query.andWhere(':language = ANY(portfolio.spokenLanguages)', {
+        language,
+      });
+    }
+    if (priceMin) {
+      query.andWhere('portfolio.pricePerHour >= :priceMin', { priceMin });
+    }
+    if (priceMax) {
+      query.andWhere('portfolio.pricePerHour <= :priceMax', { priceMax });
+    }
+    if (category) {
+      query.andWhere(':category = ANY(portfolio.session_type)', { category });
+    }
+    if (gender) {
+      query.andWhere('portfolio.gender = :gender', { gender });
+    }
+    if (religion) {
+      query.andWhere('portfolio.religiousAffiliation = :religion', {
+        religion,
+      });
+    }
+    if (nationality) {
+      query.andWhere(':nationality = ANY(portfolio.countriesOfCitizenship)', {
+        nationality,
+      });
+    }
+
+    query.skip((page - 1) * limit).take(limit);
+    const [tutors, count] = await query.getManyAndCount();
+    return createPaginatedResponse(tutors, count, page, limit);
   }
 }
