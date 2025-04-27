@@ -310,7 +310,7 @@ export class PortfolioService {
   async getTutorProfile(id: string): Promise<TutorProfileDto> {
     const portfolio = await this.portfolioRepository.findOne({
       where: { id },
-      relations: ['user', 'educationRecords', 'educationRecords.institution'],
+      relations: ['user'],
     });
 
     if (!portfolio) {
