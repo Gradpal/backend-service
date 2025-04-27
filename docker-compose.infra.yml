@@ -32,7 +32,7 @@ services:
       - maria-db-data:/var/lib/mysql
 
   rabbitmq:
-    image: rabbitmq
+    image: rabbitmq:4.0.7
     ports:
       - '5672:5672'
 

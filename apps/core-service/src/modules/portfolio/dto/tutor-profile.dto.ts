@@ -1,6 +1,7 @@
 import { Expose, Transform } from 'class-transformer';
 import { User } from '../../user/entities/user.entity';
 import { Portfolio } from '../entities/portfolio.entity';
+import { AcademicEmailVerificationDTO } from '@core-service/modules/user/dto/create-user.dto';
 export type TimeSlot = {
   start: string;
   end: string;
@@ -14,7 +15,7 @@ export type WeeklyAvailability = {
   thursday: TimeSlot[];
   friday: TimeSlot[];
   saturday: TimeSlot[];
-}; 
+};
 export class TutorProfileDto {
   @Expose()
   id: string;
@@ -78,6 +79,10 @@ export class TutorProfileDto {
   @Transform(({ obj }) => obj.offeredServices || [])
   offeredServices: string[];
 
+  @Expose()
+  @Transform(({ obj }) => obj.academicEmailVerfication || null)
+  academicEmailVerfication: AcademicEmailVerificationDTO;
+
   static fromEntity(user: User, portfolio: Portfolio): TutorProfileDto {
     const dto = new TutorProfileDto();
     dto.id = portfolio.id;
@@ -95,6 +100,7 @@ export class TutorProfileDto {
     dto.profilePicture = user.profilePicture || null;
     dto.weeklyAvailability = portfolio.weeklyAvailability || {};
     dto.offeredServices = portfolio.sessionType || [];
+    dto.academicEmailVerfication = user.academicEmailVerfication || null;
     return dto;
   }
 }
