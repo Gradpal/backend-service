@@ -13,6 +13,7 @@ import { ResetPasswordDto } from './dto/reset-password.dto';
 import { ActivateAccount } from './dto/activate-account.dto';
 import { BrainService } from '@app/common/brain/brain.service';
 import { plainToClass } from 'class-transformer';
+import * as bcrypt from 'bcryptjs';
 import {
   FAILED_LOGIN_ATTEMPT,
   RESET_PASSWORD_CACHE,
@@ -24,6 +25,7 @@ import {
 import {
   generateAlphaNumericCode,
   hashPassword,
+  verifyAcademicEmailByDomain,
 } from '@core-service/common/helpers/all.helpers';
 import { CreateUserDTO } from '../user/dto/create-user.dto';
 import { MinioClientService } from '../minio-client/minio-client.service';
@@ -58,15 +60,15 @@ export class AuthService {
       this.exceptionHandler.throwUnauthorized(_401.ACCOUNT_LOCKED);
     }
 
-    // const passwordsMatch = await bcrypt.compare(
-    //   dto.password.toString(),
-    //   user.password.toString(),
-    // );
+    const passwordsMatch = await bcrypt.compare(
+      dto.password.toString(),
+      user.password.toString(),
+    );
 
-    // if (!passwordsMatch) {
-    //   // await this.handleFailedLogin(key, failedAttempts);
-    //   throw this.exceptionHandler.throwUnauthorized(_401.INVALID_CREDENTIALS);
-    // }
+    if (!passwordsMatch) {
+      // await this.handleFailedLogin(key, failedAttempts);
+      throw this.exceptionHandler.throwUnauthorized(_401.INVALID_CREDENTIALS);
+    }
 
     const token = await this.getToken(user);
     user = plainToClass(User, user);
@@ -78,6 +80,7 @@ export class AuthService {
   }
 
   async verifyAccount(dto: ActivateAccount): Promise<User> {
+    const academicEmailVerfication = verifyAcademicEmailByDomain(dto.email);
     await this.verifyOtp(dto.email, dto.otp);
     const cacheKey = this.brainService.getCacheKey(dto.email);
 
@@ -88,7 +91,6 @@ export class AuthService {
 
     const userEntity: User =
       await this.userService.getUserEntityFromDto(createUserDto);
-    console.log('----->', createUserDto);
     if (createUserDto.profilePicture) {
       userEntity.profilePicture = await this.minioService.uploadFile(
         createUserDto.profilePicture,
@@ -107,13 +109,16 @@ export class AuthService {
       await this.userService.saveUser(referrer);
     }
 
+    if (academicEmailVerfication.isValid) {
+      userEntity.academicEmailVerfication = academicEmailVerfication;
+    }
+
     const [savedUser, otp] = await Promise.all([
       this.userService.save(userEntity),
       this.brainService.forget(cacheKey),
     ]);
     const savedUserObject = plainToClass(User, savedUser);
-    const portfolio =
-      await this.portfolioService.createPortfolio(savedUserObject);
+    await this.portfolioService.createPortfolio(savedUserObject);
 
     await this.notificationProcessor.sendTemplateEmail(
       EmailTemplates.WELCOME,

@@ -21,6 +21,7 @@ import {
   ApiParam,
   ApiResponse,
   ApiConsumes,
+  ApiBearerAuth,
 } from '@nestjs/swagger';
 import { EUserRole } from '../user/enums/user-role.enum';
 import { AnyFilesInterceptor, FileInterceptor } from '@nestjs/platform-express';
@@ -37,10 +38,15 @@ import { SessionDetailsDto } from '../booking/dto/session-details.dto';
 import { SessionInvitationDto } from '../user/dto/session-invitation.dto';
 import { Public } from '@app/common/decorators/public.decorator';
 import { PreAuthorize } from '@core-service/decorators/auth.decorator';
+import { UserService } from '../user/user.service';
 
 @Controller('portfolio')
+@ApiBearerAuth()
 export class PortfolioController {
-  constructor(private readonly portfolioService: PortfolioService) {}
+  constructor(
+    private readonly portfolioService: PortfolioService,
+    private readonly userService: UserService,
+  ) {}
 
   @Get()
   findAll() {
@@ -176,5 +182,135 @@ export class PortfolioController {
     @Param('id') id: string,
   ): Promise<SessionInvitationDto[]> {
     return this.portfolioService.getSessionInvitations(id);
+  }
+
+  @Get('/all/search-tutors')
+  @Public()
+  @ApiQuery({
+    name: 'subject',
+    required: false,
+    type: String,
+    description: 'Subject to search for',
+  })
+  @ApiQuery({
+    name: 'language',
+    required: false,
+    type: String,
+    description: 'Language to search for',
+  })
+  @ApiQuery({
+    name: 'country',
+    required: false,
+    type: String,
+    description: 'Country to search for',
+  })
+  @ApiQuery({
+    name: 'priceMin',
+    required: false,
+    type: Number,
+    description: 'Minimum price to search for',
+  })
+  @ApiQuery({
+    name: 'priceMax',
+    required: false,
+    type: Number,
+    description: 'Maximum price to search for',
+  })
+  @ApiQuery({
+    name: 'name',
+    required: false,
+    type: String,
+    description: 'Name to search for',
+  })
+  @ApiQuery({
+    name: 'degree',
+    required: false,
+    type: String,
+    description: 'Degree to search for',
+  })
+  @ApiQuery({
+    name: 'school',
+    required: false,
+    type: String,
+    description: 'School to search for',
+  })
+  @ApiQuery({
+    name: 'category',
+    required: false,
+    type: String,
+    description: 'Category to search for',
+  })
+  @ApiQuery({
+    name: 'gender',
+    required: false,
+    type: String,
+    description: 'Gender to search for',
+  })
+  @ApiQuery({
+    name: 'religion',
+    required: false,
+    type: String,
+    description: 'Religion to search for',
+  })
+  @ApiQuery({
+    name: 'nationality',
+    required: false,
+    type: String,
+    description: 'Nationality to search for',
+  })
+  @ApiQuery({
+    name: 'dates',
+    required: false,
+    type: String,
+    description: 'Dates to search for',
+  })
+  @ApiQuery({
+    name: 'page',
+    required: false,
+    default: 1,
+    type: Number,
+    description: 'Page number to search for',
+  })
+  @ApiQuery({
+    name: 'limit',
+    required: false,
+    default: 10,
+    type: Number,
+    description: 'Limit number of results to search for',
+  })
+  async searchTutors(
+    @Query('subject') subject?: string,
+    @Query('language') language?: string,
+    @Query('country') country?: string,
+    @Query('priceMin') priceMin?: number,
+    @Query('priceMax') priceMax?: number,
+    @Query('name') name?: string,
+    @Query('degree') degree?: string,
+    @Query('school') school?: string,
+    @Query('category') category?: string,
+    @Query('gender') gender?: string,
+    @Query('religion') religion?: string,
+    @Query('nationality') nationality?: string,
+    @Query('dates') dates?: string,
+    @Query('page') page: number = 1,
+    @Query('limit') limit: number = 10,
+  ) {
+    return this.portfolioService.advancedSearchTutors({
+      subject,
+      language,
+      country,
+      priceMin,
+      priceMax,
+      name,
+      degree,
+      school,
+      category,
+      gender,
+      religion,
+      nationality,
+      dates,
+      page,
+      limit,
+    });
   }
 }

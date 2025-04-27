@@ -57,3 +57,13 @@ export class CreateUserDTO {
   @IsOptional()
   profilePicture?: Express.Multer.File;
 }
+
+export class AcademicEmailVerificationDTO {
+  @IsOptional()
+  @ApiProperty()
+  isValid: boolean;
+
+  @IsOptional()
+  @ApiProperty()
+  message: string;
+}

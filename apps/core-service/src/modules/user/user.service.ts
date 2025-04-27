@@ -42,6 +42,10 @@ export class UserService {
     private readonly configService: CoreServiceConfigService,
   ) {}
 
+  public getUserRepository() {
+    return this.userRepository;
+  }
+
   async confirmUserProfile(confirmProfileDto: ConfirmUserProfileDto) {
     const user = await this.findOne(confirmProfileDto.userId);
     user.password = await hashPassword(confirmProfileDto.password);
