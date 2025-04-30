@@ -32,7 +32,7 @@ services:
       - maria-db-data:/var/lib/mysql
 
   rabbitmq:
-    image: rabbitmq:4.0.7
+    image: mirror.gcr.io/rabbitmq:4.0.8  # TODO: This version should be updated to the latest one once its bug free.
     ports:
       - '5672:5672'
 
