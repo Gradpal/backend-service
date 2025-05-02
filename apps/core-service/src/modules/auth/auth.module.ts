@@ -10,6 +10,7 @@ import { PaymentService } from '../payment/payment.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Payment } from '../payment/entities/payment.entity';
 import { PortfolioModule } from '../portfolio/portfolio.module';
+import { PaymentModule } from '../payment/payment.module';
 
 @Global()
 @Module({
@@ -26,6 +27,7 @@ import { PortfolioModule } from '../portfolio/portfolio.module';
     }),
     UserModule,
     PortfolioModule,
+    PaymentModule,
   ],
   controllers: [AuthController],
   providers: [
