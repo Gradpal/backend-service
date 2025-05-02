@@ -2,9 +2,7 @@ import {
   Controller,
   Post,
   Body,
-  UploadedFile,
   UseInterceptors,
-  Req,
   Get,
   Param,
   Patch,
@@ -13,6 +11,7 @@ import {
   Put,
   Query,
   UploadedFiles,
+  Req,
 } from '@nestjs/common';
 import { PortfolioService } from './portfolio.service';
 import {
@@ -39,6 +38,8 @@ import { SessionInvitationDto } from '../user/dto/session-invitation.dto';
 import { Public } from '@app/common/decorators/public.decorator';
 import { PreAuthorize } from '@core-service/decorators/auth.decorator';
 import { UserService } from '../user/user.service';
+import { ETierCategory } from '../subjects/subject-tier/enums/tier-category.enum';
+import { User } from '../user/entities/user.entity';
 
 @Controller('portfolio')
 @ApiBearerAuth()
@@ -312,5 +313,15 @@ export class PortfolioController {
       page,
       limit,
     });
+  }
+
+  @Get(':id/subject-tier')
+  @Public()
+  @ApiOperation({ summary: 'Get subject tier for a portfolio' })
+  @ApiParam({ name: 'id', description: 'Portfolio ID' })
+  @ApiQuery({ name: 'subject', required: true, type: String })
+  @ApiResponse({ status: 200, type: String })
+  getSubjectTier(@Param('id') id: string, @Query('subject') subject: string) {
+    return this.portfolioService.getSubjectTier(id, subject);
   }
 }

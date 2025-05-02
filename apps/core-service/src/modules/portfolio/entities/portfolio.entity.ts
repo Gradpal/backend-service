@@ -13,6 +13,7 @@ import {
 import { User } from '../../user/entities/user.entity';
 import { EducationRecord } from './education-record.entity';
 import { Institution } from '../dto/institution.dto';
+import { SubjectTier } from '@core-service/modules/subjects/subject-tier/entities/subject-tier.entity';
 
 @Entity('portfolio')
 export class Portfolio extends BaseEntity {
@@ -107,6 +108,9 @@ export class Portfolio extends BaseEntity {
 
   @Column({ type: 'json', nullable: true })
   subjects: string[];
+
+  @OneToMany(() => SubjectTier, (subjectTier) => subjectTier.tutor)
+  subjectTiers: SubjectTier[];
 
   @Column({ type: 'decimal', nullable: true })
   hourlyRate: number;

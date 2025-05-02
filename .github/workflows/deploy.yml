@@ -38,7 +38,7 @@ jobs:
 
             # Build the applications
             yarn build core-service
-            yarn build notification-service
+            yarn build nostification-service
 
             # Docker operations
             docker compose down

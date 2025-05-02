@@ -1,6 +1,7 @@
 import { BaseEntity } from '@app/common/database/base.entity';
 import { User } from '@core-service/modules/user/entities/user.entity';
 import { Entity, Column, ManyToOne, JoinColumn } from 'typeorm';
+import { ESessionStatus } from '../enums/session-status.enum';
 
 @Entity()
 export class ClassSession extends BaseEntity {
@@ -18,8 +19,18 @@ export class ClassSession extends BaseEntity {
   @Column({ type: 'decimal', precision: 10, scale: 2, nullable: false })
   price: number;
 
-  @Column({ type: 'varchar', length: 20, default: 'scheduled' })
-  status: 'scheduled' | 'completed' | 'canceled';
+  @Column()
+  goalDescription: string;
+
+  @Column({ nullable: true, type: 'json' })
+  urls: string[];
+
+  @Column({
+    type: 'enum',
+    enum: ESessionStatus,
+    default: ESessionStatus.SCHEDULED,
+  })
+  status: ESessionStatus;
 
   @Column({ type: 'timestamp', nullable: false })
   scheduled_time: Date;
