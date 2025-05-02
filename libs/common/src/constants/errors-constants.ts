@@ -116,6 +116,11 @@ export const _404 = {
     code: 'DATABASE_RECORD_NOT_FOUND',
     message: 'Record does not exist in the database',
   },
+
+  LOGGED_IN_USER_DOES_NOT_OWN_PORTFOLIO: {
+    code: 'LOGGED_IN_USER_DOES_NOT_OWN_PORTFOLIO',
+    message: 'The logged in user does not own the portfolio',
+  },
   FILE_NOT_FOUND: {
     code: 'FILE_NOT_FOUND',
     message:

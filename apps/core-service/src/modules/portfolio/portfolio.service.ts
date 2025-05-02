@@ -1,10 +1,14 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  Inject,
+  forwardRef,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Portfolio } from './entities/portfolio.entity';
 import { UserService } from '../user/user.service';
 import { ExceptionHandler } from '@app/common/exceptions/exceptions.handler';
-import { _409 } from '@app/common/constants/errors-constants';
 import { plainToClass } from 'class-transformer';
 import { User } from '../user/entities/user.entity';
 import { Institution } from './dto/institution.dto';
@@ -24,6 +28,8 @@ import { SessionDetailsDto } from '../booking/dto/session-details.dto';
 import { MoreThanOrEqual } from 'typeorm';
 import { MinioClientService } from '../minio-client/minio-client.service';
 import { createPaginatedResponse } from '@app/common/helpers/pagination.helper';
+import { SubjectTierService } from '../subjects/subject-tier/subject-tier.service';
+
 @Injectable()
 export class PortfolioService {
   constructor(
@@ -38,6 +44,8 @@ export class PortfolioService {
     private readonly userService: UserService,
     private readonly exceptionHandler: ExceptionHandler,
     private readonly minioService: MinioClientService,
+    @Inject(forwardRef(() => SubjectTierService))
+    private readonly subjectTierService: SubjectTierService,
   ) {}
 
   async createPortfolio(user: User) {
@@ -88,6 +96,13 @@ export class PortfolioService {
     }
 
     return portfolio;
+  }
+
+  async findByUser(user: User): Promise<Portfolio> {
+    return this.portfolioRepository.findOne({
+      where: { user: { id: user.id } },
+      relations: ['subjectTiers'],
+    });
   }
 
   async addEducationRecord(
@@ -528,5 +543,17 @@ export class PortfolioService {
     query.skip((page - 1) * limit).take(limit);
     const [tutors, count] = await query.getManyAndCount();
     return createPaginatedResponse(tutors, count, page, limit);
+  }
+
+  async getSubjectTier(portfolioId: string, subject: string): Promise<null> {
+    const portfolio = await this.portfolioRepository.findOne({
+      where: { id: portfolioId },
+    });
+
+    if (!portfolio) {
+      this.exceptionHandler.throwNotFound(_404.DATABASE_RECORD_NOT_FOUND);
+    }
+
+    return portfolio.subjectTiers?.[subject] || null;
   }
 }

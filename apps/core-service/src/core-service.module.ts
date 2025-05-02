@@ -19,6 +19,7 @@ import { PaymentModule } from './modules/payment/payment.module';
 import { ClassSessionModule } from './modules/class-session/class-session.module';
 import { BookingModule } from './modules/booking/booking.module';
 import { PortfolioModule } from './modules/portfolio/portfolio.module';
+import { SubjectsModule } from './modules/subjects/subjects.module';
 
 @Module({
   imports: [
@@ -48,6 +49,7 @@ import { PortfolioModule } from './modules/portfolio/portfolio.module';
     ClassSessionModule,
     BookingModule,
     PortfolioModule,
+    SubjectsModule,
   ],
   providers: [
     {
