@@ -1,6 +1,16 @@
-import { Controller, Body, Post, Param, Req, Query } from '@nestjs/common';
+import {
+  Controller,
+  Body,
+  Post,
+  Param,
+  Req,
+  Query,
+  Patch,
+  Get,
+} from '@nestjs/common';
 import { SubjectTierService } from './subject-tier.service';
 import {
+  AssignBulkSubjectsDto,
   AssignSubjectsDto,
   CreateBulkSubjectTierDto,
   CreateSubjectTierDto,
@@ -8,11 +18,12 @@ import {
 } from './dto/create-subject-tier.entity';
 import { SubjectTier } from './entities/subject-tier.entity';
 import { User } from '@core-service/modules/user/entities/user.entity';
-import { ApiConsumes, ApiProduces } from '@nestjs/swagger';
+import { ApiConsumes, ApiProduces, ApiTags } from '@nestjs/swagger';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { ApiBody } from '@nestjs/swagger';
 import { ApiParam } from '@nestjs/swagger';
-@Controller('price-point')
+@Controller('subject-tier')
+@ApiTags('Subject Tier')
 export class SubjectTierController {
   constructor(private readonly subjectTierService: SubjectTierService) {}
 
@@ -44,12 +55,13 @@ export class SubjectTierController {
 
   @ApiParam({ name: 'portfolioId', type: String })
   @ApiBody({ type: UpdateSubjectTierDto })
-  @ApiOperation({ summary: 'Update a subject tier' })
+  @ApiOperation({ summary: 'Get subject tiers by portfolio ID' })
   @ApiResponse({ type: SubjectTier })
   @ApiConsumes('application/json')
   @ApiProduces('application/json')
+  @Get()
   findAllByPortfolioId(
-    @Param('portfolioId') portfolioId: string,
+    @Query('portfolioId') portfolioId: string,
   ): Promise<SubjectTier[]> {
     return this.subjectTierService.findAllByPortfolioId(portfolioId);
   }
@@ -87,21 +99,20 @@ export class SubjectTierController {
       updateSubjectTierDto,
     );
   }
-  @ApiParam({ name: 'subjectTierId', type: String })
-  @ApiBody({ type: AssignSubjectsDto })
+
+  @ApiBody({ type: AssignBulkSubjectsDto })
   @ApiOperation({ summary: 'Assign subjects to a subject tier' })
   @ApiResponse({ type: SubjectTier })
   @ApiConsumes('application/json')
   @ApiProduces('application/json')
+  @Patch('assign-subjects')
   assignSubjects(
-    @Param('subjectTierId') subjectTierId: string,
-    @Body() assignSubjectsDto: AssignSubjectsDto,
+    @Body() assignBulkSubjectsDto: AssignBulkSubjectsDto,
     @Req() req,
   ): Promise<SubjectTier> {
     return this.subjectTierService.assignSubjects(
       req.user as User,
-      subjectTierId,
-      assignSubjectsDto,
+      assignBulkSubjectsDto,
     );
   }
 }

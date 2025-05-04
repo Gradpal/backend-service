@@ -7,6 +7,7 @@ import {
   CreateSubjectTierDto,
   UpdateSubjectTierDto,
   AssignSubjectsDto,
+  AssignBulkSubjectsDto,
 } from './dto/create-subject-tier.entity';
 import { Subject } from '../entities/subject.entity';
 import { In } from 'typeorm';
@@ -30,16 +31,46 @@ export class SubjectTierService {
   ): Promise<SubjectTier> {
     const portfolio = await this.portfolioRepository.findOne({
       where: { id: portfolioId },
+      relations: ['subjectTiers', 'subjects'],
     });
 
     if (!portfolio) {
       throw new Error('Portfolio not found');
     }
 
+    const subjects = portfolio.subjects;
+    //subjects not in tiers
+    const subjectsNotInTiers = subjects.filter(
+      (subject) =>
+        !portfolio.subjectTiers.some((tier) =>
+          tier.subjects?.some((tierSubject) => tierSubject.id === subject.id),
+        ),
+    );
+
+    //add subjects not in basic tier
+    const basicTier = portfolio.subjectTiers.find(
+      (tier) => tier.category === 'BASIC',
+    );
+    if (basicTier) {
+      basicTier.subjects = [
+        ...(basicTier?.subjects || []),
+        ...subjectsNotInTiers,
+      ];
+    }
+
     const subjectTier = this.subjectTierRepository.create({
       ...createSubjectTierDto,
-      tutor: { id: portfolio.id },
+      tutor: { portfolio: { id: portfolio.id } },
     });
+    if (
+      createSubjectTierDto.category === 'BASIC' &&
+      subjectsNotInTiers.length > 0
+    ) {
+      subjectTier.subjects = [
+        ...(basicTier?.subjects || []),
+        ...subjectsNotInTiers,
+      ];
+    }
     return this.subjectTierRepository.save(subjectTier);
   }
 
@@ -97,8 +128,7 @@ export class SubjectTierService {
 
   async assignSubjects(
     loggedInUser: User,
-    subjectTierId: string,
-    assignSubjectsDto: AssignSubjectsDto,
+    assignSubjectsDto: AssignBulkSubjectsDto,
   ): Promise<SubjectTier> {
     const portfolio = await this.portfolioRepository.findOne({
       where: { user: { id: loggedInUser.id } },
@@ -109,23 +139,28 @@ export class SubjectTierService {
       throw new Error('Portfolio not found');
     }
 
-    const [subjectTier, subjects] = await Promise.all([
-      this.subjectTierRepository.findOne({
-        where: {
-          id: subjectTierId,
-          tutor: { id: portfolio.id },
-        },
-        relations: ['subjects'],
-      }),
-      this.subjectRepository.findBy({ id: In(assignSubjectsDto.subjectIds) }),
-    ]);
+    let updatedSubjectTier;
 
-    if (!subjectTier) {
-      throw new Error('Subject tier not found');
+    for (const subjectTierDto of assignSubjectsDto.subjectTiers) {
+      const [subjectTier, subjects] = await Promise.all([
+        this.subjectTierRepository.findOne({
+          where: {
+            id: subjectTierDto.subjectTierId,
+            tutor: { id: portfolio.id },
+          },
+        }),
+        this.subjectRepository.findBy({ id: In(subjectTierDto.subjectIds) }),
+      ]);
+
+      if (!subjectTier) {
+        throw new Error('Subject tier not found');
+      }
+
+      subjectTier.subjects = subjects;
+      updatedSubjectTier = await this.subjectTierRepository.save(subjectTier);
     }
 
-    subjectTier.subjects = subjects;
-    return this.subjectTierRepository.save(subjectTier);
+    return updatedSubjectTier;
   }
 
   async findSubjectTierWhichHasSubjectByTutorId(

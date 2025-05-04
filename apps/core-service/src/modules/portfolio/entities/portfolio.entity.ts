@@ -15,6 +15,7 @@ import { EducationRecord } from './education-record.entity';
 import { Institution } from '../dto/institution.dto';
 import { SubjectTier } from '@core-service/modules/subjects/subject-tier/entities/subject-tier.entity';
 import { AttachmentDto } from '@app/common/dtos/attachment.dto';
+import { Subject } from '@core-service/modules/subjects/entities/subject.entity';
 
 @Entity('portfolio')
 export class Portfolio extends BaseEntity {
@@ -113,8 +114,19 @@ export class Portfolio extends BaseEntity {
   @Column({ type: 'varchar', nullable: true })
   highestDegree: string;
 
-  @Column({ type: 'json', nullable: true })
-  subjects: string[];
+  @ManyToMany(() => Subject)
+  @JoinTable({
+    name: 'portfolio_subjects',
+    joinColumn: {
+      name: 'portfolio_id',
+      referencedColumnName: 'id',
+    },
+    inverseJoinColumn: {
+      name: 'subject_id',
+      referencedColumnName: 'id',
+    },
+  })
+  subjects: Subject[];
 
   @OneToMany(() => SubjectTier, (subjectTier) => subjectTier.tutor)
   subjectTiers: SubjectTier[];
