@@ -22,6 +22,8 @@ import { ApiConsumes, ApiProduces, ApiTags } from '@nestjs/swagger';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { ApiBody } from '@nestjs/swagger';
 import { ApiParam } from '@nestjs/swagger';
+import { PreAuthorize } from '@core-service/decorators/auth.decorator';
+import { EUserRole } from '@core-service/modules/user/enums/user-role.enum';
 @Controller('subject-tier')
 @ApiTags('Subject Tier')
 export class SubjectTierController {
@@ -32,13 +34,16 @@ export class SubjectTierController {
   @ApiResponse({ type: SubjectTier })
   @ApiConsumes('application/json')
   @ApiProduces('application/json')
+  @PreAuthorize(EUserRole.TUTOR)
   createSubjectTier(
     @Body() createSubjectTierDto: CreateSubjectTierDto,
     @Query('portfolioId') portfolioId: string,
+    @Req() req,
   ): Promise<SubjectTier> {
     return this.subjectTierService.createSubjectTier(
       portfolioId,
       createSubjectTierDto,
+      req.user as User,
     );
   }
 
@@ -88,15 +93,17 @@ export class SubjectTierController {
   @ApiResponse({ type: SubjectTier })
   @ApiConsumes('application/json')
   @ApiProduces('application/json')
-  updateSubjectTier(
-    @Param('portfolioId') portfolioId: string,
-    @Param('subject') subject: string,
+  @Patch(':id')
+  @PreAuthorize(EUserRole.TUTOR)
+  updateSubjectTierById(
+    @Param('id') id: string,
     @Body() updateSubjectTierDto: UpdateSubjectTierDto,
+    @Req() req,
   ): Promise<SubjectTier> {
-    return this.subjectTierService.updateSubjectTier(
-      portfolioId,
-      subject,
+    return this.subjectTierService.updateSubjectTierById(
+      id,
       updateSubjectTierDto,
+      req.user as User,
     );
   }
 

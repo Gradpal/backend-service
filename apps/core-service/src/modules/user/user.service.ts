@@ -179,7 +179,7 @@ export class UserService {
   async findOne(id: string) {
     const user = await this.userRepository.findOne({
       where: { id },
-      relations: ['portfolio'],
+      relations: ['portfolio', 'portfolio.subjects', 'portfolio.subjectTiers'],
     });
     return user;
   }

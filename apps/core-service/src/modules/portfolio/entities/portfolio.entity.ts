@@ -128,7 +128,7 @@ export class Portfolio extends BaseEntity {
   })
   subjects: Subject[];
 
-  @OneToMany(() => SubjectTier, (subjectTier) => subjectTier.tutor)
+  @OneToMany(() => SubjectTier, (subjectTier) => subjectTier.portfolio)
   subjectTiers: SubjectTier[];
 
   @Column({ type: 'decimal', nullable: true })

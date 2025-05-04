@@ -10,7 +10,7 @@ import { CreateSubjectDto } from './dtos/create-subject.dto';
 import { UpdatePortfolioSubjectsDto } from './dtos/update-portfolio-subjects.dto';
 import { Portfolio } from '../portfolio/entities/portfolio.entity';
 import { User } from '../user/entities/user.entity';
-
+import { SubjectTierService } from './subject-tier/subject-tier.service';
 @Injectable()
 export class SubjectsService {
   constructor(
@@ -18,6 +18,7 @@ export class SubjectsService {
     private readonly subjectRepository: Repository<Subject>,
     @InjectRepository(Portfolio)
     private readonly portfolioRepository: Repository<Portfolio>,
+    private readonly subjectTierService: SubjectTierService,
   ) {}
 
   async createSubject(subject: CreateSubjectDto) {
@@ -49,7 +50,7 @@ export class SubjectsService {
   ) {
     const portfolio = await this.portfolioRepository.findOne({
       where: { user: { id: user.id } },
-      relations: ['subjects'],
+      relations: ['subjects', 'subjectTiers'],
     });
 
     if (!portfolio) {
@@ -125,6 +126,8 @@ export class SubjectsService {
       // Save with reload option to properly handle the many-to-many relationship
       await this.portfolioRepository.save(portfolio, { reload: true });
     }
+
+    await this.subjectTierService.refreshTierSubjects(portfolio);
 
     // Return the updated portfolio with subjects
     return this.portfolioRepository.findOne({
