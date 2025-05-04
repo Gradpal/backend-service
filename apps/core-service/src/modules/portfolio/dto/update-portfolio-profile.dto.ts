@@ -2,7 +2,6 @@ import {
   IsArray,
   IsBoolean,
   IsDecimal,
-  IsNumber,
   IsOptional,
   IsString,
 } from 'class-validator';
@@ -93,10 +92,6 @@ export class UpdatePortfolioProfileDto {
   @IsOptional()
   institutions?: InstitutionUpdate[];
 
-  @ApiProperty({ type: 'string', format: 'binary', required: false })
-  @IsOptional()
-  introductoryVideo?: Express.Multer.File;
-
   @ApiProperty({ required: false })
   @IsString()
   @IsOptional()
@@ -117,4 +112,16 @@ export class UpdatePortfolioProfileDto {
 
   @IsOptional()
   termsAndConditionsAgreed?: boolean;
+
+  @ApiProperty({ type: 'string', format: 'binary', required: false })
+  @IsOptional()
+  introductoryVideos?: Express.Multer.File;
+
+  @ApiProperty({ type: 'string', format: 'binary', required: false })
+  @IsOptional()
+  academicTranscripts?: Express.Multer.File[];
+
+  @ApiProperty({ type: 'string', format: 'binary', required: false })
+  @IsOptional()
+  degreeCertificates?: Express.Multer.File[];
 }

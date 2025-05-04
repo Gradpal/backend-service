@@ -92,7 +92,7 @@ export class AuthService {
     const userEntity: User =
       await this.userService.getUserEntityFromDto(createUserDto);
     if (createUserDto.profilePicture) {
-      userEntity.profilePicture = await this.minioService.uploadFile(
+      userEntity.profilePicture = await this.minioService.getUploadedFilePath(
         createUserDto.profilePicture,
       );
     }

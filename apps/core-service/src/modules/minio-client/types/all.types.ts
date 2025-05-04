@@ -8,4 +8,6 @@ export interface MinioModuleOptions {
 export interface FileInfo {
   url: string;
   type: string;
+  name: string;
+  size: number;
 }

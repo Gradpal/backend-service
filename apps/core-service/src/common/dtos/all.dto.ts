@@ -1,7 +1,19 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsOptional } from 'class-validator';
+import { IsOptional, MaxLength } from 'class-validator';
+import { AttachmentDto } from '@app/common/dtos/attachment.dto';
+import { DESCRIPTION_MAX_LENGTH } from '../constants/all.constants';
 
-export class BaseDto {
+export class DtoAudit {
+  @IsOptional()
+  @ApiProperty({ required: false, default: new Date() })
+  createdAt: Date = new Date();
+
+  @IsOptional()
+  @ApiProperty({ required: false, default: new Date() })
+  updatedAt: Date = new Date();
+}
+
+export class BaseDto extends DtoAudit {
   @ApiProperty({
     description: 'This is not needeed for creating any request - leave it null',
     required: false,
@@ -17,8 +29,15 @@ export class BaseDto {
   skillsDto?: string[];
 
   @IsOptional()
+  @ApiProperty({
+    description: 'This is not needed to create this request - ingore it',
+  })
+  attachments?: AttachmentDto[];
+
   @IsOptional()
-  @ApiProperty()
+  @IsOptional()
+  @MaxLength(DESCRIPTION_MAX_LENGTH)
+  @ApiProperty({ maxLength: DESCRIPTION_MAX_LENGTH, required: false })
   description: string;
 
   @IsOptional()
