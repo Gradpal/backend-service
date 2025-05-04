@@ -30,6 +30,7 @@ import {
 import { CreateUserDTO } from '../user/dto/create-user.dto';
 import { MinioClientService } from '../minio-client/minio-client.service';
 import { PortfolioService } from '../portfolio/portfolio.service';
+import { PaymentService } from '../payment/payment.service';
 
 @Injectable()
 export class AuthService {
@@ -43,6 +44,7 @@ export class AuthService {
     private readonly minioService: MinioClientService,
     private readonly configService: CoreServiceConfigService,
     private readonly portfolioService: PortfolioService,
+    private readonly paymentService: PaymentService,
   ) {}
   async login(dto: LoginDTO): Promise<LoginResDto> {
     if (!(await this.userService.existByEmail(dto.email))) {
@@ -83,7 +85,6 @@ export class AuthService {
     const academicEmailVerfication = verifyAcademicEmailByDomain(dto.email);
     await this.verifyOtp(dto.email, dto.otp);
     const cacheKey = this.brainService.getCacheKey(dto.email);
-
     const createUserDto: CreateUserDTO =
       await this.brainService.remindMe(cacheKey);
 
@@ -96,7 +97,10 @@ export class AuthService {
         createUserDto.profilePicture,
       );
     }
-
+    const stripeAccountId = await this.paymentService.createStripeAccount(
+      userEntity,
+    );
+    userEntity.stripeAccountId = stripeAccountId;
     userEntity.referalCode = generateAlphaNumericCode(10);
     userEntity.password = hashedPassword;
     userEntity.status = EUserStatus.ACTIVE;
