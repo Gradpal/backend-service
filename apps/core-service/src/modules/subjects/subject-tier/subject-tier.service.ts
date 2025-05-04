@@ -127,4 +127,20 @@ export class SubjectTierService {
     subjectTier.subjects = subjects;
     return this.subjectTierRepository.save(subjectTier);
   }
+
+  async findSubjectTierWhichHasSubjectByTutorId(
+    tutorId: string,
+    subjectId: string,
+  ): Promise<SubjectTier> {
+    const subject = await this.subjectRepository.findOne({
+      where: { id: subjectId },
+    });
+
+    if (!subject) {
+      throw new Error('Subject not found');
+    }
+    return this.subjectTierRepository.findOne({
+      where: { tutor: { id: tutorId }, subjects: { id: subjectId } },
+    });
+  }
 }

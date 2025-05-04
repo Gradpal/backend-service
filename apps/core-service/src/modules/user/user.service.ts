@@ -112,7 +112,7 @@ export class UserService {
     let user: User = this.userRepository.create(adminDataWithoutFiles);
 
     if (createUserDto.profilePicture) {
-      user.profilePicture = await this.minioService.uploadFile(
+      user.profilePicture = await this.minioService.getUploadedFilePath(
         createUserDto.profilePicture,
       );
     }

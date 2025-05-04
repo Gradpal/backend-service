@@ -44,6 +44,34 @@ export const _400 = {
     code: 'STRIPE_ACCOUNT_CREATION_FAILED',
     message: 'Failed to create Stripe account',
   },
+  SESSION_CANCELLED: {
+    code: 'SESSION_CANCELLED',
+    message: 'The session has been cancelled',
+  },
+  SESSION_NOT_IN_PROGRESS: {
+    code: 'SESSION_NOT_IN_PROGRESS',
+    message: 'The session is not in progress',
+  },
+  SESSION_NOT_SCHEDULED: {
+    code: 'SESSION_NOT_SCHEDULED',
+    message: 'The session is not scheduled',
+  },
+  POSTPONED_SESSION: {
+    code: 'POSTPONED_SESSION',
+    message: 'The session has been postponed',
+  },
+  SESSION_NOT_JOINED: {
+    code: 'SESSION_NOT_JOINED',
+    message: 'The session has not been joined',
+  },
+  SESSION_COMPLETED: {
+    code: 'SESSION_COMPLETED',
+    message: 'The session has been completed',
+  },
+  SESSION_IN_PROGRESS: {
+    code: 'SESSION_IN_PROGRESS',
+    message: 'The session is in progress',
+  },
   STRIPE_ACCOUNT_RETRIEVAL_FAILED: {
     code: 'STRIPE_ACCOUNT_RETRIEVAL_FAILED',
     message: 'Failed to retrieve Stripe account',
@@ -91,6 +119,10 @@ export const _403 = {
   UNAUTHORIZED_TO_UPDATE_BOOKING: {
     code: 'UNAUTHORIZED_TO_UPDATE_BOOKING',
     message: 'Only the tutor can update the booking status',
+  },
+  SESSION_NOT_YOURS: {
+    code: 'SESSION_NOT_YOURS',
+    message: 'You are not allowed to perform this action on this session',
   },
 };
 

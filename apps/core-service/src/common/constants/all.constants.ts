@@ -10,3 +10,13 @@ export const REDIS_CONST = {
 };
 export const MAX_FAILED_ATTEMPTS = 5;
 export const REFERRAL_CODE_CREDISTS = 2;
+export const DESCRIPTION_MAX_LENGTH = 300;
+export const ATTACHMENT_MAX_SIZE = 10 * 1024 * 1024; // 10MB
+export const ATTACHMENT_MAX_COUNT = 5;
+export const ATTACHMENT_SUPPORTED_TYPES = [
+  'image/jpeg',
+  'image/png',
+  'application/pdf',
+  'application/msword',
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+];

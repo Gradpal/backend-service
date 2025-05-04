@@ -156,7 +156,9 @@ export class PortfolioService {
   async updatePortfolioProfile(
     id: string,
     updatePortfolioProfileDto: UpdatePortfolioProfileDto,
-    files?: Express.Multer.File[],
+    introductoryVideos?: Express.Multer.File[],
+    academicTranscripts?: Express.Multer.File[],
+    degreeCertificates?: Express.Multer.File[],
   ): Promise<Portfolio> {
     const portfolio = await this.portfolioRepository.findOne({
       where: { id },
@@ -204,78 +206,25 @@ export class PortfolioService {
 
     Object.assign(portfolio, updateDataWithoutFiles);
 
-    // Handle files
-    if (files && files.length > 0) {
-      // Group files by their fieldname
-      const groupedFiles = files.reduce(
-        (acc, file) => {
-          const fieldName = file.fieldname;
-          if (!acc[fieldName]) {
-            acc[fieldName] = [];
-          }
-          acc[fieldName].push(file);
-          return acc;
-        },
-        {} as Record<string, Express.Multer.File[]>,
+    if (introductoryVideos) {
+      const videoUrl = await this.minioService.getUploadedFilePath(
+        introductoryVideos[0],
       );
-
-      // Handle introductory video
-      if (groupedFiles['introductoryVideo']?.[0]) {
-        const videoUrl = await this.minioService.uploadFile(
-          groupedFiles['introductoryVideo'][0],
-        );
-        portfolio.introductoryVideo = videoUrl;
-      }
-
-      // Handle institution files
-      if (updateDataWithoutFiles.institutions) {
-        const institutions = updateDataWithoutFiles.institutions.map(
-          (institution) => ({
-            name: institution.name,
-            degreeType: institution.degreeType,
-            yearStarted: institution.yearStarted,
-            yearEnded: institution.yearEnded,
-            academicTranscript: null,
-            degreeCertificate: null,
-          }),
-        );
-
-        // Process academic transcripts
-        const transcriptFiles = files.filter(
-          (f) =>
-            f.fieldname.startsWith('institutions[') &&
-            f.fieldname.includes('][academicTranscript]'),
-        );
-
-        for (const file of transcriptFiles) {
-          const match = file.fieldname.match(
-            /institutions\[(\d+)\]\[academicTranscript\]/,
-          );
-          if (match && institutions[parseInt(match[1])]) {
-            const transcriptUrl = await this.minioService.uploadFile(file);
-            institutions[parseInt(match[1])].academicTranscript = transcriptUrl;
-          }
-        }
-
-        // Process degree certificates
-        const certificateFiles = files.filter(
-          (f) =>
-            f.fieldname.startsWith('institutions[') &&
-            f.fieldname.includes('][degreeCertificate]'),
-        );
-
-        for (const file of certificateFiles) {
-          const match = file.fieldname.match(
-            /institutions\[(\d+)\]\[degreeCertificate\]/,
-          );
-          if (match && institutions[parseInt(match[1])]) {
-            const certificateUrl = await this.minioService.uploadFile(file);
-            institutions[parseInt(match[1])].degreeCertificate = certificateUrl;
-          }
-        }
-
-        portfolio.institutions = institutions;
-      }
+      portfolio.introductoryVideo = videoUrl;
+    }
+    if (academicTranscripts) {
+      const academicTranscriptsUrls = await this.minioService.uploadAttachments(
+        academicTranscripts,
+        portfolio.academicTranscripts,
+      );
+      portfolio.academicTranscripts = academicTranscriptsUrls;
+    }
+    if (degreeCertificates) {
+      const degreeCertificatesUrls = await this.minioService.uploadAttachments(
+        degreeCertificates,
+        portfolio.degreeCertificates,
+      );
+      portfolio.degreeCertificates = degreeCertificatesUrls;
     }
 
     if (updateDataWithoutFiles.countryOfResidence) {

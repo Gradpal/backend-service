@@ -50,7 +50,7 @@ export class BookingService {
     // Handle materials upload if provided
     let materialsUrl: string | undefined;
     if (materials) {
-      materialsUrl = await this.minioService.uploadFile(materials);
+      materialsUrl = await this.minioService.getUploadedFilePath(materials);
     }
 
     const booking = this.bookingRepository.create({

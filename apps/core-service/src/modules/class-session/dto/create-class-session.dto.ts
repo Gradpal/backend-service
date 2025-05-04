@@ -1,35 +1,25 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsNumber, IsString, IsUUID, Min } from 'class-validator';
+import { IsNotEmpty, IsUUID } from 'class-validator';
+import { BaseDto } from '@core-service/common/dtos/all.dto';
 
-export class CreateClassSessionDto {
+export class CreateClassSessionDto extends BaseDto {
   @ApiProperty({ description: 'Tutor ID' })
   @IsUUID()
   @IsNotEmpty()
   tutorId: string;
 
-  @ApiProperty({ description: 'Student ID' })
+  @ApiProperty({ description: 'Subject of the session' })
   @IsUUID()
   @IsNotEmpty()
-  studentId: string;
-
-  @ApiProperty({ description: 'Subject of the session' })
-  @IsString()
-  @IsNotEmpty()
-  subject: string;
-
-  @ApiProperty({ description: 'Price per session' })
-  @IsNumber()
-  @Min(0)
-  price: number;
-
-  @ApiProperty({ description: 'Goal description for the session' })
-  @IsString()
-  @IsNotEmpty()
-  goalDescription: string;
+  subjectId: string;
 
   @ApiProperty({ description: 'Scheduled time for the session' })
   @IsNotEmpty()
-  scheduled_time: Date;
+  startTime: Date;
+
+  @ApiProperty({ description: 'End time for the session' })
+  @IsNotEmpty()
+  endTime: Date;
 
   @ApiProperty({ description: 'Additional URLs (optional)', required: false })
   urls?: string[];

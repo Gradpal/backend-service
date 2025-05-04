@@ -11,7 +11,7 @@ import {
   Put,
   Query,
   UploadedFiles,
-  Req,
+  UploadedFile,
 } from '@nestjs/common';
 import { PortfolioService } from './portfolio.service';
 import {
@@ -21,9 +21,14 @@ import {
   ApiResponse,
   ApiConsumes,
   ApiBearerAuth,
+  ApiBody,
 } from '@nestjs/swagger';
 import { EUserRole } from '../user/enums/user-role.enum';
-import { AnyFilesInterceptor, FileInterceptor } from '@nestjs/platform-express';
+import {
+  AnyFilesInterceptor,
+  FileFieldsInterceptor,
+  FileInterceptor,
+} from '@nestjs/platform-express';
 import { CreateEducationRecordDto } from './dto/create-education-record.dto';
 import { UpdateEducationRecordDto } from './dto/update-education-record.dto';
 import { UpdatePortfolioProfileDto } from './dto/update-portfolio-profile.dto';
@@ -38,8 +43,6 @@ import { SessionInvitationDto } from '../user/dto/session-invitation.dto';
 import { Public } from '@app/common/decorators/public.decorator';
 import { PreAuthorize } from '@core-service/decorators/auth.decorator';
 import { UserService } from '../user/user.service';
-import { ETierCategory } from '../subjects/subject-tier/enums/tier-category.enum';
-import { User } from '../user/entities/user.entity';
 
 @Controller('portfolio')
 @ApiBearerAuth()
@@ -97,16 +100,33 @@ export class PortfolioController {
   @ApiParam({ name: 'id', description: 'Portfolio ID' })
   @ApiResponse({ status: 200, type: Portfolio })
   @ApiConsumes('multipart/form-data')
-  @UseInterceptors(AnyFilesInterceptor())
+  @UseInterceptors(
+    FileFieldsInterceptor([
+      { name: 'introductoryVideos', maxCount: 1 },
+      { name: 'academicTranscripts', maxCount: 10 },
+      { name: 'degreeCertificates', maxCount: 10 },
+    ]),
+  )
+  @ApiBody({
+    type: UpdatePortfolioProfileDto,
+    description: 'Update portfolio profile',
+  })
   async updatePortfolioProfile(
     @Param('id') id: string,
     @Body() updatePortfolioProfileDto: UpdatePortfolioProfileDto,
-    @UploadedFiles() files?: Express.Multer.File[],
+    @UploadedFiles()
+    files: {
+      introductoryVideos?: Express.Multer.File[];
+      academicTranscripts?: Express.Multer.File[];
+      degreeCertificates?: Express.Multer.File[];
+    },
   ) {
     return this.portfolioService.updatePortfolioProfile(
       id,
       updatePortfolioProfileDto,
-      files,
+      files.introductoryVideos,
+      files.academicTranscripts,
+      files.degreeCertificates,
     );
   }
 

@@ -1,7 +1,13 @@
 import { BaseEntity } from '@app/common/database/base.entity';
 import { User } from '@core-service/modules/user/entities/user.entity';
 import { Entity, Column, ManyToOne, JoinColumn } from 'typeorm';
-import { ESessionStatus } from '../enums/session-status.enum';
+import {
+  ESessionAcceptanceStatus,
+  ESessionJoinStatus,
+  ESessionStatus,
+} from '../enums/session-status.enum';
+import { Subject } from '@core-service/modules/subjects/entities/subject.entity';
+import { AttachmentDto } from '@app/common/dtos/attachment.dto';
 
 @Entity()
 export class ClassSession extends BaseEntity {
@@ -13,8 +19,9 @@ export class ClassSession extends BaseEntity {
   @JoinColumn({ name: 'student_id' })
   student: User;
 
-  @Column({ type: 'varchar', length: 255, nullable: false })
-  subject: string;
+  @ManyToOne(() => Subject)
+  @JoinColumn({ name: 'subject_id' })
+  subject: Subject;
 
   @Column({ type: 'decimal', precision: 10, scale: 2, nullable: false })
   price: number;
@@ -32,9 +39,35 @@ export class ClassSession extends BaseEntity {
   })
   status: ESessionStatus;
 
+  @Column({
+    type: 'enum',
+    enum: ESessionAcceptanceStatus,
+    default: ESessionAcceptanceStatus.PENDING,
+  })
+  acceptanceStatus: ESessionAcceptanceStatus;
+
+  @Column({
+    type: 'enum',
+    enum: ESessionJoinStatus,
+    default: ESessionJoinStatus.NONE_JOINED,
+  })
+  joinStatus: ESessionJoinStatus;
+
   @Column({ type: 'timestamp', nullable: false })
-  scheduled_time: Date;
+  startTime: Date;
+
+  @Column({ type: 'timestamp', nullable: false })
+  endTime: Date;
+
+  @Column({ default: null, nullable: true })
+  extensionTime: Date;
 
   @Column({ type: 'json', nullable: true })
   notes: any;
+
+  @Column({ type: 'json', nullable: true })
+  cancelationReason: any;
+
+  @Column({ type: 'json', nullable: true })
+  attachments: AttachmentDto[];
 }

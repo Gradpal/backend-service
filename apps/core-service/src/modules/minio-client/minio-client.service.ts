@@ -2,6 +2,9 @@ import { CoreServiceConfigService } from '@core-service/configs/core-service-con
 import { Injectable } from '@nestjs/common';
 import * as Minio from 'minio';
 import { FileInfo } from './types/all.types';
+import { objectExistsInJson } from '@app/common/helpers/shared.helpers';
+import { AttachmentDto } from '@app/common/dtos/attachment.dto';
+import { generateUUID } from '@app/common/helpers/shared.helpers';
 
 @Injectable()
 export class MinioClientService {
@@ -17,6 +20,12 @@ export class MinioClientService {
       secretKey: this.configService.minioSecretKey,
     });
     this.bucketName = this.configService.minioBucket;
+  }
+  getFileSize(file: Express.Multer.File): number {
+    return file.size;
+  }
+  getFileName(file: Express.Multer.File): string {
+    return file.originalname;
   }
 
   async createBucketIfNotExists() {
@@ -36,18 +45,33 @@ export class MinioClientService {
    * const fileUrl = await minioClientService.uploadFile(file);
    * console.log('Uploaded file URL:', fileUrl);
    */
-  async uploadFile(file: Express.Multer.File) {
+  async uploadFile(file: Express.Multer.File): Promise<FileInfo> {
     const fileName = `${Date.now()}-${file.originalname}`;
-    const buffer = Buffer.isBuffer(file.buffer)
-      ? file.buffer
-      : Buffer.from(file.buffer);
     await this.minioClient.putObject(
       this.bucketName,
       fileName,
-      buffer,
+      file.buffer,
       file.size,
     );
-    return this.getFilePath(fileName);
+    const [, url] = await Promise.all([
+      this.minioClient.putObject(
+        this.bucketName,
+        fileName,
+        file.buffer,
+        file.size,
+      ),
+      this.getFilePath(fileName),
+    ]);
+
+    const fileType = this.getFileType(file);
+    const orginalName = this.getFileName(file);
+    const fileSize = this.getFileSize(file);
+    return {
+      url: url,
+      type: fileType,
+      size: fileSize,
+      name: orginalName,
+    };
   }
   getFileType(file: Express.Multer.File): string {
     return file.mimetype;
@@ -84,6 +108,18 @@ export class MinioClientService {
       stream.on('error', (err) => reject(err));
     });
   }
+
+  async getUploadedFilePath(file: Express.Multer.File): Promise<string> {
+    const fileName = `${Date.now()}-${file.originalname}`;
+    await this.minioClient.putObject(
+      this.bucketName,
+      fileName,
+      file.buffer,
+      file.size,
+    );
+    return this.getFilePath(fileName);
+  }
+  
   /**
    * Copies a file within the MinIO bucket.
    *
@@ -135,39 +171,44 @@ export class MinioClientService {
    * console.log('Uploaded files URLs:', urls);
    */
   async uploadMultipleFiles(files: Express.Multer.File[]): Promise<FileInfo[]> {
-    const filesInfo: FileInfo[] = [];
+    const filesInfos: FileInfo[] = [];
     for (const file of files) {
-      const [url] = await Promise.all([this.uploadFile(file)]);
-      const fileType = this.getFileType(file);
-      filesInfo.push({ url: url, type: fileType });
+      const fileInfo = await this.uploadFile(file);
+      filesInfos.push(fileInfo);
     }
-    return filesInfo;
+    return filesInfos;
   }
   // Deleting the file from minio
   async deleteFile(fileName: string) {
     await this.minioClient.removeObject(this.bucketName, fileName);
   }
 
-  // async uploadAttachments(
-  //   files: Express.Multer.File[],
-  //   currentAttachments: AttachmentDto[],
-  // ): Promise<AttachmentDto[]> {
-  //   const supportingDocuments = files || [];
-  //   const filesInfo: FileInfo[] =
-  //     await this.uploadMultipleFiles(supportingDocuments);
+  async uploadAttachments(
+    files: Express.Multer.File[],
+    currentAttachments: AttachmentDto[],
+  ): Promise<AttachmentDto[]> {
+    const supportingDocuments = files || [];
+    const filesInfo: FileInfo[] =
+      await this.uploadMultipleFiles(supportingDocuments);
 
-  //   const newAttachments: AttachmentDto[] = [];
-  //   filesInfo.forEach((info: FileInfo) => {
-  //     const attachement = new AttachmentDto(info.type, false, info.url);
-  //     attachement.id = generateUUID();
-  //     const attachmentExists = objectExistsInJson<AttachmentDto>(
-  //       currentAttachments,
-  //       attachement,
-  //     );
-  //     if (!attachmentExists) {
-  //       newAttachments.push(attachement);
-  //     }
-  //   });
-  //   return newAttachments;
-  // }
+    const newAttachments: AttachmentDto[] = [];
+    filesInfo.forEach((info: FileInfo) => {
+      const attachement = new AttachmentDto(
+        info.type,
+        false,
+        info.url,
+        info.size,
+        info.name,
+      );
+      attachement.id = generateUUID();
+      const attachmentExists = objectExistsInJson<AttachmentDto>(
+        currentAttachments,
+        attachement,
+      );
+      if (!attachmentExists) {
+        newAttachments.push(attachement);
+      }
+    });
+    return newAttachments;
+  }
 }

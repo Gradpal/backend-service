@@ -14,6 +14,7 @@ import { User } from '../../user/entities/user.entity';
 import { EducationRecord } from './education-record.entity';
 import { Institution } from '../dto/institution.dto';
 import { SubjectTier } from '@core-service/modules/subjects/subject-tier/entities/subject-tier.entity';
+import { AttachmentDto } from '@app/common/dtos/attachment.dto';
 
 @Entity('portfolio')
 export class Portfolio extends BaseEntity {
@@ -47,6 +48,12 @@ export class Portfolio extends BaseEntity {
 
   @Column({ type: 'json', nullable: true })
   academicSubjects: string[];
+
+  @Column({ type: 'json', nullable: true })
+  academicTranscripts: AttachmentDto[];
+
+  @Column({ type: 'json', nullable: true })
+  degreeCertificates: AttachmentDto[];
 
   @Column({ type: 'float', nullable: true })
   rating: number;
