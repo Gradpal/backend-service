@@ -125,7 +125,8 @@ export class SubjectTierService {
 
       if (basicTier) {
         // Filter out subjects that are already in the tier
-        const existingSubjectIds = basicTier.subjects?.map((s) => s?.id).filter(Boolean) || [];
+        const existingSubjectIds =
+          basicTier.subjects?.map((s) => s?.id).filter(Boolean) || [];
         const newSubjects = subjectsNotInTiers.filter(
           (subject) => subject?.id && !existingSubjectIds.includes(subject.id),
         );
@@ -147,7 +148,8 @@ export class SubjectTierService {
       .filter(Boolean);
 
     const subjectsNotInPortfolio = subjectsInTiers.filter(
-      (subject) => subject?.id && !portfolio.subjects?.some((s) => s?.id === subject.id),
+      (subject) =>
+        subject?.id && !portfolio.subjects?.some((s) => s?.id === subject.id),
     );
 
     if (subjectsNotInPortfolio.length > 0) {
@@ -161,15 +163,15 @@ export class SubjectTierService {
           // Get the tier with its subjects relation
           const tierWithSubjects = await this.subjectTierRepository.findOne({
             where: { id: tier.id },
-            relations: ['subjects']
+            relations: ['subjects'],
           });
 
           if (tierWithSubjects) {
             // Filter out the subject to remove
-            tierWithSubjects.subjects = tierWithSubjects.subjects?.filter(
-              (s) => s?.id !== subject.id
-            ) || [];
-            
+            tierWithSubjects.subjects =
+              tierWithSubjects.subjects?.filter((s) => s?.id !== subject.id) ||
+              [];
+
             // Save the updated tier
             await this.subjectTierRepository.save(tierWithSubjects);
           }
@@ -277,7 +279,10 @@ export class SubjectTierService {
       throw new Error('Subject not found');
     }
     return this.subjectTierRepository.findOne({
-      where: { tutor: { id: tutorId }, subjects: { id: subjectId } },
+      where: {
+        portfolio: { user: { id: tutorId } },
+        subjects: { id: subjectId },
+      },
     });
   }
 }
