@@ -11,7 +11,6 @@ import {
   Put,
   Query,
   UploadedFiles,
-  UploadedFile,
 } from '@nestjs/common';
 import { PortfolioService } from './portfolio.service';
 import {
@@ -24,11 +23,7 @@ import {
   ApiBody,
 } from '@nestjs/swagger';
 import { EUserRole } from '../user/enums/user-role.enum';
-import {
-  AnyFilesInterceptor,
-  FileFieldsInterceptor,
-  FileInterceptor,
-} from '@nestjs/platform-express';
+import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { CreateEducationRecordDto } from './dto/create-education-record.dto';
 import { UpdateEducationRecordDto } from './dto/update-education-record.dto';
 import { UpdatePortfolioProfileDto } from './dto/update-portfolio-profile.dto';

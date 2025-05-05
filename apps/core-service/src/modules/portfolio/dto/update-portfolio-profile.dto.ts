@@ -113,15 +113,39 @@ export class UpdatePortfolioProfileDto {
   @IsOptional()
   termsAndConditionsAgreed?: boolean;
 
-  @ApiProperty({ type: 'string', format: 'binary', required: false })
+  @ApiProperty({
+    description: 'introductoryVideos - If any',
+    type: 'array',
+    items: {
+      type: 'string',
+      format: 'binary',
+    },
+    required: false,
+  })
   @IsOptional()
   introductoryVideos?: Express.Multer.File;
 
-  @ApiProperty({ type: 'string', format: 'binary', required: false })
+  @ApiProperty({
+    description: 'academicTranscripts - If any',
+    type: 'array',
+    items: {
+      type: 'string',
+      format: 'binary',
+    },
+    required: false,
+  })
   @IsOptional()
   academicTranscripts?: Express.Multer.File[];
 
-  @ApiProperty({ type: 'string', format: 'binary', required: false })
   @IsOptional()
+  @ApiProperty({
+    description: 'degreeCertificates - If any',
+    type: 'array',
+    items: {
+      type: 'string',
+      format: 'binary',
+    },
+    required: false,
+  })
   degreeCertificates?: Express.Multer.File[];
 }
