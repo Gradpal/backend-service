@@ -11,7 +11,7 @@ import {
   ManyToOne,
 } from 'typeorm';
 import { User } from '../../user/entities/user.entity';
-import { EducationRecord } from './education-record.entity';
+import { EducationInstitutionRecord } from './education-record.entity';
 import { Institution } from '../dto/institution.dto';
 import { SubjectTier } from '@core-service/modules/subjects/subject-tier/entities/subject-tier.entity';
 import { AttachmentDto } from '@app/common/dtos/attachment.dto';
@@ -77,12 +77,8 @@ export class Portfolio extends BaseEntity {
   @Column({ type: 'boolean', default: false })
   isVerified: boolean;
 
-  @OneToMany(
-    () => EducationRecord,
-    (educationRecord) => educationRecord.portfolio,
-  )
-  educationRecords: EducationRecord[];
-
+  @Column({ type: 'json', nullable: true })
+  educationInstitutionRecords: EducationInstitutionRecord[];
   // Tutor specific fields
   @Column({ type: 'json', nullable: true })
   weeklyAvailability: any;
@@ -165,4 +161,18 @@ export class Portfolio extends BaseEntity {
 
   @Column({ type: 'json', nullable: true })
   institutions: Institution[];
+
+  @ManyToMany(() => Subject)
+  @JoinTable({
+    name: 'portfolio_subjects_of_interest',
+    joinColumn: {
+      name: 'portfolio_id',
+      referencedColumnName: 'id',
+    },
+    inverseJoinColumn: {
+      name: 'subject_id',
+      referencedColumnName: 'id',
+    },
+  })
+  subjectsOfInterest: Subject[];
 }

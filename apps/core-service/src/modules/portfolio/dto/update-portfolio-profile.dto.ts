@@ -149,3 +149,34 @@ export class UpdatePortfolioProfileDto {
   })
   degreeCertificates?: Express.Multer.File[];
 }
+
+export class UpdatePersonalStatementDto {
+  @ApiProperty({ required: false })
+  @IsString()
+  @IsOptional()
+  personalStatement?: string;
+}
+
+export class UpdateIntroductoryVideoDto {
+  @ApiProperty({
+    description: "Don't send this field in the body",
+    type: 'string',
+  })
+  @IsString()
+  @IsOptional()
+  name: string;
+
+  @ApiProperty({
+    description: 'introductoryVideo - If any',
+    type: 'string',
+    format: 'binary',
+  })
+  introductoryVideo: Express.Multer.File;
+}
+
+export class UpdateSubjectsOfInterestDto {
+  @ApiProperty({ type: [String], required: false })
+  @IsArray()
+  @IsOptional()
+  subjectsIds?: string[];
+}

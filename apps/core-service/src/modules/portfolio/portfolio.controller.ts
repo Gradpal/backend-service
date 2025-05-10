@@ -5,12 +5,13 @@ import {
   UseInterceptors,
   Get,
   Param,
-  Patch,
-  Delete,
   UseGuards,
   Put,
   Query,
   UploadedFiles,
+  UploadedFile,
+  Req,
+  Patch,
 } from '@nestjs/common';
 import { PortfolioService } from './portfolio.service';
 import {
@@ -23,10 +24,16 @@ import {
   ApiBody,
 } from '@nestjs/swagger';
 import { EUserRole } from '../user/enums/user-role.enum';
-import { FileFieldsInterceptor } from '@nestjs/platform-express';
-import { CreateEducationRecordDto } from './dto/create-education-record.dto';
-import { UpdateEducationRecordDto } from './dto/update-education-record.dto';
-import { UpdatePortfolioProfileDto } from './dto/update-portfolio-profile.dto';
+import {
+  FileFieldsInterceptor,
+  FileInterceptor,
+} from '@nestjs/platform-express';
+import {
+  UpdatePersonalStatementDto,
+  UpdatePortfolioProfileDto,
+  UpdateIntroductoryVideoDto,
+  UpdateSubjectsOfInterestDto,
+} from './dto/update-portfolio-profile.dto';
 import { AuthGuard } from '@core-service/guards/auth.guard';
 import { Portfolio } from './entities/portfolio.entity';
 import { UpdatePortfolioAvailabilityDto } from './dto/update-portfolio-availability.dto';
@@ -36,9 +43,13 @@ import { Booking } from '../booking/entities/booking.entity';
 import { SessionDetailsDto } from '../booking/dto/session-details.dto';
 import { SessionInvitationDto } from '../user/dto/session-invitation.dto';
 import { Public } from '@app/common/decorators/public.decorator';
-import { PreAuthorize } from '@core-service/decorators/auth.decorator';
+import {
+  AuthUser,
+  PreAuthorize,
+} from '@core-service/decorators/auth.decorator';
 import { UserService } from '../user/user.service';
-
+import { CreateEducationInstitutionRecordDto } from './dto/create-education-record.dto';
+import { User } from '../user/entities/user.entity';
 @Controller('portfolio')
 @ApiBearerAuth()
 export class PortfolioController {
@@ -57,37 +68,89 @@ export class PortfolioController {
     return this.portfolioService.findOne(id);
   }
 
-  @Post(':id/education')
-  addEducationRecord(
-    @Param('id') id: string,
-    @Body() createEducationRecordDto: CreateEducationRecordDto,
+  @Post(':portfolioId/add-education-institution')
+  @ApiConsumes('multipart/form-data')
+  @UseInterceptors(FileInterceptor('certificate'))
+  addEducationInstitutionRecord(
+    @Param('portfolioId') portfolioId: string,
+    @UploadedFile() certificate: Express.Multer.File,
+    @Body()
+    createEducationInstitutionRecordDto: CreateEducationInstitutionRecordDto,
   ) {
-    return this.portfolioService.addEducationRecord(
-      id,
-      createEducationRecordDto,
+    return this.portfolioService.addEducationInstitution(
+      portfolioId,
+      createEducationInstitutionRecordDto,
+      certificate,
     );
   }
 
-  @Patch(':id/education/:educationId')
-  updateEducationRecord(
-    @Param('id') id: string,
-    @Param('educationId') educationId: string,
-    @Body() updateEducationRecordDto: UpdateEducationRecordDto,
+  @Put(':portfolioId/personal-statement')
+  @AuthUser()
+  updatePersonalStatement(
+    @Param('portfolioId') portfolioId: string,
+    @Body() updatePersonalStatementDto: UpdatePersonalStatementDto,
+    @Req() req,
   ) {
-    return this.portfolioService.updateEducationRecord(
-      id,
-      educationId,
-      updateEducationRecordDto,
+    console.log('User tot valudate 2', req.user);
+    return this.portfolioService.updatePersonalStatement(
+      portfolioId,
+      updatePersonalStatementDto,
+      req.user as User,
     );
   }
 
-  @Delete(':id/education/:educationId')
-  removeEducationRecord(
-    @Param('id') id: string,
-    @Param('educationId') educationId: string,
+  @Put(':portfolioId/main/introductory-video')
+  @ApiConsumes('multipart/form-data')
+  @UseInterceptors(FileInterceptor('introductoryVideo'))
+  @AuthUser()
+  updateIntroductoryVideo(
+    @Param('portfolioId') portfolioId: string,
+    @Body() updateIntroductoryVideoDto: UpdateIntroductoryVideoDto,
+    @UploadedFile() introductoryVideo: Express.Multer.File,
+    @Req() req,
   ) {
-    return this.portfolioService.removeEducationRecord(id, educationId);
+    return this.portfolioService.updateIntroductoryVideo(
+      portfolioId,
+      updateIntroductoryVideoDto,
+      req.user as User,
+      introductoryVideo,
+    );
   }
+
+  @Patch(':portfolioId/add-subjects-of-interest')
+  @AuthUser()
+  addSubjectsOfInterest(
+    @Param('portfolioId') portfolioId: string,
+    @Body() addSubjectsOfInterestDto: UpdateSubjectsOfInterestDto,
+    @Req() req,
+  ) {
+    return this.portfolioService.addSubjectsOfInterest(
+      portfolioId,
+      addSubjectsOfInterestDto,
+      req.user as User,
+    );
+  }
+
+  // @Patch(':id/education/:educationId')
+  // updateEducationRecord(
+  //   @Param('id') id: string,
+  //   @Param('educationId') educationId: string,
+  //   @Body() updateEducationRecordDto: UpdateEducationRecordDto,
+  // ) {
+  //   return this.portfolioService.updateEducationRecord(
+  //     id,
+  //     educationId,
+  //     updateEducationRecordDto,
+  //   );
+  // }
+
+  // @Delete(':id/education/:educationId')
+  // removeEducationRecord(
+  //   @Param('id') id: string,
+  //   @Param('educationId') educationId: string,
+  // ) {
+  //   return this.portfolioService.removeEducationRecord(id, educationId);
+  // }
 
   @Put(':id/profile')
   @UseGuards(AuthGuard)

@@ -1,9 +1,4 @@
-import {
-  Injectable,
-  NotFoundException,
-  Inject,
-  forwardRef,
-} from '@nestjs/common';
+import { Injectable, Inject, forwardRef } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Portfolio } from './entities/portfolio.entity';
@@ -12,13 +7,16 @@ import { ExceptionHandler } from '@app/common/exceptions/exceptions.handler';
 import { plainToClass } from 'class-transformer';
 import { User } from '../user/entities/user.entity';
 import { Institution } from './dto/institution.dto';
-import { EducationRecord } from './entities/education-record.entity';
-import { CreateEducationRecordDto } from './dto/create-education-record.dto';
-import { UpdateEducationRecordDto } from './dto/update-education-record.dto';
+import { EducationInstitutionRecord } from './entities/education-record.entity';
 import { CreatePortfolioDto } from './dto/create-portfolio.dto';
-import { UpdatePortfolioProfileDto } from './dto/update-portfolio-profile.dto';
+import {
+  UpdatePersonalStatementDto,
+  UpdatePortfolioProfileDto,
+  UpdateIntroductoryVideoDto,
+  UpdateSubjectsOfInterestDto,
+} from './dto/update-portfolio-profile.dto';
 import { UpdatePortfolioAvailabilityDto } from './dto/update-portfolio-availability.dto';
-import { _404 } from '@app/common/constants/errors-constants';
+import { _400, _404 } from '@app/common/constants/errors-constants';
 import { EUserRole } from '../user/enums/user-role.enum';
 import { TutorProfileDto } from './dto/tutor-profile.dto';
 import { WeeklyScheduleDto } from '../user/dto/schedule-slot.dto';
@@ -29,7 +27,9 @@ import { MoreThanOrEqual } from 'typeorm';
 import { MinioClientService } from '../minio-client/minio-client.service';
 import { createPaginatedResponse } from '@app/common/helpers/pagination.helper';
 import { SubjectTierService } from '../subjects/subject-tier/subject-tier.service';
-
+import { CreateEducationInstitutionRecordDto } from './dto/create-education-record.dto';
+import { generateUUID } from '@app/common/helpers/shared.helpers';
+import { SubjectsService } from '../subjects/subjects.service';
 @Injectable()
 export class PortfolioService {
   constructor(
@@ -37,8 +37,8 @@ export class PortfolioService {
     private readonly portfolioRepository: Repository<Portfolio>,
     @InjectRepository(Institution)
     private readonly institutionRepository: Repository<Institution>,
-    @InjectRepository(EducationRecord)
-    private readonly educationRecordRepository: Repository<EducationRecord>,
+    @InjectRepository(EducationInstitutionRecord)
+    private readonly educationInstitutionRecordRepository: Repository<EducationInstitutionRecord>,
     @InjectRepository(Booking)
     private readonly bookingRepository: Repository<Booking>,
     private readonly userService: UserService,
@@ -46,8 +46,13 @@ export class PortfolioService {
     private readonly minioService: MinioClientService,
     @Inject(forwardRef(() => SubjectTierService))
     private readonly subjectTierService: SubjectTierService,
+    @Inject(forwardRef(() => SubjectsService))
+    private readonly subjectService: SubjectsService,
   ) {}
 
+  getPortfolioRepository() {
+    return this.portfolioRepository;
+  }
   async createPortfolio(user: User) {
     const portfolio = this.portfolioRepository.create({
       user,
@@ -81,20 +86,18 @@ export class PortfolioService {
 
   async findAll(): Promise<Portfolio[]> {
     return this.portfolioRepository.find({
-      relations: ['educationRecords'],
+      relations: ['educationInstitutionRecords'],
     });
   }
 
   async findOne(id: string): Promise<Portfolio> {
     const portfolio = await this.portfolioRepository.findOne({
       where: { id },
-      relations: ['educationRecords'],
+      relations: ['subjectTiers', 'subjects', 'user'],
     });
-
     if (!portfolio) {
-      throw new NotFoundException(`Portfolio with ID ${id} not found`);
+      this.exceptionHandler.throwNotFound(_404.PORTFOLIO_NOT_FOUND);
     }
-
     return portfolio;
   }
 
@@ -105,53 +108,140 @@ export class PortfolioService {
     });
   }
 
-  async addEducationRecord(
+  async addEducationInstitution(
     portfolioId: string,
-    createEducationRecordDto: CreateEducationRecordDto,
-  ): Promise<EducationRecord> {
+    createEducationInstitutionRecordDto: CreateEducationInstitutionRecordDto,
+    certificate?: Express.Multer.File,
+  ): Promise<Portfolio> {
+    const portfolio: Portfolio = await this.findOne(portfolioId);
+    const educationInstitutionRecords =
+      portfolio.educationInstitutionRecords || [];
+    const educationRecord = plainToClass(
+      EducationInstitutionRecord,
+      createEducationInstitutionRecordDto,
+    );
+
+    educationRecord.id = generateUUID();
+
+    if (certificate) {
+      const certificateUrl =
+        await this.minioService.getUploadedFilePath(certificate);
+      educationRecord.certificate = certificateUrl;
+    }
+    educationInstitutionRecords.push(educationRecord);
+    portfolio.educationInstitutionRecords = educationInstitutionRecords;
+    return await this.portfolioRepository.save(portfolio);
+  }
+
+  async addSubjectsOfInterest(
+    portfolioId: string,
+    subjectsOfInterest: UpdateSubjectsOfInterestDto,
+    user: User,
+  ): Promise<Portfolio> {
+    this.validatePortfolioOnwership(portfolioId, user);
     const portfolio = await this.findOne(portfolioId);
-    const educationRecord = this.educationRecordRepository.create({
-      ...createEducationRecordDto,
-      portfolio,
-    });
-    return this.educationRecordRepository.save(educationRecord);
+    const currentSubjects = portfolio.subjectsOfInterest || [];
+
+    const newSubjects = await Promise.all(
+      subjectsOfInterest.subjectsIds.map((subjectId) =>
+        this.subjectService.findOne(subjectId),
+      ),
+    );
+    portfolio.subjectsOfInterest = [...currentSubjects, ...newSubjects];
+    return await this.portfolioRepository.save(portfolio);
   }
 
-  async updateEducationRecord(
+  async updatePersonalStatement(
     portfolioId: string,
-    educationRecordId: string,
-    updateEducationRecordDto: UpdateEducationRecordDto,
-  ): Promise<EducationRecord> {
-    const educationRecord = await this.educationRecordRepository.findOne({
-      where: { id: educationRecordId, portfolio: { id: portfolioId } },
-    });
-
-    if (!educationRecord) {
-      throw new NotFoundException(
-        `Education record with ID ${educationRecordId} not found in portfolio ${portfolioId}`,
-      );
-    }
-
-    Object.assign(educationRecord, updateEducationRecordDto);
-    return this.educationRecordRepository.save(educationRecord);
+    updatePersonalStatementDto: UpdatePersonalStatementDto,
+    user: User,
+  ): Promise<Portfolio> {
+    this.validatePortfolioOnwership(portfolioId, user);
+    const portfolio = await this.findOne(portfolioId);
+    portfolio.personalStatement = updatePersonalStatementDto.personalStatement;
+    return await this.portfolioRepository.save(portfolio);
   }
 
-  async removeEducationRecord(
+  async updateIntroductoryVideo(
     portfolioId: string,
-    educationRecordId: string,
+    updateIntroductoryVideoDto: UpdateIntroductoryVideoDto,
+    user: User,
+    introductoryVideo?: Express.Multer.File,
+  ): Promise<Portfolio> {
+    this.validatePortfolioOnwership(portfolioId, user);
+    const portfolio = await this.findOne(portfolioId);
+    portfolio.introductoryVideo =
+      await this.minioService.getUploadedFilePath(introductoryVideo);
+    return await this.portfolioRepository.save(portfolio);
+  }
+
+  async validatePortfolioOnwership(
+    portfolioId: string,
+    user: User,
   ): Promise<void> {
-    const educationRecord = await this.educationRecordRepository.findOne({
-      where: { id: educationRecordId, portfolio: { id: portfolioId } },
-    });
-
-    if (!educationRecord) {
-      throw new NotFoundException(
-        `Education record with ID ${educationRecordId} not found in portfolio ${portfolioId}`,
-      );
+    const portfolio = await this.findOne(portfolioId);
+    if (portfolio.user.id !== user.id) {
+      this.exceptionHandler.throwBadRequest(_400.PORTFOLIO_NOT_OWNER);
     }
-
-    await this.educationRecordRepository.remove(educationRecord);
   }
+
+  // async addEducationRecord(
+  //   portfolioId: string,
+  //   createEducationRecordDto: CreateEducationInstitutionRecordDto,
+  // ): Promise<EducationInstitutionRecord> {
+  //   const portfolio = await this.findOne(portfolioId);
+
+  //   const educationInstitutionRecord = new EducationInstitutionRecord();
+  //   const educationInstitutionRecords = portfolio.educationInstitutionRecords;
+
+  //   if (createEducationRecordDto.certificate) {
+  //     const certificateUrl = await this.minioService.getUploadedFilePath(
+  //       createEducationRecordDto.certificate,
+  //     );
+  //     educationInstitutionRecord.certificate = certificateUrl;
+  //   }
+  //   educationInstitutionRecords.push(educationInstitutionRecord);
+  //   portfolio.educationInstitutionRecords = educationInstitutionRecords;
+  //   return this.educationInstitutionRecordRepository.save(
+  //     educationInstitutionRecord,
+  //   );
+  // }
+
+  // async updateEducationRecord(
+  //   portfolioId: string,
+  //   educationRecordId: string,
+  //   updateEducationRecordDto: UpdateEducationRecordDto,
+  // ): Promise<EducationInstitutionRecord> {
+  //   const educationRecord =
+  //     await this.educationInstitutionRecordRepository.findOne({
+  //       where: { id: educationRecordId, portfolio: { id: portfolioId } },
+  //     });
+
+  //   if (!educationRecord) {
+  //     throw new NotFoundException(
+  //       `Education record with ID ${educationRecordId} not found in portfolio ${portfolioId}`,
+  //     );
+  //   }
+
+  //   Object.assign(educationRecord, updateEducationRecordDto);
+  //   return this.educationInstitutionRecordRepository.save(educationRecord);
+  // }
+
+  // async removeEducationRecord(
+  //   portfolioId: string,
+  //   educationRecordId: string,
+  // ): Promise<void> {
+  //   const educationRecord =
+  //     await this.educationInstitutionRecordRepository.findOne({
+  //       where: { id: ed   ucationRecordId },
+  //     });
+
+  //   if (!educationRecord) {
+  //     this.exceptionHandler.throwNotFound(_404.DATABASE_RECORD_NOT_FOUND);
+  //   }
+
+  //   await this.educationInstitutionRecordRepository.remove(educationRecord);
+  // }
 
   async updatePortfolioProfile(
     id: string,

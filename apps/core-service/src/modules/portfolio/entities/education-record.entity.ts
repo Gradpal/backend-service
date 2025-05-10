@@ -1,30 +1,39 @@
-import { Entity, Column, ManyToOne } from 'typeorm';
-import { BaseEntity } from '@app/common/database/base.entity';
-import { Portfolio } from './portfolio.entity';
+import { BaseDto } from '@core-service/common/dtos/all.dto';
+import { ApiProperty } from '@nestjs/swagger';
+import { IsNotEmpty } from 'class-validator';
+import { IsString } from 'class-validator';
 
-@Entity()
-export class EducationRecord extends BaseEntity {
-  @ManyToOne(() => Portfolio, (portfolio) => portfolio.educationRecords)
-  portfolio: Portfolio;
+export class EducationInstitutionRecord extends BaseDto {
+  @ApiProperty({ required: true })
+  @IsString()
+  @IsNotEmpty()
+  institutionName: string;
 
-  @Column({ type: 'varchar', length: 255 })
-  institution: string;
-
-  @Column({ type: 'varchar', length: 255 })
+  @ApiProperty({ required: true })
+  @IsString()
+  @IsNotEmpty()
   degree: string;
 
-  @Column({ type: 'varchar', length: 255 })
-  fieldOfStudy: string;
+  // @Column({ type: 'varchar', length: 255 })
+  // fieldOfStudy: string;
 
-  @Column({ type: 'date' })
+  @ApiProperty({ required: true })
+  @IsNotEmpty()
   startDate: Date;
 
-  @Column({ type: 'date', nullable: true })
+  @ApiProperty({ required: true })
+  @IsNotEmpty()
   endDate: Date;
 
-  @Column({ type: 'boolean', default: false })
+  @ApiProperty({ required: true })
+  @IsNotEmpty()
   isCurrent: boolean;
 
-  @Column({ type: 'text', nullable: true })
+  @ApiProperty({ required: true })
+  @IsNotEmpty()
   description: string;
+
+  @ApiProperty({ required: true })
+  @IsNotEmpty()
+  certificate: string;
 }
