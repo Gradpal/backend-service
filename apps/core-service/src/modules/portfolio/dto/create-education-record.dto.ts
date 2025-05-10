@@ -1,23 +1,29 @@
-import { IsString, IsDate, IsOptional } from 'class-validator';
-
-export class CreateEducationRecordDto {
+import { IsString, IsOptional, IsNotEmpty, IsEnum } from 'class-validator';
+import { EDegreeType } from '../enums/degree-type.enumt';
+import { ApiProperty } from '@nestjs/swagger';
+export class CreateEducationInstitutionRecordDto {
   @IsString()
-  institution: string;
+  @ApiProperty({ required: true })
+  @IsNotEmpty()
+  institutionName: string;
 
   @IsString()
-  degree: string;
-
-  @IsString()
-  fieldOfStudy: string;
-
-  @IsDate()
-  startDate: Date;
-
-  @IsDate()
-  @IsOptional()
-  endDate?: Date;
+  @ApiProperty({ required: true })
+  @IsNotEmpty()
+  @IsEnum(EDegreeType)
+  degreeType: EDegreeType;
 
   @IsString()
   @IsOptional()
-  description?: string;
+  @ApiProperty({ required: true })
+  startYear?: string;
+
+  @IsString()
+  @ApiProperty({ required: true })
+  @IsOptional()
+  endYear?: string;
+
+  @ApiProperty({ required: false })
+  @ApiProperty({ type: 'string', format: 'binary', required: false })
+  certificate?: Express.Multer.File;
 }

@@ -11,10 +11,24 @@ export class CreateSubjectTierDto {
   @ApiProperty({ type: Number })
   credits: number;
 
+  @ApiProperty({ type: [String] })
+  @IsArray()
+  @IsString({ each: true })
+  subjectsIds: string[];
+
   @IsNotEmpty()
   @IsEnum(ETierCategory)
   @ApiProperty({ enum: ETierCategory })
   category: ETierCategory;
+}
+
+export class InitializeSubjectTierDto {
+  @IsNotEmpty()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => CreateSubjectTierDto)
+  @ApiProperty({ type: [CreateSubjectTierDto] })
+  subjectTiers: CreateSubjectTierDto[];
 }
 
 export class CreateBulkSubjectTierDto {
@@ -34,22 +48,27 @@ export class UpdateSubjectTierDto {
   category: ETierCategory;
 }
 
-export class AssignSubjectsDto {
+export class MoveSubjectFromOneTierToAnotherDto {
   @IsNotEmpty()
   @IsString()
   @ApiProperty({ type: String })
-  subjectTierId: string;
+  originTierId: string;
 
-  @IsArray()
-  @IsString({ each: true })
-  @ApiProperty({ type: [String] })
-  subjectIds: string[];
+  @IsNotEmpty()
+  @IsString()
+  @ApiProperty({ type: String })
+  destinationTierId: string;
+
+  @IsNotEmpty()
+  @IsString()
+  @ApiProperty({ type: String })
+  subjectId: string;
 }
 
 export class AssignBulkSubjectsDto {
   @IsArray()
   @ValidateNested({ each: true })
-  @Type(() => AssignSubjectsDto)
-  @ApiProperty({ type: [AssignSubjectsDto] })
-  subjectTiers: AssignSubjectsDto[];
+  @Type(() => MoveSubjectFromOneTierToAnotherDto)
+  @ApiProperty({ type: [MoveSubjectFromOneTierToAnotherDto] })
+  subjectTiers: MoveSubjectFromOneTierToAnotherDto[];
 }

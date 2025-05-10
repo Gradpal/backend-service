@@ -12,6 +12,10 @@ export const _400 = {
     code: 'BAD_REQUEST',
     message: 'You are uploading a file that is not supported ',
   },
+  PORTFOLIO_NOT_OWNER: {
+    code: 'PORTFOLIO_NOT_OWNER',
+    message: 'The portfolio is not owned by the logged in user',
+  },
   INVALID_OTP: {
     code: 'INVALID_OTP',
     message: 'The OTP you have provided is invalid ',
@@ -124,6 +128,15 @@ export const _403 = {
     code: 'SESSION_NOT_YOURS',
     message: 'You are not allowed to perform this action on this session',
   },
+  UNAUTHORIZED_TO_UPDATE_PORTFOLIO: {
+    code: 'UNAUTHORIZED_TO_UPDATE_PORTFOLIO',
+    message:
+      'You are not allowed to update this portfolio because it is not yours',
+  },
+  SUBJECT_TIER_NOT_BELONG_TO_PORTFOLIO: {
+    code: 'SUBJECT_TIER_NOT_BELONG_TO_PORTFOLIO',
+    message: 'The subject tier does not belong to the portfolio',
+  },
 };
 
 // not found
@@ -135,6 +148,11 @@ export const _404 = {
   STUDENT_NOT_FOUND: {
     code: 'STUDENT_NOT_FOUND',
     message: 'No Student exists with provided attributes',
+  },
+
+  PORTFOLIO_NOT_FOUND: {
+    code: 'PORTFOLIO_NOT_FOUND',
+    message: 'No Portfolio exists with provided atttributes',
   },
   TUTOR_NOT_FOUND: {
     code: 'TUTOR_NOT_FOUND',
@@ -165,6 +183,14 @@ export const _404 = {
   BOOKING_NOT_FOUND: {
     code: 'BOOKING_NOT_FOUND',
     message: 'The requested booking was not found',
+  },
+  SUBJECT_NOT_FOUND: {
+    code: 'SUBJECT_NOT_FOUND',
+    message: 'The requested subject was not found',
+  },
+  SUBJECT_TIER_NOT_FOUND: {
+    code: 'SUBJECT_TIER_NOT_FOUND',
+    message: 'The requested subject tier was not found',
   },
 };
 

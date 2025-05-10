@@ -7,13 +7,13 @@ import {
   Query,
   Patch,
   Get,
+  Delete,
 } from '@nestjs/common';
 import { SubjectTierService } from './subject-tier.service';
 import {
   AssignBulkSubjectsDto,
-  AssignSubjectsDto,
   CreateBulkSubjectTierDto,
-  CreateSubjectTierDto,
+  InitializeSubjectTierDto,
   UpdateSubjectTierDto,
 } from './dto/create-subject-tier.entity';
 import { SubjectTier } from './entities/subject-tier.entity';
@@ -22,32 +22,53 @@ import { ApiConsumes, ApiProduces, ApiTags } from '@nestjs/swagger';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { ApiBody } from '@nestjs/swagger';
 import { ApiParam } from '@nestjs/swagger';
-import { PreAuthorize } from '@core-service/decorators/auth.decorator';
+import {
+  AuthUser,
+  PreAuthorize,
+} from '@core-service/decorators/auth.decorator';
 import { EUserRole } from '@core-service/modules/user/enums/user-role.enum';
+import { Portfolio } from '@core-service/modules/portfolio/entities/portfolio.entity';
+import { ApiBearerAuth } from '@nestjs/swagger';
+
 @Controller('subject-tier')
 @ApiTags('Subject Tier')
+@ApiBearerAuth()
 export class SubjectTierController {
   constructor(private readonly subjectTierService: SubjectTierService) {}
 
   @Post()
-  @ApiOperation({ summary: 'Create a subject tier' })
+  @ApiOperation({ summary: 'Initialize subject tiers' })
   @ApiResponse({ type: SubjectTier })
   @ApiConsumes('application/json')
   @ApiProduces('application/json')
-  @PreAuthorize(EUserRole.TUTOR)
-  createSubjectTier(
-    @Body() createSubjectTierDto: CreateSubjectTierDto,
+  // @PreAuthorize(EUserRole.TUTOR)
+  @AuthUser()
+  initializeSubjectTiers(
+    @Body() initializeSubjectTierDto: InitializeSubjectTierDto,
     @Query('portfolioId') portfolioId: string,
     @Req() req,
-  ): Promise<SubjectTier> {
-    return this.subjectTierService.createSubjectTier(
+  ): Promise<Portfolio> {
+    return this.subjectTierService.initializeSubjectTiers(
       portfolioId,
-      createSubjectTierDto,
+      initializeSubjectTierDto,
       req.user as User,
     );
   }
 
-  @Post('bulk')
+  @Delete('remove-subject-tier/:subjectTierId/portfolio/:portfolioId')
+  @ApiOperation({ summary: 'Remove a subject tier' })
+  @ApiResponse({ type: SubjectTier })
+  @ApiConsumes('application/json')
+  @ApiProduces('application/json')
+  removeSubjectTier(
+    @Param('subjectTierId') subjectTierId: string,
+    @Param('portfolioId') portfolioId: string,
+  ) {
+    return this.subjectTierService.removeSubjectTier(
+      portfolioId,
+      subjectTierId,
+    );
+  }
   createBulkSubjectTier(
     @Body() createBulkSubjectTierDto: CreateBulkSubjectTierDto,
     @Query('portfolioId') portfolioId: string,
@@ -107,19 +128,19 @@ export class SubjectTierController {
     );
   }
 
-  @ApiBody({ type: AssignBulkSubjectsDto })
-  @ApiOperation({ summary: 'Assign subjects to a subject tier' })
-  @ApiResponse({ type: SubjectTier })
-  @ApiConsumes('application/json')
-  @ApiProduces('application/json')
-  @Patch('assign-subjects')
-  assignSubjects(
-    @Body() assignBulkSubjectsDto: AssignBulkSubjectsDto,
-    @Req() req,
-  ): Promise<SubjectTier> {
-    return this.subjectTierService.assignSubjects(
-      req.user as User,
-      assignBulkSubjectsDto,
-    );
-  }
+  // @ApiBody({ type: AssignBulkSubjectsDto })
+  // @ApiOperation({ summary: 'Assign subjects to a subject tier' })
+  // @ApiResponse({ type: SubjectTier })
+  // @ApiConsumes('application/json')
+  // @ApiProduces('application/json')
+  // @Patch('assign-subjects')
+  // assignSubjects(
+  //   @Body() assignBulkSubjectsDto: AssignBulkSubjectsDto,
+  //   @Req() req,
+  // ): Promise<SubjectTier> {
+  //   return this.subjectTierService.assignSubjects(
+  //     req.user as User,
+  //     assignBulkSubjectsDto,
+  //   );
+  // }
 }

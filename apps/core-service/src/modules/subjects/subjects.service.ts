@@ -11,6 +11,8 @@ import { UpdatePortfolioSubjectsDto } from './dtos/update-portfolio-subjects.dto
 import { Portfolio } from '../portfolio/entities/portfolio.entity';
 import { User } from '../user/entities/user.entity';
 import { SubjectTierService } from './subject-tier/subject-tier.service';
+import { ExceptionHandler } from '@app/common/exceptions/exceptions.handler';
+import { _404 } from '@app/common/constants/errors-constants';
 @Injectable()
 export class SubjectsService {
   constructor(
@@ -19,6 +21,7 @@ export class SubjectsService {
     @InjectRepository(Portfolio)
     private readonly portfolioRepository: Repository<Portfolio>,
     private readonly subjectTierService: SubjectTierService,
+    private readonly exceptionHandler: ExceptionHandler,
   ) {}
 
   async createSubject(subject: CreateSubjectDto) {
@@ -44,8 +47,17 @@ export class SubjectsService {
     return subject;
   }
 
+  async findOne(id: string) {
+    const subject = await this.subjectRepository.findOne({ where: { id } });
+    if (!subject) {
+      this.exceptionHandler.throwNotFound(_404.SUBJECT_NOT_FOUND);
+    }
+    return subject;
+  }
+
   async updatePortfolioSubjects(
     user: User,
+    subjectId: string,
     updatePortfolioSubjectsDto: UpdatePortfolioSubjectsDto,
   ) {
     const portfolio = await this.portfolioRepository.findOne({
@@ -61,12 +73,10 @@ export class SubjectsService {
     const subjects = await Promise.all(
       updatePortfolioSubjectsDto.subjects.map(async (subjectDto) => {
         const subject = await this.subjectRepository.findOne({
-          where: { id: subjectDto.id },
+          where: { id: subjectId },
         });
         if (!subject) {
-          throw new NotFoundException(
-            `Subject with id ${subjectDto.id} not found`,
-          );
+          this.exceptionHandler.throwNotFound(_404.SUBJECT_NOT_FOUND);
         }
         return subject;
       }),

@@ -5,11 +5,6 @@ export class CreateSubjectDto {
   @IsString()
   @IsNotEmpty()
   @ApiProperty({ type: String })
-  id: string;
-
-  @IsString()
-  @IsNotEmpty()
-  @ApiProperty({ type: String })
   name: string;
 
   @IsEnum(ESubjectCategory)

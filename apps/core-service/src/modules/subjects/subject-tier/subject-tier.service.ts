@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { forwardRef, Injectable, Inject } from '@nestjs/common';
 import { SubjectTier } from './entities/subject-tier.entity';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -6,15 +6,18 @@ import {
   CreateBulkSubjectTierDto,
   CreateSubjectTierDto,
   UpdateSubjectTierDto,
-  AssignSubjectsDto,
   AssignBulkSubjectsDto,
+  InitializeSubjectTierDto,
+  MoveSubjectFromOneTierToAnotherDto,
 } from './dto/create-subject-tier.entity';
 import { Subject } from '../entities/subject.entity';
 import { In } from 'typeorm';
 import { User } from '@core-service/modules/user/entities/user.entity';
 import { Portfolio } from '@core-service/modules/portfolio/entities/portfolio.entity';
 import { ETierCategory } from './enums/tier-category.enum';
-
+import { ExceptionHandler } from '@app/common/exceptions/exceptions.handler';
+import { PortfolioService } from '@core-service/modules/portfolio/portfolio.service';
+import { _403, _404 } from '@app/common/constants/errors-constants';
 @Injectable()
 export class SubjectTierService {
   constructor(
@@ -22,42 +25,123 @@ export class SubjectTierService {
     private readonly subjectTierRepository: Repository<SubjectTier>,
     @InjectRepository(Subject)
     private readonly subjectRepository: Repository<Subject>,
-    @InjectRepository(Portfolio)
-    private readonly portfolioRepository: Repository<Portfolio>,
+    private readonly exceptionHandler: ExceptionHandler,
+    @Inject(forwardRef(() => PortfolioService))
+    private readonly portfolioService: PortfolioService,
   ) {}
 
-  async createSubjectTier(
+  async initializeSubjectTiers(
     portfolioId: string,
-    createSubjectTierDto: CreateSubjectTierDto,
+    initializeSubjectTierDto: InitializeSubjectTierDto,
     loggedInUser: User,
-  ): Promise<SubjectTier> {
-    const portfolio = await this.portfolioRepository.findOne({
-      where: { id: portfolioId },
-      relations: ['subjectTiers', 'subjects'],
-    });
-
+  ): Promise<Portfolio> {
+    const portfolio: Portfolio =
+      await this.portfolioService.findOne(portfolioId);
     if (!portfolio) {
-      throw new Error('Portfolio not found');
+      this.exceptionHandler.throwNotFound(_404.PORTFOLIO_NOT_FOUND);
+    }
+    if (portfolio.user.id !== loggedInUser.id) {
+      this.exceptionHandler.throwForbidden(
+        _403.UNAUTHORIZED_TO_UPDATE_PORTFOLIO,
+      );
+    }
+    const currentSubjectTiers = portfolio.subjectTiers || [];
+
+    initializeSubjectTierDto.subjectTiers.forEach(
+      async (initialSubjectTier) => {
+        const subjects = await this.subjectRepository.findBy({
+          id: In(initialSubjectTier.subjectsIds),
+        });
+
+        const subjectTier = await this.subjectTierRepository.create({
+          ...initialSubjectTier,
+          portfolio: { id: portfolioId },
+          subjects,
+        });
+        const newSubjectTier =
+          await this.subjectTierRepository.save(subjectTier);
+        currentSubjectTiers.push(newSubjectTier);
+      },
+    );
+    portfolio.subjectTiers = currentSubjectTiers;
+    return await this.portfolioService.getPortfolioRepository().save(portfolio);
+  }
+  async removeSubjectTier(portfolioId: string, subjectTierId: string) {
+    const portfolio = await this.portfolioService.findOne(portfolioId);
+    const subjectTier = await this.findOneByIdAndPortfolioId(
+      subjectTierId,
+      portfolio.id,
+    );
+    await this.subjectTierRepository.softDelete(subjectTier);
+  }
+  async moveSubjectFromOneTierToAnother(
+    portfolioId: string,
+    moveSubjectFromOneTierToAnotherDto: MoveSubjectFromOneTierToAnotherDto,
+  ) {
+    const originSubjectTier = await this.findOneByIdAndPortfolioId(
+      moveSubjectFromOneTierToAnotherDto.originTierId,
+      portfolioId,
+    );
+    const destinationSubjectTier = await this.findOneByIdAndPortfolioId(
+      moveSubjectFromOneTierToAnotherDto.destinationTierId,
+      portfolioId,
+    );
+
+    if (!originSubjectTier) {
+      this.exceptionHandler.throwForbidden(
+        _403.SUBJECT_TIER_NOT_BELONG_TO_PORTFOLIO,
+      );
+    }
+    if (!destinationSubjectTier) {
+      this.exceptionHandler.throwForbidden(
+        _403.SUBJECT_TIER_NOT_BELONG_TO_PORTFOLIO,
+      );
     }
 
-    const subjectTier = await this.subjectTierRepository.create({
-      ...createSubjectTierDto,
-      portfolio: { id: portfolioId },
+    const subject = await this.subjectRepository.findOne({
+      where: { id: moveSubjectFromOneTierToAnotherDto.subjectId },
     });
-    await this.refreshTierSubjects(portfolio);
-    return await this.subjectTierRepository.save(subjectTier);
+    if (!subject) {
+      this.exceptionHandler.throwNotFound(_404.SUBJECT_NOT_FOUND);
+    }
+    const originSubjectTierSubjects = originSubjectTier.subjects || [];
+    const destinationSubjectTierSubjects =
+      destinationSubjectTier.subjects || [];
+
+    originSubjectTier.subjects = originSubjectTierSubjects.filter(
+      (s) => s.id !== subject.id,
+    );
+    destinationSubjectTierSubjects.push(subject);
+
+    await Promise.all([
+      this.subjectTierRepository.save(originSubjectTier),
+      this.subjectTierRepository.save(destinationSubjectTier),
+    ]);
+  }
+
+  async findOneByIdAndPortfolioId(
+    subjectTierId: string,
+    portfolioId: string,
+  ): Promise<SubjectTier> {
+    const subjectTier = await this.subjectTierRepository.findOne({
+      where: { id: subjectTierId, portfolio: { id: portfolioId } },
+    });
+    if (!subjectTier) {
+      this.exceptionHandler.throwForbidden(
+        _403.SUBJECT_TIER_NOT_BELONG_TO_PORTFOLIO,
+      );
+    }
+    return subjectTier;
   }
 
   async createBulkSubjectTier(
     portfolioId: string,
     createBulkSubjectTierDto: CreateBulkSubjectTierDto,
   ): Promise<SubjectTier[]> {
-    const portfolio = await this.portfolioRepository.findOne({
-      where: { id: portfolioId },
-    });
+    const portfolio = await this.portfolioService.findOne(portfolioId);
 
     if (!portfolio) {
-      throw new Error('Portfolio not found');
+      this.exceptionHandler.throwNotFound(_404.PORTFOLIO_NOT_FOUND);
     }
 
     const subjectTiers = this.subjectTierRepository.create(
@@ -115,7 +199,7 @@ export class SubjectTierService {
     );
 
     if (subjectsNotInTiers.length > 0) {
-      let basicTier = await this.subjectTierRepository.findOne({
+      const basicTier = await this.subjectTierRepository.findOne({
         where: {
           category: ETierCategory.BASIC,
           portfolio: { id: portfolio.id },
@@ -184,13 +268,10 @@ export class SubjectTierService {
     updateSubjectTierDto: UpdateSubjectTierDto,
     loggedInUser: User,
   ): Promise<SubjectTier> {
-    const portfolio = await this.portfolioRepository.findOne({
-      where: { user: { id: loggedInUser.id } },
-      relations: ['subjectTiers', 'subjects'],
-    });
+    const portfolio = await this.portfolioService.findOne(loggedInUser.id);
 
     if (!portfolio) {
-      throw new Error('Portfolio not found');
+      this.exceptionHandler.throwNotFound(_404.PORTFOLIO_NOT_FOUND);
     }
 
     const subjectTier = await this.subjectTierRepository.findOne({
@@ -230,42 +311,39 @@ export class SubjectTierService {
     return this.subjectTierRepository.save(subjectTier);
   }
 
-  async assignSubjects(
-    loggedInUser: User,
-    assignSubjectsDto: AssignBulkSubjectsDto,
-  ): Promise<SubjectTier> {
-    const portfolio = await this.portfolioRepository.findOne({
-      where: { user: { id: loggedInUser.id } },
-      relations: ['subjectTiers'],
-    });
+  // async assignSubjects(
+  //   loggedInUser: User,
+  //   assignSubjectsDto: AssignBulkSubjectsDto,
+  // ): Promise<SubjectTier> {
+  //   const portfolio = await this.portfolioService.findOne(loggedInUser.id);
 
-    if (!portfolio) {
-      throw new Error('Portfolio not found');
-    }
+  //   if (!portfolio) {
+  //     this.exceptionHandler.throwNotFound(_404.PORTFOLIO_NOT_FOUND);
+  //   }
 
-    let updatedSubjectTier;
+  //   let updatedSubjectTier;
 
-    for (const subjectTierDto of assignSubjectsDto.subjectTiers) {
-      const [subjectTier, subjects] = await Promise.all([
-        this.subjectTierRepository.findOne({
-          where: {
-            id: subjectTierDto.subjectTierId,
-            portfolio: { id: portfolio.id },
-          },
-        }),
-        this.subjectRepository.findBy({ id: In(subjectTierDto.subjectIds) }),
-      ]);
+  //   for (const subjectTierDto of assignSubjectsDto.subjectTiers) {
+  //     const [subjectTier, subjects] = await Promise.all([
+  //       this.subjectTierRepository.findOne({
+  //         where: {
+  //           id: subjectTierDto.subjectTierId,
+  //           portfolio: { id: portfolio.id },
+  //         },
+  //       }),
+  //       this.subjectRepository.findBy({ id: In(subjectTierDto.subjectIds) }),
+  //     ]);
 
-      if (!subjectTier) {
-        throw new Error('Subject tier not found');
-      }
+  //     if (!subjectTier) {
+  //       throw new Error('Subject tier not found');
+  //     }
 
-      subjectTier.subjects = subjects;
-      updatedSubjectTier = await this.subjectTierRepository.save(subjectTier);
-    }
+  //     subjectTier.subjects = subjects;
+  //     updatedSubjectTier = await this.subjectTierRepository.save(subjectTier);
+  //   }
 
-    return updatedSubjectTier;
-  }
+  //   return updatedSubjectTier;
+  // }
 
   async findSubjectTierWhichHasSubjectByTutorId(
     tutorId: string,
