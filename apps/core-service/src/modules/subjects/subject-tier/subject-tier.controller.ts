@@ -128,6 +128,20 @@ export class SubjectTierController {
     );
   }
 
+  @ApiParam({ name: 'subjectId', type: String })
+  @ApiParam({ name: 'subjecttierId', type: String })
+  @ApiOperation({ summary: 'Assign a subject to a subject tier' })
+  @ApiResponse({ type: SubjectTier })
+  @ApiConsumes('application/json')
+  @ApiProduces('application/json')
+  @Patch('assign-subject/:subjectId/:subjecttierId')
+  async assignSubjectsToTiers(subjectId: string, subjecttierId: string) {
+    return this.subjectTierService.assignSubjectsToTiers(
+      subjectId,
+      subjecttierId,
+    );
+  }
+
   // @ApiBody({ type: AssignBulkSubjectsDto })
   // @ApiOperation({ summary: 'Assign subjects to a subject tier' })
   // @ApiResponse({ type: SubjectTier })

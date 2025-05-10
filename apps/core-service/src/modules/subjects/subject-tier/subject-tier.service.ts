@@ -311,39 +311,22 @@ export class SubjectTierService {
     return this.subjectTierRepository.save(subjectTier);
   }
 
-  // async assignSubjects(
-  //   loggedInUser: User,
-  //   assignSubjectsDto: AssignBulkSubjectsDto,
-  // ): Promise<SubjectTier> {
-  //   const portfolio = await this.portfolioService.findOne(loggedInUser.id);
-
-  //   if (!portfolio) {
-  //     this.exceptionHandler.throwNotFound(_404.PORTFOLIO_NOT_FOUND);
-  //   }
-
-  //   let updatedSubjectTier;
-
-  //   for (const subjectTierDto of assignSubjectsDto.subjectTiers) {
-  //     const [subjectTier, subjects] = await Promise.all([
-  //       this.subjectTierRepository.findOne({
-  //         where: {
-  //           id: subjectTierDto.subjectTierId,
-  //           portfolio: { id: portfolio.id },
-  //         },
-  //       }),
-  //       this.subjectRepository.findBy({ id: In(subjectTierDto.subjectIds) }),
-  //     ]);
-
-  //     if (!subjectTier) {
-  //       throw new Error('Subject tier not found');
-  //     }
-
-  //     subjectTier.subjects = subjects;
-  //     updatedSubjectTier = await this.subjectTierRepository.save(subjectTier);
-  //   }
-
-  //   return updatedSubjectTier;
-  // }
+  async assignSubjectsToTiers(subjectId: string, subjecttierId: string) {
+    const subject = await this.subjectRepository.findOne({
+      where: { id: subjectId },
+    });
+    if (!subject) {
+      this.exceptionHandler.throwNotFound(_404.SUBJECT_NOT_FOUND);
+    }
+    const subjectTier = await this.subjectTierRepository.findOne({
+      where: { id: subjecttierId },
+    });
+    if (!subjectTier) {
+      this.exceptionHandler.throwNotFound(_404.SUBJECT_TIER_NOT_FOUND);
+    }
+    subjectTier.subjects = [...(subjectTier.subjects || []), subject];
+    return this.subjectTierRepository.save(subjectTier);
+  }
 
   async findSubjectTierWhichHasSubjectByTutorId(
     tutorId: string,
