@@ -10,11 +10,6 @@ export enum WeekDay {
   SUNDAY = 'Sunday',
 }
 
-export class TimeSlot {
-  start_time: string; // Format: "HH:mm"
-  end_time: string; // Format: "HH:mm"
-}
-
 export class DayAvailability {
   @IsEnum(WeekDay)
   day: WeekDay;
@@ -30,3 +25,19 @@ export class WeeklyAvailabilityDto {
   @IsString()
   timezone_display_format: string;
 }
+
+export type TimeSlot = {
+  start: string;
+  end: string;
+};
+
+export type WeeklyAvailability = {
+  [key: string]: TimeSlot[];
+  sunday: TimeSlot[];
+  monday: TimeSlot[];
+  tuesday: TimeSlot[];
+  wednesday: TimeSlot[];
+  thursday: TimeSlot[];
+  friday: TimeSlot[];
+  saturday: TimeSlot[];
+};

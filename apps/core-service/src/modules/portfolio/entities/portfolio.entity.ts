@@ -5,7 +5,6 @@ import {
   JoinColumn,
   JoinTable,
   ManyToMany,
-  OneToOne,
   OneToMany,
   PrimaryGeneratedColumn,
   ManyToOne,
@@ -17,6 +16,7 @@ import { SubjectTier } from '@core-service/modules/subjects/subject-tier/entitie
 import { AttachmentDto } from '@app/common/dtos/attachment.dto';
 import { Subject } from '@core-service/modules/subjects/entities/subject.entity';
 import { SavedTutorDto } from '../dto/dashboard-response.dto';
+import { EVerificationStatus } from '../../user/enums/verification-status.enum';
 
 @Entity('portfolio')
 export class Portfolio extends BaseEntity {
@@ -79,9 +79,6 @@ export class Portfolio extends BaseEntity {
 
   @Column({ type: 'json', nullable: true })
   educationInstitutionRecords: EducationInstitutionRecord[];
-  // Tutor specific fields
-  @Column({ type: 'json', nullable: true })
-  weeklyAvailability: any;
 
   @Column({ type: 'json', nullable: true })
   languages: { value: string[]; visible: boolean };
@@ -182,4 +179,14 @@ export class Portfolio extends BaseEntity {
     },
   })
   subjectsOfInterest: Subject[];
+
+  @Column({ type: 'json', nullable: true })
+  verificationDocuments: string[];
+
+  @Column({
+    type: 'enum',
+    enum: EVerificationStatus,
+    default: EVerificationStatus.PENDING,
+  })
+  verificationStatus: EVerificationStatus;
 }

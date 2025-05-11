@@ -92,10 +92,27 @@ export class AuthService {
 
     const userEntity: User =
       await this.userService.getUserEntityFromDto(createUserDto);
+
     if (createUserDto.profilePicture) {
-      userEntity.profilePicture = await this.minioService.getUploadedFilePath(
-        createUserDto.profilePicture,
-      );
+      if (createUserDto.profilePicture) {
+        const raw = createUserDto.profilePicture;
+
+        const file: Express.Multer.File = {
+          fieldname: raw.fieldname,
+          originalname: raw.originalname,
+          encoding: raw.encoding,
+          mimetype: raw.mimetype,
+          size: raw.size,
+          buffer: Buffer.from(raw.buffer), // Important: convert from plain object to real Buffer
+          stream: null, // Not used in your case
+          destination: raw.destination,
+          filename: raw.filename,
+          path: raw.path,
+        };
+
+        userEntity.profilePicture =
+          await this.minioService.getUploadedFilePath(file);
+      }
     }
     const stripeAccountId =
       await this.paymentService.createStripeAccount(userEntity);
