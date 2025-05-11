@@ -97,9 +97,8 @@ export class AuthService {
         createUserDto.profilePicture,
       );
     }
-    const stripeAccountId = await this.paymentService.createStripeAccount(
-      userEntity,
-    );
+    const stripeAccountId =
+      await this.paymentService.createStripeAccount(userEntity);
     userEntity.stripeAccountId = stripeAccountId;
     userEntity.referalCode = generateAlphaNumericCode(10);
     userEntity.password = hashedPassword;
