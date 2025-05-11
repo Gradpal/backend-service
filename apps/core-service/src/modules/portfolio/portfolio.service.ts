@@ -487,7 +487,7 @@ export class PortfolioService {
   }
 
   async advancedSearchTutors({
-    subject,
+    subjectId,
     language,
     country,
     priceMin,
@@ -503,7 +503,7 @@ export class PortfolioService {
     page = 1,
     limit = 10,
   }: {
-    subject?: string;
+    subjectId?: string;
     language?: string;
     country?: string;
     priceMin?: number;
@@ -519,24 +519,10 @@ export class PortfolioService {
     page?: number;
     limit?: number;
   }) {
-    console.log(
-      name,
-      country,
-      subject,
-      language,
-      priceMin,
-      priceMax,
-      category,
-      gender,
-      religion,
-      nationality,
-      dates,
-      page,
-      limit,
-    );
     const query = this.portfolioRepository
       .createQueryBuilder('portfolio')
       .leftJoinAndSelect('portfolio.user', 'user')
+      .leftJoinAndSelect('portfolio.subjectTiers', 'subjectTier')
       .where('user.role = :role', { role: EUserRole.TUTOR });
 
     if (name) {
@@ -548,19 +534,28 @@ export class PortfolioService {
     if (country) {
       query.andWhere('portfolio.countryOfResidence = :country', { country });
     }
-    if (subject) {
-      query.andWhere(':subject = ANY(portfolio.academicSubjects)', { subject });
+    if (subjectId) {
+      query.andWhere(
+        'EXISTS (SELECT 1 FROM subjects_tiers sts WHERE sts.subject_tier_id = subjectTier.id AND sts.subject_id = :subjectId)',
+        {
+          subjectId: subjectId,
+        },
+      );
     }
     if (language) {
       query.andWhere(':language = ANY(portfolio.spokenLanguages)', {
         language,
       });
     }
-    if (priceMin) {
-      query.andWhere('portfolio.pricePerHour >= :priceMin', { priceMin });
-    }
-    if (priceMax) {
-      query.andWhere('portfolio.pricePerHour <= :priceMax', { priceMax });
+    if (priceMin || priceMax) {
+      query.andWhere(
+        'EXISTS (SELECT 1 FROM subject_tier st WHERE st.portfolio_id = portfolio.id AND ' +
+          (priceMin ? 'st.credits >= :priceMin' : '1=1') +
+          (priceMin && priceMax ? ' AND ' : '') +
+          (priceMax ? 'st.credits <= :priceMax' : '1=1') +
+          ')',
+        { priceMin, priceMax },
+      );
     }
     if (category) {
       query.andWhere(':category = ANY(portfolio.session_type)', { category });

@@ -11,7 +11,6 @@ import {
 } from '@nestjs/common';
 import { SubjectTierService } from './subject-tier.service';
 import {
-  AssignBulkSubjectsDto,
   CreateBulkSubjectTierDto,
   InitializeSubjectTierDto,
   UpdateSubjectTierDto,

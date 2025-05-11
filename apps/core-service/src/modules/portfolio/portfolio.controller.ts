@@ -266,7 +266,7 @@ export class PortfolioController {
   @Get('/all/search-tutors')
   @Public()
   @ApiQuery({
-    name: 'subject',
+    name: 'subjectId',
     required: false,
     type: String,
     description: 'Subject to search for',
@@ -358,7 +358,7 @@ export class PortfolioController {
     description: 'Limit number of results to search for',
   })
   async searchTutors(
-    @Query('subject') subject?: string,
+    @Query('subjectId') subjectId?: string,
     @Query('language') language?: string,
     @Query('country') country?: string,
     @Query('priceMin') priceMin?: number,
@@ -375,7 +375,7 @@ export class PortfolioController {
     @Query('limit') limit: number = 10,
   ) {
     return this.portfolioService.advancedSearchTutors({
-      subject,
+      subjectId,
       language,
       country,
       priceMin,
