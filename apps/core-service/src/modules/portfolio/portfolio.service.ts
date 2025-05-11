@@ -440,6 +440,10 @@ export class PortfolioService {
 
     return plainToClass(SessionDetailsDto, booking);
   }
+  async getPortfolioById(portfolioId: string): Promise<Portfolio> {
+    const portfoio = await this.findOne(portfolioId);
+    return portfoio;
+  }
 
   async getSessionInvitations(id: string): Promise<SessionInvitationDto[]> {
     const portfolio = await this.portfolioRepository.findOne({

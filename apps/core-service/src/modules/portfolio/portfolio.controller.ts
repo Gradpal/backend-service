@@ -402,6 +402,11 @@ export class PortfolioController {
     return this.portfolioService.saveTutor(req.user as User, tutorId);
   }
 
+  @Get(':portfolioId')
+  getPortfolioById(@Param('portfolioId') portfolioId: string) {
+    return this.portfolioService.getPortfolioById(portfolioId);
+  }
+
   @Get(':id/subject-tier')
   @Public()
   @ApiOperation({ summary: 'Get subject tier for a portfolio' })
