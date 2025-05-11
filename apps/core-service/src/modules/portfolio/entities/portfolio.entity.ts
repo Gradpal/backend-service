@@ -5,7 +5,6 @@ import {
   JoinColumn,
   JoinTable,
   ManyToMany,
-  OneToOne,
   OneToMany,
   PrimaryGeneratedColumn,
   ManyToOne,
@@ -79,9 +78,6 @@ export class Portfolio extends BaseEntity {
 
   @Column({ type: 'json', nullable: true })
   educationInstitutionRecords: EducationInstitutionRecord[];
-  // Tutor specific fields
-  @Column({ type: 'json', nullable: true })
-  weeklyAvailability: any;
 
   @Column({ type: 'json', nullable: true })
   languages: { value: string[]; visible: boolean };

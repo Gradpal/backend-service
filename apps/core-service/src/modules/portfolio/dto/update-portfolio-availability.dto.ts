@@ -6,11 +6,11 @@ import { Type } from 'class-transformer';
 class TimeSlot {
   @ApiProperty({ example: '09:00', description: 'Start time in HH:MM format' })
   @IsString()
-  start: string;
+  startTime: string;
 
   @ApiProperty({ example: '17:00', description: 'End time in HH:MM format' })
   @IsString()
-  end: string;
+  endTime: string;
 }
 
 export class UpdatePortfolioAvailabilityDto {
