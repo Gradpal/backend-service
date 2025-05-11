@@ -19,7 +19,6 @@ import { UpdatePortfolioAvailabilityDto } from './dto/update-portfolio-availabil
 import { _400, _404 } from '@app/common/constants/errors-constants';
 import { EUserRole } from '../user/enums/user-role.enum';
 import { TutorProfileDto } from './dto/tutor-profile.dto';
-import { WeeklyScheduleDto } from '../user/dto/schedule-slot.dto';
 import { SessionInvitationDto } from '../user/dto/session-invitation.dto';
 import { Booking, BookingStatus } from '../booking/entities/booking.entity';
 import { SessionDetailsDto } from '../booking/dto/session-details.dto';
@@ -32,22 +31,29 @@ import { generateUUID } from '@app/common/helpers/shared.helpers';
 import { SubjectsService } from '../subjects/subjects.service';
 import { SavedTutorDto } from './dto/dashboard-response.dto';
 import { ClassSessionService } from '../class-session/class-session.service';
+import {
+  DaySchedule,
+  TimeSlot,
+  WeeklyAvailability,
+} from './weekly-availability/entities/weeky-availability.entity';
+import { WeekDay } from './weekly-availability/enums/week-day.enum';
+import { WeeklyScheduleDto } from './dto/schedule-slot.dto';
 @Injectable()
 export class PortfolioService {
   constructor(
     @InjectRepository(Portfolio)
     private readonly portfolioRepository: Repository<Portfolio>,
-    @InjectRepository(Institution)
-    private readonly institutionRepository: Repository<Institution>,
-    @InjectRepository(EducationInstitutionRecord)
-    private readonly educationInstitutionRecordRepository: Repository<EducationInstitutionRecord>,
+    @InjectRepository(WeeklyAvailability)
+    private readonly weeklyAvailabilityRepository: Repository<WeeklyAvailability>,
+    @InjectRepository(DaySchedule)
+    private readonly dayScheduleRepository: Repository<DaySchedule>,
+    @InjectRepository(TimeSlot)
+    private readonly timeSlotRepository: Repository<TimeSlot>,
     @InjectRepository(Booking)
     private readonly bookingRepository: Repository<Booking>,
     private readonly userService: UserService,
     private readonly exceptionHandler: ExceptionHandler,
     private readonly minioService: MinioClientService,
-    @Inject(forwardRef(() => SubjectTierService))
-    private readonly subjectTierService: SubjectTierService,
     @Inject(forwardRef(() => SubjectsService))
     private readonly subjectService: SubjectsService,
     private readonly sessionService: ClassSessionService,
@@ -344,24 +350,162 @@ export class PortfolioService {
   }
 
   async updatePortfolioAvailability(
-    id: string,
-    updatePortfolioAvailabilityDto: UpdatePortfolioAvailabilityDto,
-  ): Promise<Portfolio> {
-    const portfolio = await this.portfolioRepository.findOne({
-      where: { id },
-      relations: ['user'],
-    });
+    tutor: User,
+    availabilityDto: UpdatePortfolioAvailabilityDto,
+  ) {
+    const portfolio = await this.findByUser(tutor);
 
-    if (!portfolio) {
-      this.exceptionHandler.throwNotFound(_404.DATABASE_RECORD_NOT_FOUND);
+    let weeklyAvailability = new WeeklyAvailability();
+    weeklyAvailability.timezone = portfolio.timezone;
+    weeklyAvailability =
+      await this.weeklyAvailabilityRepository.save(weeklyAvailability);
+
+    if (availabilityDto.monday) {
+      const slotsDtos = availabilityDto.monday;
+
+      const mondaySchedule = new DaySchedule();
+      mondaySchedule.day = WeekDay.MONDAY;
+
+      const timeSlots = [];
+
+      slotsDtos.forEach(async (slot) => {
+        let slotEntity = new TimeSlot();
+        slotEntity.startTime = slot.startTime;
+        slotEntity.endTime = slot.endTime;
+        slotEntity.owner = tutor;
+        slotEntity.daySchedule = mondaySchedule;
+        slotEntity = await this.timeSlotRepository.save(slotEntity);
+        timeSlots.push(slotEntity);
+      });
+      mondaySchedule.weeklyAvailability = weeklyAvailability;
+      await this.dayScheduleRepository.save(mondaySchedule);
     }
 
-    if (portfolio.user.role !== EUserRole.TUTOR) {
-      this.exceptionHandler.throwNotFound(_404.TUTOR_NOT_FOUND);
+    if (availabilityDto.tuesday) {
+      const slotsDtos = availabilityDto.monday;
+
+      const tuesdaySchedule = new DaySchedule();
+      tuesdaySchedule.day = WeekDay.TUESDAY;
+
+      const timeSlots = [];
+
+      slotsDtos.forEach(async (slot) => {
+        let slotEntity = new TimeSlot();
+        slotEntity.startTime = slot.startTime;
+        slotEntity.endTime = slot.endTime;
+        slotEntity.owner = tutor;
+        slotEntity.daySchedule = tuesdaySchedule;
+        slotEntity = await this.timeSlotRepository.save(slotEntity);
+        timeSlots.push(slotEntity);
+      });
+      tuesdaySchedule.weeklyAvailability = weeklyAvailability;
+      await this.dayScheduleRepository.save(tuesdaySchedule);
     }
 
-    portfolio.weeklyAvailability = updatePortfolioAvailabilityDto;
-    return await this.portfolioRepository.save(portfolio);
+    if (availabilityDto.wednesday) {
+      const slotsDtos = availabilityDto.wednesday;
+
+      const wednesdaySchedule = new DaySchedule();
+      wednesdaySchedule.day = WeekDay.WEDNESDAY;
+
+      const timeSlots = [];
+
+      slotsDtos.forEach(async (slot) => {
+        let slotEntity = new TimeSlot();
+        slotEntity.startTime = slot.startTime;
+        slotEntity.endTime = slot.endTime;
+        slotEntity.owner = tutor;
+        slotEntity.daySchedule = wednesdaySchedule;
+        slotEntity = await this.timeSlotRepository.save(slotEntity);
+        timeSlots.push(slotEntity);
+      });
+      wednesdaySchedule.weeklyAvailability = weeklyAvailability;
+      await this.dayScheduleRepository.save(wednesdaySchedule);
+    }
+
+    if (availabilityDto.thursday) {
+      const slotsDtos = availabilityDto.thursday;
+
+      const thursdaySchedule = new DaySchedule();
+      thursdaySchedule.day = WeekDay.THURSDAY;
+
+      const timeSlots = [];
+
+      slotsDtos.forEach(async (slot) => {
+        let slotEntity = new TimeSlot();
+        slotEntity.startTime = slot.startTime;
+        slotEntity.endTime = slot.endTime;
+        slotEntity.owner = tutor;
+        slotEntity.daySchedule = thursdaySchedule;
+        slotEntity = await this.timeSlotRepository.save(slotEntity);
+        timeSlots.push(slotEntity);
+      });
+      thursdaySchedule.weeklyAvailability = weeklyAvailability;
+      await this.dayScheduleRepository.save(thursdaySchedule);
+    }
+
+    if (availabilityDto.friday) {
+      const slotsDtos = availabilityDto.friday;
+
+      const fridaySchedule = new DaySchedule();
+      fridaySchedule.day = WeekDay.FRIDAY;
+
+      const timeSlots = [];
+
+      slotsDtos.forEach(async (slot) => {
+        let slotEntity = new TimeSlot();
+        slotEntity.startTime = slot.startTime;
+        slotEntity.endTime = slot.endTime;
+        slotEntity.daySchedule = fridaySchedule;
+        slotEntity.owner = tutor;
+        slotEntity = await this.timeSlotRepository.save(slotEntity);
+        timeSlots.push(slotEntity);
+      });
+      fridaySchedule.weeklyAvailability = weeklyAvailability;
+      await this.dayScheduleRepository.save(fridaySchedule);
+    }
+
+    if (availabilityDto.saturday) {
+      const slotsDtos = availabilityDto.saturday;
+
+      const saturdaySchedule = new DaySchedule();
+      saturdaySchedule.day = WeekDay.SATURDAY;
+
+      const timeSlots = [];
+
+      slotsDtos.forEach(async (slot) => {
+        let slotEntity = new TimeSlot();
+        slotEntity.startTime = slot.startTime;
+        slotEntity.endTime = slot.endTime;
+        slotEntity.daySchedule = saturdaySchedule;
+        slotEntity.owner = tutor;
+        slotEntity = await this.timeSlotRepository.save(slotEntity);
+        timeSlots.push(slotEntity);
+      });
+      saturdaySchedule.weeklyAvailability = weeklyAvailability;
+      await this.dayScheduleRepository.save(saturdaySchedule);
+    }
+
+    if (availabilityDto.sunday) {
+      const slotsDtos = availabilityDto.sunday;
+
+      const sundaySchedule = new DaySchedule();
+      sundaySchedule.day = WeekDay.SUNDAY;
+
+      const timeSlots = [];
+
+      slotsDtos.forEach(async (slot) => {
+        let slotEntity = new TimeSlot();
+        slotEntity.startTime = slot.startTime;
+        slotEntity.endTime = slot.endTime;
+        slotEntity.daySchedule = sundaySchedule;
+        slotEntity.owner = tutor;
+        slotEntity = await this.timeSlotRepository.save(slotEntity);
+        timeSlots.push(slotEntity);
+      });
+      sundaySchedule.weeklyAvailability = weeklyAvailability;
+      await this.dayScheduleRepository.save(sundaySchedule);
+    }
   }
 
   async getTutorProfile(id: string): Promise<TutorProfileDto> {
@@ -439,6 +583,10 @@ export class PortfolioService {
     }
 
     return plainToClass(SessionDetailsDto, booking);
+  }
+  async getPortfolioById(portfolioId: string): Promise<Portfolio> {
+    const portfoio = await this.findOne(portfolioId);
+    return portfoio;
   }
 
   async getSessionInvitations(id: string): Promise<SessionInvitationDto[]> {

@@ -38,7 +38,6 @@ import { AuthGuard } from '@core-service/guards/auth.guard';
 import { Portfolio } from './entities/portfolio.entity';
 import { UpdatePortfolioAvailabilityDto } from './dto/update-portfolio-availability.dto';
 import { TutorProfileDto } from './dto/tutor-profile.dto';
-import { WeeklyScheduleDto } from '../user/dto/schedule-slot.dto';
 import { Booking } from '../booking/entities/booking.entity';
 import { SessionDetailsDto } from '../booking/dto/session-details.dto';
 import { SessionInvitationDto } from '../user/dto/session-invitation.dto';
@@ -50,6 +49,7 @@ import {
 import { UserService } from '../user/user.service';
 import { CreateEducationInstitutionRecordDto } from './dto/create-education-record.dto';
 import { User } from '../user/entities/user.entity';
+import { WeeklyScheduleDto } from './dto/schedule-slot.dto';
 @Controller('portfolio')
 @ApiBearerAuth()
 export class PortfolioController {
@@ -188,7 +188,7 @@ export class PortfolioController {
     );
   }
 
-  @Post(':id/availability')
+  @Post(':id/update-availability')
   @UseGuards(AuthGuard)
   @ApiOperation({ summary: 'Update portfolio availability' })
   @ApiParam({ name: 'id', description: 'Portfolio ID' })
@@ -196,10 +196,10 @@ export class PortfolioController {
   async updatePortfolioAvailability(
     @Param('id') id: string,
     @Body() updatePortfolioAvailabilityDto: UpdatePortfolioAvailabilityDto,
+    @Req() req,
   ) {
-    console.log(updatePortfolioAvailabilityDto);
     return this.portfolioService.updatePortfolioAvailability(
-      id,
+      req.user as User,
       updatePortfolioAvailabilityDto,
     );
   }
@@ -400,6 +400,11 @@ export class PortfolioController {
   @AuthUser()
   saveTutor(@Param('tutorId') tutorId: string, @Req() req) {
     return this.portfolioService.saveTutor(req.user as User, tutorId);
+  }
+
+  @Get(':portfolioId')
+  getPortfolioById(@Param('portfolioId') portfolioId: string) {
+    return this.portfolioService.getPortfolioById(portfolioId);
   }
 
   @Get(':id/subject-tier')

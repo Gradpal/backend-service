@@ -98,7 +98,6 @@ export class TutorProfileDto {
     dto.institutions = portfolio.institutions || [];
     dto.introductoryVideo = portfolio.introductoryVideo || null;
     dto.profilePicture = user.profilePicture || null;
-    dto.weeklyAvailability = portfolio.weeklyAvailability || {};
     dto.offeredServices = portfolio.sessionType || [];
     dto.academicEmailVerfication = user.academicEmailVerfication || null;
     return dto;

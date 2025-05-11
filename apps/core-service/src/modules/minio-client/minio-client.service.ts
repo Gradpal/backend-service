@@ -119,7 +119,7 @@ export class MinioClientService {
     );
     return this.getFilePath(fileName);
   }
-  
+
   /**
    * Copies a file within the MinIO bucket.
    *
