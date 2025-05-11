@@ -66,10 +66,28 @@ export class SavedTutorDto {
   id: string;
 
   @ApiProperty()
-  name: string;
+  firstName: string;
 
   @ApiProperty()
-  avatar: string;
+  lastName: string;
+
+  @ApiProperty()
+  nationality: string;
+
+  @ApiProperty()
+  profilePicture: string;
+
+  @ApiProperty()
+  countryOfResidence: string;
+
+  @ApiProperty()
+  timezone: string;
+
+  @ApiProperty()
+  isVerified: boolean;
+
+  @ApiProperty()
+  totalReviews: number;
 
   @ApiProperty()
   institution: string;
@@ -90,7 +108,7 @@ export class SavedTutorDto {
   totalStudents: number;
 
   @ApiProperty()
-  totalLessons: number;
+  totalSessions: number;
 
   @ApiProperty()
   attendanceRate: number;
@@ -100,22 +118,6 @@ export class SavedTutorDto {
 
   @ApiProperty()
   repeatStudents: number;
-
-  constructor(tutor: User) {
-    this.id = tutor.id;
-    this.name = tutor?.firstName + ' ' + tutor?.lastName;
-    this.avatar = tutor?.profilePicture || '';
-    this.institution = tutor.portfolio.university || '';
-    this.country = tutor.portfolio?.countryOfResidence || '';
-    this.time_zone = tutor.portfolio.timezone || '';
-    // These fields need to be calculated from reviews/sessions
-    this.rating = 0;
-    this.totalStudents = 0;
-    this.totalLessons = 0;
-    this.attendanceRate = 0;
-    this.responseRate = 0;
-    this.repeatStudents = 0;
-  }
 }
 
 export class StudentDashboardResponseDto {

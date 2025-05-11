@@ -16,15 +16,12 @@ import { Institution } from '../dto/institution.dto';
 import { SubjectTier } from '@core-service/modules/subjects/subject-tier/entities/subject-tier.entity';
 import { AttachmentDto } from '@app/common/dtos/attachment.dto';
 import { Subject } from '@core-service/modules/subjects/entities/subject.entity';
+import { SavedTutorDto } from '../dto/dashboard-response.dto';
 
 @Entity('portfolio')
 export class Portfolio extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
-
-  @ManyToOne(() => User, (user) => user.portfolio)
-  @JoinColumn()
-  user: User;
 
   @Column({ type: 'varchar', length: 255, nullable: true })
   university: string;
@@ -32,8 +29,11 @@ export class Portfolio extends BaseEntity {
   @Column({ type: 'varchar', length: 255, nullable: true })
   countryOfResidence: string;
 
-  @Column({ type: 'varchar', length: 255, nullable: true })
+  @Column({ length: 255, nullable: true })
   timezone: string;
+
+  @Column({ length: 255, nullable: true })
+  nationality: string;
 
   @Column({ type: 'varchar', length: 255, nullable: true })
   timezoneDisplayFormat: string;
@@ -109,6 +109,13 @@ export class Portfolio extends BaseEntity {
 
   @Column({ type: 'varchar', nullable: true })
   highestDegree: string;
+
+  @ManyToOne(() => User, (user) => user.portfolio)
+  @JoinColumn()
+  user: User;
+
+  @Column({ type: 'json', nullable: true })
+  savedTutors: SavedTutorDto[];
 
   @ManyToMany(() => Subject)
   @JoinTable({

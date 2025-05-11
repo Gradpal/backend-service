@@ -30,6 +30,8 @@ import { SubjectTierService } from '../subjects/subject-tier/subject-tier.servic
 import { CreateEducationInstitutionRecordDto } from './dto/create-education-record.dto';
 import { generateUUID } from '@app/common/helpers/shared.helpers';
 import { SubjectsService } from '../subjects/subjects.service';
+import { SavedTutorDto } from './dto/dashboard-response.dto';
+import { ClassSessionService } from '../class-session/class-session.service';
 @Injectable()
 export class PortfolioService {
   constructor(
@@ -48,6 +50,7 @@ export class PortfolioService {
     private readonly subjectTierService: SubjectTierService,
     @Inject(forwardRef(() => SubjectsService))
     private readonly subjectService: SubjectsService,
+    private readonly sessionService: ClassSessionService,
   ) {}
 
   getPortfolioRepository() {
@@ -577,6 +580,37 @@ export class PortfolioService {
     query.skip((page - 1) * limit).take(limit);
     const [tutors, count] = await query.getManyAndCount();
     return createPaginatedResponse(tutors, count, page, limit);
+  }
+
+  async saveTutor(student: User, tutorPortfolioId: string): Promise<Portfolio> {
+    const studentPortfolio = await this.findByOnwer(student);
+    const tutorPortfolio = await this.findOne(tutorPortfolioId);
+    const savedTutors = studentPortfolio.savedTutors || [];
+    const savedTtutorDto = new SavedTutorDto();
+
+    savedTtutorDto.id = tutorPortfolio.id;
+    savedTtutorDto.firstName = tutorPortfolio.user.firstName;
+    savedTtutorDto.lastName = tutorPortfolio.user.lastName;
+    savedTtutorDto.nationality = tutorPortfolio.nationality;
+    savedTtutorDto.profilePicture = tutorPortfolio.user.profilePicture;
+    savedTtutorDto.countryOfResidence = tutorPortfolio.countryOfResidence;
+    savedTtutorDto.timezone = tutorPortfolio.timezone;
+    savedTtutorDto.isVerified = tutorPortfolio.isVerified;
+    savedTtutorDto.totalReviews = tutorPortfolio?.reviews?.length;
+    savedTtutorDto.totalStudents = tutorPortfolio.totalStudents;
+
+    const totalSessions = await this.sessionService.findByTutor(
+      tutorPortfolio.user.id,
+    );
+    savedTtutorDto.totalSessions = totalSessions?.length;
+    savedTtutorDto.attendanceRate = tutorPortfolio.attendanceRate;
+    savedTtutorDto.responseRate = tutorPortfolio.responseRate;
+
+    savedTutors.push(savedTtutorDto);
+
+    const portfolio = await this.findOne(studentPortfolio.id);
+    portfolio.savedTutors = savedTutors;
+    return await this.portfolioRepository.save(portfolio);
   }
 
   async getSubjectTier(portfolioId: string, subject: string): Promise<null> {

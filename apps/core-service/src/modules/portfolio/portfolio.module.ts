@@ -1,16 +1,16 @@
 import { Module, forwardRef } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Institution } from './dto/institution.dto';
 import { PortfolioService } from './portfolio.service';
 import { PortfolioController } from './portfolio.controller';
-import { CalendarService } from './services/calendar.service';
-import { CalendarController } from './controllers/calendar.controller';
-import { Booking } from '../booking/entities/booking.entity';
-import { UserModule } from '../user/user.module';
-import { BrainModule } from '@app/common/brain/brain.module';
-import { SubjectsModule } from '../subjects/subjects.module';
 import { Portfolio } from './entities/portfolio.entity';
 import { EducationInstitutionRecord } from './entities/education-record.entity';
+import { Institution } from './dto/institution.dto';
+import { Booking } from '../booking/entities/booking.entity';
+import { UserModule } from '../user/user.module';
+import { ExceptionHandler } from '@app/common/exceptions/exceptions.handler';
+import { MinioClientModule } from '../minio-client/minio-client.module';
+import { SubjectsModule } from '../subjects/subjects.module';
+import { ClassSessionModule } from '../class-session/class-session.module';
 
 @Module({
   imports: [
@@ -21,11 +21,12 @@ import { EducationInstitutionRecord } from './entities/education-record.entity';
       Booking,
     ]),
     UserModule,
-    BrainModule,
+    MinioClientModule,
     forwardRef(() => SubjectsModule),
+    ClassSessionModule,
   ],
-  controllers: [PortfolioController, CalendarController],
-  providers: [PortfolioService, CalendarService],
+  controllers: [PortfolioController],
+  providers: [PortfolioService, ExceptionHandler],
   exports: [PortfolioService],
 })
 export class PortfolioModule {}

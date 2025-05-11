@@ -393,6 +393,15 @@ export class PortfolioController {
     });
   }
 
+  @Post('save-tutor/:tutorId')
+  @ApiOperation({ summary: 'Save tutor' })
+  @ApiParam({ name: 'tutorId', description: 'Tutor ID' })
+  @ApiResponse({ status: 200, type: Portfolio })
+  @AuthUser()
+  saveTutor(@Param('tutorId') tutorId: string, @Req() req) {
+    return this.portfolioService.saveTutor(req.user as User, tutorId);
+  }
+
   @Get(':id/subject-tier')
   @Public()
   @ApiOperation({ summary: 'Get subject tier for a portfolio' })
