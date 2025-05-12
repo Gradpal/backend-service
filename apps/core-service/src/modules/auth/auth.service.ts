@@ -88,7 +88,7 @@ export class AuthService {
     const createUserDto: CreateUserDTO =
       await this.brainService.remindMe(cacheKey);
 
-    const hashedPassword = await hashPassword(createUserDto.password);
+    const hashedPassword = await hashPassword(createUserDto?.password);
 
     const userEntity: User =
       await this.userService.getUserEntityFromDto(createUserDto);
