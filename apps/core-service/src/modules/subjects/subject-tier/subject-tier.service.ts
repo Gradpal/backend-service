@@ -4,9 +4,7 @@ import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import {
   CreateBulkSubjectTierDto,
-  CreateSubjectTierDto,
   UpdateSubjectTierDto,
-  AssignBulkSubjectsDto,
   InitializeSubjectTierDto,
   MoveSubjectFromOneTierToAnotherDto,
 } from './dto/create-subject-tier.entity';
