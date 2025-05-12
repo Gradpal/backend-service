@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsUUID } from 'class-validator';
+import { IsNotEmpty, IsOptional, IsString, IsUUID } from 'class-validator';
 import { BaseDto } from '@core-service/common/dtos/all.dto';
 
 export class CreateClassSessionDto extends BaseDto {
@@ -22,11 +22,15 @@ export class CreateClassSessionDto extends BaseDto {
   endTime: Date;
 
   @ApiProperty({ description: 'Additional URLs (optional)', required: false })
+  @IsOptional()
   urls?: string[];
 
   @ApiProperty({ description: 'Additional notes (optional)', required: false })
-  notes?: any;
+  @IsOptional()
+  @IsString()
+  notes?: string;
 
   @ApiProperty({ description: 'Time slot IDs', required: false })
+  @IsOptional()
   timeSlotIds?: string[];
 }

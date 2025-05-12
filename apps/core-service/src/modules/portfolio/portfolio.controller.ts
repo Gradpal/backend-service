@@ -191,6 +191,7 @@ export class PortfolioController {
   @UseGuards(AuthGuard)
   @ApiOperation({ summary: 'Update portfolio availability' })
   @ApiParam({ name: 'id', description: 'Portfolio ID' })
+  @AuthUser()
   @ApiResponse({ status: 200, type: Portfolio })
   async updatePortfolioAvailability(
     @Param('id') id: string,

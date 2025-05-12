@@ -35,6 +35,7 @@ import {
 } from '@core-service/common/constants/all.constants';
 import { CancelLessonDto } from './dto/cancel-lesson.dto';
 import { RequestSessionExtensionDto } from './dto/request-extion.dto';
+import { AuthUser } from '@core-service/decorators/auth.decorator';
 
 @ApiTags('Class Sessions')
 @Controller('class-session')
@@ -48,6 +49,7 @@ export class ClassSessionController {
   @ApiResponse({ status: 201, type: ClassSession })
   @ApiConsumes('multipart/form-data')
   @ApiBody({ type: CreateClassSessionDto })
+  @AuthUser()
   @UseInterceptors(
     FileInterceptor('supportingDocuments', {
       limits: {

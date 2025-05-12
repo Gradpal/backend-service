@@ -335,7 +335,7 @@ export class SubjectTierService {
     });
 
     if (!subject) {
-      throw new Error('Subject not found');
+      this.exceptionHandler.throwNotFound(_404.SUBJECT_NOT_FOUND);
     }
     return this.subjectTierRepository.findOne({
       where: {

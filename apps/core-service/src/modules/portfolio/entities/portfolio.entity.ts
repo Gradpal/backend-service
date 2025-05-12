@@ -16,6 +16,7 @@ import { SubjectTier } from '@core-service/modules/subjects/subject-tier/entitie
 import { AttachmentDto } from '@app/common/dtos/attachment.dto';
 import { Subject } from '@core-service/modules/subjects/entities/subject.entity';
 import { SavedTutorDto } from '../dto/dashboard-response.dto';
+import { EVerificationStatus } from '../../user/enums/verification-status.enum';
 
 @Entity('portfolio')
 export class Portfolio extends BaseEntity {
@@ -75,6 +76,16 @@ export class Portfolio extends BaseEntity {
 
   @Column({ type: 'boolean', default: false })
   isVerified: boolean;
+
+  @Column({ type: 'json', nullable: true })
+  verificationDocuments: string[];
+
+  @Column({
+    type: 'enum',
+    enum: EVerificationStatus,
+    default: EVerificationStatus.PENDING,
+  })
+  verificationStatus: EVerificationStatus;
 
   @Column({ type: 'json', nullable: true })
   educationInstitutionRecords: EducationInstitutionRecord[];

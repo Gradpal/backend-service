@@ -192,6 +192,10 @@ export const _404 = {
     code: 'SUBJECT_TIER_NOT_FOUND',
     message: 'The requested subject tier was not found',
   },
+  DAY_SCHEDULE_NOT_FOUND: {
+    code: 'DAY_SCHEDULE_NOT_FOUND',
+    message: 'The requested day schedule was not found',
+  },
 };
 
 // conflict

@@ -14,7 +14,7 @@ import { ClassSessionModule } from '../class-session/class-session.module';
 import { DaySchedule } from './weekly-availability/entities/weeky-availability.entity';
 import { TimeSlot } from './weekly-availability/entities/weeky-availability.entity';
 import { WeeklyAvailability } from './weekly-availability/entities/weeky-availability.entity';
-import { TimeSlotService } from './weekly-availability/time-slot-service';
+import { WeeklyAvailabilityService } from './weekly-availability/weekly-availability';
 
 @Module({
   imports: [
@@ -33,7 +33,7 @@ import { TimeSlotService } from './weekly-availability/time-slot-service';
     forwardRef(() => ClassSessionModule),
   ],
   controllers: [PortfolioController],
-  providers: [PortfolioService, ExceptionHandler, TimeSlotService],
-  exports: [PortfolioService, TimeSlotService],
+  providers: [PortfolioService, ExceptionHandler, WeeklyAvailabilityService],
+  exports: [PortfolioService, WeeklyAvailabilityService],
 })
 export class PortfolioModule {}

@@ -23,13 +23,6 @@ export class BaseDto extends DtoAudit {
 
   @IsOptional()
   @ApiProperty({
-    description:
-      'Use this just in case a user suggest new skills that are not stored in a database',
-  })
-  skillsDto?: string[];
-
-  @IsOptional()
-  @ApiProperty({
     description: 'This is not needed to create this request - ingore it',
   })
   attachments?: AttachmentDto[];
