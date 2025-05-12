@@ -26,4 +26,7 @@ export class CreateClassSessionDto extends BaseDto {
 
   @ApiProperty({ description: 'Additional notes (optional)', required: false })
   notes?: any;
+
+  @ApiProperty({ description: 'Time slot IDs', required: false })
+  timeSlotIds?: string[];
 }

@@ -95,10 +95,10 @@ export class UserController {
     return user;
   }
 
-  @Get('by-id/:id')
-  @ApiQuery({ name: 'id', required: true })
-  async getUserById(@Param('id') id: string) {
-    const user = await this.userService.findOne(id);
+  @Get('by-id/:userId')
+  @Public()
+  async getUserById(@Param('userId') userId: string) {
+    const user = await this.userService.findOne(userId);
     return user;
   }
 

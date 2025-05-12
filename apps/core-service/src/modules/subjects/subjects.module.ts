@@ -10,11 +10,13 @@ import { User } from '../user/entities/user.entity';
 import { Portfolio } from '../portfolio/entities/portfolio.entity';
 import { PortfolioModule } from '../portfolio/portfolio.module';
 import { ExceptionHandler } from '@app/common/exceptions/exceptions.handler';
+import { ClassSessionModule } from '../class-session/class-session.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Subject, SubjectTier, User, Portfolio]),
     forwardRef(() => PortfolioModule),
+    forwardRef(() => ClassSessionModule),
   ],
   providers: [SubjectsService, SubjectTierService, ExceptionHandler],
   controllers: [SubjectsController, SubjectTierController],

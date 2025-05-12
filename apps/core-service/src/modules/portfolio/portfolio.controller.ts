@@ -49,7 +49,6 @@ import {
 import { UserService } from '../user/user.service';
 import { CreateEducationInstitutionRecordDto } from './dto/create-education-record.dto';
 import { User } from '../user/entities/user.entity';
-import { WeeklyScheduleDto } from './dto/schedule-slot.dto';
 @Controller('portfolio')
 @ApiBearerAuth()
 export class PortfolioController {
@@ -213,23 +212,23 @@ export class PortfolioController {
     return this.portfolioService.getTutorProfile(id);
   }
 
-  @Get(':id/tutor/schedule')
-  @Public()
-  @ApiOperation({ summary: 'Get tutor weekly schedule' })
-  @ApiParam({ name: 'id', description: 'Portfolio ID' })
-  @ApiQuery({
-    name: 'startDate',
-    required: false,
-    type: String,
-    description: 'Start date for the schedule (YYYY-MM-DD)',
-  })
-  @ApiResponse({ status: 200, type: WeeklyScheduleDto })
-  getTutorSchedule(
-    @Param('id') id: string,
-    @Query('startDate') startDate?: string,
-  ): Promise<WeeklyScheduleDto> {
-    return this.portfolioService.getTutorSchedule(id, startDate);
-  }
+  // @Get(':id/tutor/schedule')
+  // @Public()
+  // @ApiOperation({ summary: 'Get tutor weekly schedule' })
+  // @ApiParam({ name: 'id', description: 'Portfolio ID' })
+  // @ApiQuery({
+  //   name: 'startDate',
+  //   required: false,
+  //   type: String,
+  //   description: 'Start date for the schedule (YYYY-MM-DD)',
+  // })
+  // @ApiResponse({ status: 200, type: WeeklyScheduleDto })
+  // getTutorSchedule(
+  //   @Param('id') id: string,
+  //   @Query('startDate') startDate?: string,
+  // ): Promise<WeeklyScheduleDto> {
+  //   return this.portfolioService.getTutorSchedule(id, startDate);
+  // }
 
   @Get(':id/sessions/upcoming')
   @PreAuthorize(EUserRole.TUTOR)
