@@ -35,6 +35,8 @@ import {
   WeeklyAvailability,
 } from './weekly-availability/entities/weeky-availability.entity';
 import { WeekDay } from './weekly-availability/enums/week-day.enum';
+import { SubjectTierService } from '../subjects/subject-tier/subject-tier.service';
+import { ETierCategory } from '../subjects/subject-tier/enums/tier-category.enum';
 @Injectable()
 export class PortfolioService {
   constructor(
@@ -54,6 +56,7 @@ export class PortfolioService {
     @Inject(forwardRef(() => SubjectsService))
     private readonly subjectService: SubjectsService,
     private readonly sessionService: ClassSessionService,
+    private readonly subjectTierService: SubjectTierService,
   ) {}
 
   getPortfolioRepository() {
@@ -99,7 +102,13 @@ export class PortfolioService {
   async findOne(id: string): Promise<Portfolio> {
     const portfolio = await this.portfolioRepository.findOne({
       where: { id },
-      relations: ['subjectTiers', 'subjects', 'user'],
+      relations: [
+        'subjectTiers',
+        'subjects',
+        'user',
+        'subjectsOfInterest',
+        'educationInstitutionRecords',
+      ],
     });
     if (!portfolio) {
       this.exceptionHandler.throwNotFound(_404.PORTFOLIO_NOT_FOUND);
@@ -111,7 +120,7 @@ export class PortfolioService {
     console.log('loggedin user', user);
     return this.portfolioRepository.findOne({
       where: { user: { id: user.id } },
-      relations: ['subjectTiers'],
+      relations: ['subjectTiers', 'educationInstitutionRecords'],
     });
   }
 
@@ -148,14 +157,25 @@ export class PortfolioService {
     this.validatePortfolioOnwership(portfolioId, user);
     const portfolio = await this.findOne(portfolioId);
     const currentSubjects = portfolio.subjectsOfInterest || [];
+    const basicSubjectTier =
+      await this.subjectTierService.findByPortfolioIdAndCategory(
+        portfolioId,
+        ETierCategory.BASIC,
+      );
 
     const newSubjects = await Promise.all(
       subjectsOfInterest.subjectsIds.map((subjectId) =>
         this.subjectService.findOne(subjectId),
       ),
     );
+    basicSubjectTier.subjects = [...basicSubjectTier.subjects, ...newSubjects];
     portfolio.subjectsOfInterest = [...currentSubjects, ...newSubjects];
-    return await this.portfolioRepository.save(portfolio);
+
+    const [savedPortfolio, savedSubjectTier] = await Promise.all([
+      this.portfolioRepository.save(portfolio),
+      this.subjectTierService.getSubjectTierRepository().save(basicSubjectTier),
+    ]);
+    return savedPortfolio;
   }
 
   async updatePersonalStatement(

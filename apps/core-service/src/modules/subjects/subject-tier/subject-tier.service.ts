@@ -28,6 +28,10 @@ export class SubjectTierService {
     private readonly portfolioService: PortfolioService,
   ) {}
 
+  getSubjectTierRepository() {
+    return this.subjectTierRepository;
+  }
+
   async initializeSubjectTiers(
     portfolioId: string,
     initializeSubjectTierDto: InitializeSubjectTierDto,
@@ -168,6 +172,15 @@ export class SubjectTierService {
     });
   }
 
+  async findByPortfolioIdAndCategory(
+    portfolioId: string,
+    category: ETierCategory,
+  ): Promise<SubjectTier> {
+    return this.subjectTierRepository.findOne({
+      where: { portfolio: { id: portfolioId }, category },
+      relations: ['subjects'],
+    });
+  }
   async updateSubjectTier(
     portfolioId: string,
     subject: string,

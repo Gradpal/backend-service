@@ -1,10 +1,7 @@
-import { Controller, Get, Post, Body, Param, Request } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param } from '@nestjs/common';
 import { SubjectsService } from './subjects.service';
 import { CreateSubjectDto } from './dtos/create-subject.dto';
-import { UpdatePortfolioSubjectsDto } from './dtos/update-portfolio-subjects.dto';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
-import { PreAuthorize } from '@core-service/decorators/auth.decorator';
-import { EUserRole } from '../user/enums/user-role.enum';
 import { Public } from '@app/common/decorators/public.decorator';
 import { ApiBearerAuth } from '@nestjs/swagger';
 @ApiTags('subjects')
@@ -37,22 +34,4 @@ export class SubjectsController {
   getSubjectById(@Param('id') id: string) {
     return this.subjectsService.getSubjectById(id);
   }
-
-  // @Post('portfolio')
-  // @PreAuthorize(EUserRole.TUTOR)
-  // @ApiOperation({ summary: 'Update portfolio subjects' })
-  // @ApiResponse({
-  //   status: 200,
-  //   description: 'Portfolio subjects updated successfully',
-  // })
-  // @ApiResponse({ status: 404, description: 'Portfolio or subject not found' })
-  // updatePortfolioSubjects(
-  //   @Request() req,
-  //   @Body() updatePortfolioSubjectsDto: UpdatePortfolioSubjectsDto,
-  // ) {
-  //   return this.subjectsService.updatePortfolioSubjects(
-  //     req.user,
-  //     updatePortfolioSubjectsDto,
-  //   );
-  // }
 }
