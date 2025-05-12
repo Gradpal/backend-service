@@ -6,7 +6,6 @@ import { UserService } from '../user/user.service';
 import { ExceptionHandler } from '@app/common/exceptions/exceptions.handler';
 import { plainToClass } from 'class-transformer';
 import { User } from '../user/entities/user.entity';
-import { Institution } from './dto/institution.dto';
 import { EducationInstitutionRecord } from './entities/education-record.entity';
 import { CreatePortfolioDto } from './dto/create-portfolio.dto';
 import {
@@ -25,7 +24,6 @@ import { SessionDetailsDto } from '../booking/dto/session-details.dto';
 import { MoreThanOrEqual } from 'typeorm';
 import { MinioClientService } from '../minio-client/minio-client.service';
 import { createPaginatedResponse } from '@app/common/helpers/pagination.helper';
-import { SubjectTierService } from '../subjects/subject-tier/subject-tier.service';
 import { CreateEducationInstitutionRecordDto } from './dto/create-education-record.dto';
 import { generateUUID } from '@app/common/helpers/shared.helpers';
 import { SubjectsService } from '../subjects/subjects.service';
@@ -37,7 +35,6 @@ import {
   WeeklyAvailability,
 } from './weekly-availability/entities/weeky-availability.entity';
 import { WeekDay } from './weekly-availability/enums/week-day.enum';
-import { WeeklyScheduleDto } from './dto/schedule-slot.dto';
 @Injectable()
 export class PortfolioService {
   constructor(
@@ -525,27 +522,27 @@ export class PortfolioService {
     return TutorProfileDto.fromEntity(portfolio.user, portfolio);
   }
 
-  async getTutorSchedule(
-    id: string,
-    startDate?: string,
-  ): Promise<WeeklyScheduleDto> {
-    const portfolio = await this.portfolioRepository.findOne({
-      where: { id },
-      relations: ['user'],
-    });
+  // async getTutorSchedule(
+  //   id: string,
+  //   startDate?: string,
+  // ): Promise<WeeklyScheduleDto> {
+  //   const portfolio = await this.portfolioRepository.findOne({
+  //     where: { id },
+  //     relations: ['user'],
+  //   });
 
-    if (!portfolio) {
-      this.exceptionHandler.throwNotFound(_404.DATABASE_RECORD_NOT_FOUND);
-    }
+  //   if (!portfolio) {
+  //     this.exceptionHandler.throwNotFound(_404.DATABASE_RECORD_NOT_FOUND);
+  //   }
 
-    if (portfolio.user.role !== EUserRole.TUTOR) {
-      this.exceptionHandler.throwNotFound(_404.TUTOR_NOT_FOUND);
-    }
+  //   if (portfolio.user.role !== EUserRole.TUTOR) {
+  //     this.exceptionHandler.throwNotFound(_404.TUTOR_NOT_FOUND);
+  //   }
 
-    // Implementation of schedule retrieval logic
-    // This is a placeholder - you'll need to implement the actual schedule logic
-    return new WeeklyScheduleDto();
-  }
+  //   // Implementation of schedule retrieval logic
+  //   // This is a placeholder - you'll need to implement the actual schedule logic
+  //   return new WeeklyScheduleDto();
+  // }
 
   async getUpcomingSessions(id: string): Promise<Booking[]> {
     const portfolio = await this.portfolioRepository.findOne({

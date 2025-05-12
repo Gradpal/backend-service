@@ -14,6 +14,7 @@ import { ClassSessionModule } from '../class-session/class-session.module';
 import { DaySchedule } from './weekly-availability/entities/weeky-availability.entity';
 import { TimeSlot } from './weekly-availability/entities/weeky-availability.entity';
 import { WeeklyAvailability } from './weekly-availability/entities/weeky-availability.entity';
+import { TimeSlotService } from './weekly-availability/time-slot-service';
 
 @Module({
   imports: [
@@ -29,10 +30,10 @@ import { WeeklyAvailability } from './weekly-availability/entities/weeky-availab
     UserModule,
     MinioClientModule,
     forwardRef(() => SubjectsModule),
-    ClassSessionModule,
+    forwardRef(() => ClassSessionModule),
   ],
   controllers: [PortfolioController],
-  providers: [PortfolioService, ExceptionHandler],
-  exports: [PortfolioService],
+  providers: [PortfolioService, ExceptionHandler, TimeSlotService],
+  exports: [PortfolioService, TimeSlotService],
 })
 export class PortfolioModule {}

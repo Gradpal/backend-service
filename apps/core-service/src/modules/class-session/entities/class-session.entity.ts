@@ -1,6 +1,13 @@
 import { BaseEntity } from '@app/common/database/base.entity';
 import { User } from '@core-service/modules/user/entities/user.entity';
-import { Entity, Column, ManyToOne, JoinColumn } from 'typeorm';
+import {
+  Entity,
+  Column,
+  ManyToOne,
+  JoinColumn,
+  JoinTable,
+  ManyToMany,
+} from 'typeorm';
 import {
   ESessionAcceptanceStatus,
   ESessionJoinStatus,
@@ -8,6 +15,7 @@ import {
 } from '../enums/session-status.enum';
 import { Subject } from '@core-service/modules/subjects/entities/subject.entity';
 import { AttachmentDto } from '@app/common/dtos/attachment.dto';
+import { TimeSlot } from '@core-service/modules/portfolio/weekly-availability/entities/weeky-availability.entity';
 
 @Entity()
 export class ClassSession extends BaseEntity {
@@ -70,4 +78,8 @@ export class ClassSession extends BaseEntity {
 
   @Column({ type: 'json', nullable: true })
   attachments: AttachmentDto[];
+
+  @ManyToMany(() => TimeSlot)
+  @JoinTable({ name: 'session_time_slots' })
+  timeSlots: TimeSlot[];
 }

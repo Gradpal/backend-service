@@ -21,6 +21,7 @@ import { ExceptionHandler } from '@app/common/exceptions/exceptions.handler';
 import { EUserRole } from '../user/enums/user-role.enum';
 import { CancelLessonDto } from './dto/cancel-lesson.dto';
 import { RequestSessionExtensionDto } from './dto/request-extion.dto';
+import { TimeSlotService } from '../portfolio/weekly-availability/time-slot-service';
 @Injectable()
 export class ClassSessionService {
   constructor(
@@ -30,6 +31,7 @@ export class ClassSessionService {
     private readonly subjectTierService: SubjectTierService,
     private readonly minioService: MinioClientService,
     private readonly exceptionHandler: ExceptionHandler,
+    private readonly timeSlotService: TimeSlotService,
   ) {}
 
   async create(
@@ -54,6 +56,7 @@ export class ClassSessionService {
     }
 
     const attachments = await this.minioService.uploadAttachments(files, []);
+
     const session = this.classSessionRepository.create({
       ...sessionData,
       tutor,
