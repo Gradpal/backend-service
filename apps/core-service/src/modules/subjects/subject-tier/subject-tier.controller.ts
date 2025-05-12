@@ -79,7 +79,7 @@ export class SubjectTierController {
     );
   }
 
-  @Patch('move-subject-from-one-tier-to-another')
+  @Patch(':portfolioId/move-subject-from-one-tier-to-another')
   @ApiOperation({ summary: 'Move a subject from one tier to another' })
   @ApiResponse({ type: SubjectTier })
   @ApiConsumes('application/json')
@@ -87,7 +87,7 @@ export class SubjectTierController {
   moveSubjectFromOneTierToAnother(
     @Body()
     moveSubjectFromOneTierToAnotherDto: MoveSubjectFromOneTierToAnotherDto,
-    @Query('portfolioId') portfolioId: string,
+    @Param('portfolioId') portfolioId: string,
   ) {
     return this.subjectTierService.moveSubjectFromOneTierToAnother(
       portfolioId,
