@@ -100,15 +100,9 @@ export class PortfolioService {
   }
 
   async findOne(id: string): Promise<Portfolio> {
-    const portfolio = await this.portfolioRepository.findOne({
+    const portfolio: Portfolio = await this.portfolioRepository.findOne({
       where: { id },
-      relations: [
-        'subjectTiers',
-        'subjects',
-        'user',
-        'subjectsOfInterest',
-        'educationInstitutionRecords',
-      ],
+      relations: ['subjectTiers', 'subjects', 'user', 'subjectsOfInterest'],
     });
     if (!portfolio) {
       this.exceptionHandler.throwNotFound(_404.PORTFOLIO_NOT_FOUND);
