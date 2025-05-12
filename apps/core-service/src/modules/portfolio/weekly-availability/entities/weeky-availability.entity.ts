@@ -29,7 +29,7 @@ export class TimeSlot extends BaseEntity {
   @Column()
   endTime: string; // Format: "HH:mm"
 
-  @Column()
+  @Column({ nullable: true, default: false })
   isBooked: boolean;
 
   @ManyToOne(() => DaySchedule)

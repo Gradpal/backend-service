@@ -1,9 +1,10 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsArray, ValidateNested, IsOptional, IsString } from 'class-validator';
 import { Type } from 'class-transformer';
+import { TimeSlot } from '../weekly-availability/entities/weeky-availability.entity';
 
 // Separate TimeSlot class with proper validation
-class TimeSlot {
+export class TimeSlotDto {
   @ApiProperty({ example: '09:00', description: 'Start time in HH:MM format' })
   @IsString()
   startTime: string;
@@ -14,52 +15,52 @@ class TimeSlot {
 }
 
 export class UpdatePortfolioAvailabilityDto {
-  @ApiProperty({ type: [TimeSlot], required: false })
+  @ApiProperty({ type: [TimeSlotDto], required: false })
   @IsArray()
   @ValidateNested({ each: true })
-  @Type(() => TimeSlot)
+  @Type(() => TimeSlotDto)
   @IsOptional()
-  sunday: TimeSlot[];
+  sunday: TimeSlotDto[];
+
+  @ApiProperty({ type: [TimeSlotDto], required: false })
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => TimeSlotDto)
+  @IsOptional()
+  monday: TimeSlotDto[];
 
   @ApiProperty({ type: [TimeSlot], required: false })
   @IsArray()
   @ValidateNested({ each: true })
-  @Type(() => TimeSlot)
+  @Type(() => TimeSlotDto)
   @IsOptional()
-  monday: TimeSlot[];
+  tuesday: TimeSlotDto[];
 
   @ApiProperty({ type: [TimeSlot], required: false })
   @IsArray()
   @ValidateNested({ each: true })
-  @Type(() => TimeSlot)
+  @Type(() => TimeSlotDto)
   @IsOptional()
-  tuesday: TimeSlot[];
+  wednesday: TimeSlotDto[];
 
   @ApiProperty({ type: [TimeSlot], required: false })
   @IsArray()
   @ValidateNested({ each: true })
-  @Type(() => TimeSlot)
+  @Type(() => TimeSlotDto)
   @IsOptional()
-  wednesday: TimeSlot[];
+  thursday: TimeSlotDto[];
 
-  @ApiProperty({ type: [TimeSlot], required: false })
+  @ApiProperty({ type: [TimeSlotDto], required: false })
   @IsArray()
   @ValidateNested({ each: true })
-  @Type(() => TimeSlot)
+  @Type(() => TimeSlotDto)
   @IsOptional()
-  thursday: TimeSlot[];
+  friday: TimeSlotDto[];
 
-  @ApiProperty({ type: [TimeSlot], required: false })
+  @ApiProperty({ type: [TimeSlotDto], required: false })
   @IsArray()
   @ValidateNested({ each: true })
-  @Type(() => TimeSlot)
+  @Type(() => TimeSlotDto)
   @IsOptional()
-  friday: TimeSlot[];
-
-  @ApiProperty({ type: [TimeSlot], required: false })
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => TimeSlot)
-  @IsOptional()
-  saturday: TimeSlot[];
+  saturday: TimeSlotDto[];
 }

@@ -78,6 +78,16 @@ export class Portfolio extends BaseEntity {
   isVerified: boolean;
 
   @Column({ type: 'json', nullable: true })
+  verificationDocuments: string[];
+
+  @Column({
+    type: 'enum',
+    enum: EVerificationStatus,
+    default: EVerificationStatus.PENDING,
+  })
+  verificationStatus: EVerificationStatus;
+
+  @Column({ type: 'json', nullable: true })
   educationInstitutionRecords: EducationInstitutionRecord[];
 
   @Column({ type: 'json', nullable: true })

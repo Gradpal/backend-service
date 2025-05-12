@@ -16,12 +16,14 @@ import { MoreThanOrEqual } from 'typeorm';
 import { User } from '../user/entities/user.entity';
 import { SubjectTierService } from '../subjects/subject-tier/subject-tier.service';
 import { MinioClientService } from '../minio-client/minio-client.service';
-import { _400, _403 } from '@app/common/constants/errors-constants';
+import { _400, _403, _404 } from '@app/common/constants/errors-constants';
 import { ExceptionHandler } from '@app/common/exceptions/exceptions.handler';
 import { EUserRole } from '../user/enums/user-role.enum';
 import { CancelLessonDto } from './dto/cancel-lesson.dto';
 import { RequestSessionExtensionDto } from './dto/request-extion.dto';
-import { TimeSlotService } from '../portfolio/weekly-availability/time-slot-service';
+import { WeeklyAvailabilityService } from '../portfolio/weekly-availability/weekly-availability';
+import { normalizeArray } from '@core-service/common/helpers/all.helpers';
+import { generateUUID } from '@app/common/helpers/shared.helpers';
 @Injectable()
 export class ClassSessionService {
   constructor(
@@ -31,7 +33,7 @@ export class ClassSessionService {
     private readonly subjectTierService: SubjectTierService,
     private readonly minioService: MinioClientService,
     private readonly exceptionHandler: ExceptionHandler,
-    private readonly timeSlotService: TimeSlotService,
+    private readonly weeklyAvailabilityService: WeeklyAvailabilityService,
   ) {}
 
   async create(
@@ -41,9 +43,12 @@ export class ClassSessionService {
   ): Promise<ClassSession> {
     const { tutorId, ...sessionData } = createClassSessionDto;
 
+    const timeSlotIds = normalizeArray(createClassSessionDto.timeSlotIds);
+    createClassSessionDto.urls = normalizeArray(createClassSessionDto.urls);
+
     const tutor = await this.userService.findOne(tutorId);
     if (!tutor) {
-      throw new NotFoundException('Tutor not found');
+      this.exceptionHandler.throwNotFound(_404.TUTOR_NOT_FOUND);
     }
     const subjectTier =
       await this.subjectTierService.findSubjectTierWhichHasSubjectByTutorId(
@@ -52,10 +57,20 @@ export class ClassSessionService {
       );
 
     if (!subjectTier) {
-      throw new NotFoundException('No Subject Tier Found');
+      this.exceptionHandler.throwNotFound(_404.SUBJECT_TIER_NOT_FOUND);
     }
 
     const attachments = await this.minioService.uploadAttachments(files, []);
+
+    const timeslots = [];
+
+    if (timeSlotIds.length > 0) {
+      for (const timeSlotId of timeSlotIds) {
+        const timeSlot =
+          await this.weeklyAvailabilityService.findOne(timeSlotId);
+        timeslots.push(timeSlot);
+      }
+    }
 
     const session = this.classSessionRepository.create({
       ...sessionData,
@@ -67,7 +82,11 @@ export class ClassSessionService {
       startTime: sessionData.startTime,
       endTime: sessionData.endTime,
       attachments: attachments,
+      timeSlots: timeslots,
+      goalDescription: sessionData.description,
     });
+    session.id = generateUUID();
+
     student.credits -= subjectTier.credits;
 
     const [updatedStudent, savedSession] = await Promise.all([

@@ -108,6 +108,7 @@ export class PortfolioService {
   }
 
   async findByUser(user: User): Promise<Portfolio> {
+    console.log('loggedin user', user);
     return this.portfolioRepository.findOne({
       where: { user: { id: user.id } },
       relations: ['subjectTiers'],
