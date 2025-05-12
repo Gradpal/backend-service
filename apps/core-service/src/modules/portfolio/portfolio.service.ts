@@ -157,7 +157,7 @@ export class PortfolioService {
     this.validatePortfolioOnwership(portfolioId, user);
     const portfolio = await this.findOne(portfolioId);
     const currentSubjects = portfolio.subjectsOfInterest || [];
-    const basicSubjectTier =
+    let basicSubjectTier =
       await this.subjectTierService.findByPortfolioIdAndCategory(
         portfolioId,
         ETierCategory.BASIC,
@@ -168,6 +168,20 @@ export class PortfolioService {
         this.subjectService.findOne(subjectId),
       ),
     );
+
+    if (basicSubjectTier) {
+      basicSubjectTier = await this.subjectTierService
+        .getSubjectTierRepository()
+        .create({
+          category: ETierCategory.BASIC,
+          portfolio: portfolio,
+          subjects: newSubjects,
+        });
+      basicSubjectTier = await this.subjectTierService
+        .getSubjectTierRepository()
+        .save(basicSubjectTier);
+    }
+
     basicSubjectTier.subjects = [...basicSubjectTier.subjects, ...newSubjects];
     portfolio.subjectsOfInterest = [...currentSubjects, ...newSubjects];
 
