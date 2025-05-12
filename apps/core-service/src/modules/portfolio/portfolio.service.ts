@@ -95,7 +95,7 @@ export class PortfolioService {
 
   async findAll(): Promise<Portfolio[]> {
     return this.portfolioRepository.find({
-      relations: ['educationInstitutionRecords'],
+      relations: ['subjectTiers', 'subjects', 'user', 'subjectsOfInterest'],
     });
   }
 
