@@ -128,6 +128,9 @@ export class SubjectTierService {
     );
     destinationSubjectTierSubjects.push(subject);
 
+    originSubjectTier.subjects = originSubjectTierSubjects;
+    destinationSubjectTier.subjects = destinationSubjectTierSubjects;
+
     await Promise.all([
       this.subjectTierRepository.save(originSubjectTier),
       this.subjectTierRepository.save(destinationSubjectTier),
