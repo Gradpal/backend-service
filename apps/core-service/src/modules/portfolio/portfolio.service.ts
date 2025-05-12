@@ -95,20 +95,14 @@ export class PortfolioService {
 
   async findAll(): Promise<Portfolio[]> {
     return this.portfolioRepository.find({
-      relations: ['educationInstitutionRecords'],
+      relations: ['subjectTiers', 'subjects', 'user', 'subjectsOfInterest'],
     });
   }
 
   async findOne(id: string): Promise<Portfolio> {
-    const portfolio = await this.portfolioRepository.findOne({
+    const portfolio: Portfolio = await this.portfolioRepository.findOne({
       where: { id },
-      relations: [
-        'subjectTiers',
-        'subjects',
-        'user',
-        'subjectsOfInterest',
-        'educationInstitutionRecords',
-      ],
+      relations: ['subjectTiers', 'subjects', 'user', 'subjectsOfInterest'],
     });
     if (!portfolio) {
       this.exceptionHandler.throwNotFound(_404.PORTFOLIO_NOT_FOUND);
@@ -157,7 +151,7 @@ export class PortfolioService {
     this.validatePortfolioOnwership(portfolioId, user);
     const portfolio = await this.findOne(portfolioId);
     const currentSubjects = portfolio.subjectsOfInterest || [];
-    const basicSubjectTier =
+    let basicSubjectTier =
       await this.subjectTierService.findByPortfolioIdAndCategory(
         portfolioId,
         ETierCategory.BASIC,
@@ -168,6 +162,20 @@ export class PortfolioService {
         this.subjectService.findOne(subjectId),
       ),
     );
+
+    if (basicSubjectTier) {
+      basicSubjectTier = await this.subjectTierService
+        .getSubjectTierRepository()
+        .create({
+          category: ETierCategory.BASIC,
+          portfolio: portfolio,
+          subjects: newSubjects,
+        });
+      basicSubjectTier = await this.subjectTierService
+        .getSubjectTierRepository()
+        .save(basicSubjectTier);
+    }
+
     basicSubjectTier.subjects = [...basicSubjectTier.subjects, ...newSubjects];
     portfolio.subjectsOfInterest = [...currentSubjects, ...newSubjects];
 
