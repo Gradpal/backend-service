@@ -151,11 +151,14 @@ export class PortfolioService {
     this.validatePortfolioOnwership(portfolioId, user);
     const portfolio = await this.findOne(portfolioId);
     const currentSubjects = portfolio.subjectsOfInterest || [];
-    let basicSubjectTier =
+
+    const tierExisting =
       await this.subjectTierService.findByPortfolioIdAndCategory(
         portfolioId,
         ETierCategory.BASIC,
       );
+
+    let basicSubjectTier = tierExisting;
 
     const newSubjects = await Promise.all(
       subjectsOfInterest.subjectsIds.map((subjectId) =>
@@ -170,17 +173,39 @@ export class PortfolioService {
           category: ETierCategory.BASIC,
           portfolio: portfolio,
           subjects: newSubjects,
+          credits: 0,
         });
+
       basicSubjectTier = await this.subjectTierService
         .getSubjectTierRepository()
         .save(basicSubjectTier);
+
+      portfolio.subjectTiers = [
+        ...(portfolio.subjectTiers || []),
+        basicSubjectTier,
+      ];
     }
 
-    basicSubjectTier.subjects = [...basicSubjectTier.subjects, ...newSubjects];
+    const subjectsThatNotExistInBasicTier = newSubjects.filter(
+      (subject) => !basicSubjectTier?.subjects.includes(subject),
+    );
+    basicSubjectTier.subjects = [
+      ...(basicSubjectTier?.subjects || []),
+      ...subjectsThatNotExistInBasicTier,
+    ];
+
+    if (!tierExisting) {
+      portfolio.subjectTiers = [
+        ...(portfolio.subjectTiers || []),
+        basicSubjectTier,
+      ];
+    }
+
     portfolio.subjectsOfInterest = [...currentSubjects, ...newSubjects];
 
     const [savedPortfolio, savedSubjectTier] = await Promise.all([
       this.portfolioRepository.save(portfolio),
+      this.subjectTierService.getSubjectTierRepository().save(basicSubjectTier),
       this.subjectTierService.getSubjectTierRepository().save(basicSubjectTier),
     ]);
     return savedPortfolio;
