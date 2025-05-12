@@ -13,6 +13,7 @@ import { SubjectTierService } from './subject-tier.service';
 import {
   CreateBulkSubjectTierDto,
   InitializeSubjectTierDto,
+  MoveSubjectFromOneTierToAnotherDto,
   UpdateSubjectTierDto,
 } from './dto/create-subject-tier.entity';
 import { SubjectTier } from './entities/subject-tier.entity';
@@ -75,6 +76,22 @@ export class SubjectTierController {
     return this.subjectTierService.createBulkSubjectTier(
       portfolioId,
       createBulkSubjectTierDto,
+    );
+  }
+
+  @Patch('move-subject-from-one-tier-to-another')
+  @ApiOperation({ summary: 'Move a subject from one tier to another' })
+  @ApiResponse({ type: SubjectTier })
+  @ApiConsumes('application/json')
+  @ApiProduces('application/json')
+  moveSubjectFromOneTierToAnother(
+    @Body()
+    moveSubjectFromOneTierToAnotherDto: MoveSubjectFromOneTierToAnotherDto,
+    @Query('portfolioId') portfolioId: string,
+  ) {
+    return this.subjectTierService.moveSubjectFromOneTierToAnother(
+      portfolioId,
+      moveSubjectFromOneTierToAnotherDto,
     );
   }
 
