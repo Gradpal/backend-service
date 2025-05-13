@@ -36,7 +36,7 @@ export class TimeSlot extends BaseEntity {
   @JoinColumn()
   daySchedule: DaySchedule;
 
-  @ManyToOne(() => User)
+  @ManyToOne(() => User, (user) => user.timeSlots)
   @JoinColumn({ name: 'owner_id' })
   owner: User;
 }

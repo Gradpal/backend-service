@@ -1,4 +1,4 @@
-import { Body, Controller, Param, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post } from '@nestjs/common';
 import { WeeklyAvailabilityService } from './weekly-availability';
 import { TimeSlotDto } from '../dto/update-portfolio-availability.dto';
 
@@ -7,6 +7,11 @@ export class WeeklyAvailabilityController {
   constructor(
     private readonly weeklyAvailabilityService: WeeklyAvailabilityService,
   ) {}
+
+  @Get('/user/:userId')
+  findAllByUserId(@Param('userId') userId: string) {
+    return this.weeklyAvailabilityService.findAllByUserId(userId);
+  }
 
   @Post('/day-schedule/:id/add-time-slot')
   addTimeSlotToDaySchedule(

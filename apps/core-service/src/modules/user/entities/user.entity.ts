@@ -1,10 +1,10 @@
-import { Entity, Column, OneToOne, JoinColumn } from 'typeorm';
+import { Entity, Column, OneToOne, JoinColumn, OneToMany } from 'typeorm';
 import { EUserRole } from '../enums/user-role.enum';
 import { EUserStatus } from '../enums/user-status.enum';
 import { BaseEntity } from '@app/common/database/base.entity';
 import { Portfolio } from '@core-service/modules/portfolio/entities/portfolio.entity';
 import { AcademicEmailVerificationDTO } from '../dto/create-user.dto';
-
+import { TimeSlot } from '@core-service/modules/portfolio/weekly-availability/entities/weeky-availability.entity';
 @Entity()
 export class User extends BaseEntity {
   @Column({ type: 'varchar', length: 100, nullable: true })
@@ -54,4 +54,7 @@ export class User extends BaseEntity {
   @OneToOne(() => Portfolio)
   @JoinColumn({ name: 'portfolio_id' })
   portfolio: Portfolio;
+
+  @OneToMany(() => TimeSlot, (timeSlot) => timeSlot.owner)
+  timeSlots: TimeSlot[];
 }

@@ -724,6 +724,9 @@ export class PortfolioService {
     const query = this.portfolioRepository
       .createQueryBuilder('portfolio')
       .leftJoinAndSelect('portfolio.user', 'user')
+      .leftJoinAndSelect('user.timeSlots', 'timeSlots')
+      .leftJoinAndSelect('timeSlots.daySchedule', 'daySchedule')
+      .leftJoinAndSelect('daySchedule.weeklyAvailability', 'weeklyAvailability')
       .leftJoinAndSelect('portfolio.subjectTiers', 'subjectTier')
       .where('user.role = :role', { role: EUserRole.TUTOR });
 
