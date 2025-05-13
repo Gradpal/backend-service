@@ -1,7 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsArray, ValidateNested, IsOptional, IsString } from 'class-validator';
 import { Type } from 'class-transformer';
-import { TimeSlot } from '../weekly-availability/entities/weeky-availability.entity';
 
 // Separate TimeSlot class with proper validation
 export class TimeSlotDto {
@@ -29,21 +28,21 @@ export class UpdatePortfolioAvailabilityDto {
   @IsOptional()
   monday: TimeSlotDto[];
 
-  @ApiProperty({ type: [TimeSlot], required: false })
+  @ApiProperty({ type: [TimeSlotDto], required: false })
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => TimeSlotDto)
   @IsOptional()
   tuesday: TimeSlotDto[];
 
-  @ApiProperty({ type: [TimeSlot], required: false })
+  @ApiProperty({ type: [TimeSlotDto], required: false })
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => TimeSlotDto)
   @IsOptional()
   wednesday: TimeSlotDto[];
 
-  @ApiProperty({ type: [TimeSlot], required: false })
+  @ApiProperty({ type: [TimeSlotDto], required: false })
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => TimeSlotDto)
