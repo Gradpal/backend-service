@@ -407,6 +407,7 @@ export class PortfolioService {
     const portfolio = await this.findByUser(tutor);
 
     let weeklyAvailability = new WeeklyAvailability();
+
     weeklyAvailability.timezone = portfolio.timezone;
     weeklyAvailability =
       await this.weeklyAvailabilityRepository.save(weeklyAvailability);
@@ -419,7 +420,7 @@ export class PortfolioService {
 
       const timeSlots = [];
 
-      slotsDtos.forEach(async (slot) => {
+      for (const slot of slotsDtos) {
         let slotEntity = new TimeSlot();
         slotEntity.startTime = slot.startTime;
         slotEntity.endTime = slot.endTime;
@@ -427,7 +428,7 @@ export class PortfolioService {
         slotEntity.daySchedule = mondaySchedule;
         slotEntity = await this.timeSlotRepository.save(slotEntity);
         timeSlots.push(slotEntity);
-      });
+      }
       mondaySchedule.weeklyAvailability = weeklyAvailability;
       await this.dayScheduleRepository.save(mondaySchedule);
     }
@@ -440,7 +441,7 @@ export class PortfolioService {
 
       const timeSlots = [];
 
-      slotsDtos.forEach(async (slot) => {
+      for (const slot of slotsDtos) {
         let slotEntity = new TimeSlot();
         slotEntity.startTime = slot.startTime;
         slotEntity.endTime = slot.endTime;
@@ -448,7 +449,7 @@ export class PortfolioService {
         slotEntity.daySchedule = tuesdaySchedule;
         slotEntity = await this.timeSlotRepository.save(slotEntity);
         timeSlots.push(slotEntity);
-      });
+      }
       tuesdaySchedule.weeklyAvailability = weeklyAvailability;
       await this.dayScheduleRepository.save(tuesdaySchedule);
     }
@@ -461,7 +462,7 @@ export class PortfolioService {
 
       const timeSlots = [];
 
-      slotsDtos.forEach(async (slot) => {
+      for (const slot of slotsDtos) {
         let slotEntity = new TimeSlot();
         slotEntity.startTime = slot.startTime;
         slotEntity.endTime = slot.endTime;
@@ -469,7 +470,7 @@ export class PortfolioService {
         slotEntity.daySchedule = wednesdaySchedule;
         slotEntity = await this.timeSlotRepository.save(slotEntity);
         timeSlots.push(slotEntity);
-      });
+      }
       wednesdaySchedule.weeklyAvailability = weeklyAvailability;
       await this.dayScheduleRepository.save(wednesdaySchedule);
     }
@@ -482,7 +483,7 @@ export class PortfolioService {
 
       const timeSlots = [];
 
-      slotsDtos.forEach(async (slot) => {
+      for (const slot of slotsDtos) {
         let slotEntity = new TimeSlot();
         slotEntity.startTime = slot.startTime;
         slotEntity.endTime = slot.endTime;
@@ -490,7 +491,7 @@ export class PortfolioService {
         slotEntity.daySchedule = thursdaySchedule;
         slotEntity = await this.timeSlotRepository.save(slotEntity);
         timeSlots.push(slotEntity);
-      });
+      }
       thursdaySchedule.weeklyAvailability = weeklyAvailability;
       await this.dayScheduleRepository.save(thursdaySchedule);
     }
@@ -503,7 +504,7 @@ export class PortfolioService {
 
       const timeSlots = [];
 
-      slotsDtos.forEach(async (slot) => {
+      for (const slot of slotsDtos) {
         let slotEntity = new TimeSlot();
         slotEntity.startTime = slot.startTime;
         slotEntity.endTime = slot.endTime;
@@ -511,7 +512,7 @@ export class PortfolioService {
         slotEntity.owner = tutor;
         slotEntity = await this.timeSlotRepository.save(slotEntity);
         timeSlots.push(slotEntity);
-      });
+      }
       fridaySchedule.weeklyAvailability = weeklyAvailability;
       await this.dayScheduleRepository.save(fridaySchedule);
     }
@@ -524,7 +525,7 @@ export class PortfolioService {
 
       const timeSlots = [];
 
-      slotsDtos.forEach(async (slot) => {
+      for (const slot of slotsDtos) {
         let slotEntity = new TimeSlot();
         slotEntity.startTime = slot.startTime;
         slotEntity.endTime = slot.endTime;
@@ -532,7 +533,7 @@ export class PortfolioService {
         slotEntity.owner = tutor;
         slotEntity = await this.timeSlotRepository.save(slotEntity);
         timeSlots.push(slotEntity);
-      });
+      }
       saturdaySchedule.weeklyAvailability = weeklyAvailability;
       await this.dayScheduleRepository.save(saturdaySchedule);
     }
@@ -545,7 +546,7 @@ export class PortfolioService {
 
       const timeSlots = [];
 
-      slotsDtos.forEach(async (slot) => {
+      for (const slot of slotsDtos) {
         let slotEntity = new TimeSlot();
         slotEntity.startTime = slot.startTime;
         slotEntity.endTime = slot.endTime;
@@ -553,7 +554,7 @@ export class PortfolioService {
         slotEntity.owner = tutor;
         slotEntity = await this.timeSlotRepository.save(slotEntity);
         timeSlots.push(slotEntity);
-      });
+      }
       sundaySchedule.weeklyAvailability = weeklyAvailability;
       await this.dayScheduleRepository.save(sundaySchedule);
     }
@@ -728,6 +729,7 @@ export class PortfolioService {
       .leftJoinAndSelect('timeSlots.daySchedule', 'daySchedule')
       .leftJoinAndSelect('daySchedule.weeklyAvailability', 'weeklyAvailability')
       .leftJoinAndSelect('portfolio.subjectTiers', 'subjectTier')
+      .leftJoinAndSelect('subjectTier.subjects', 'subjects')
       .where('user.role = :role', { role: EUserRole.TUTOR });
 
     if (name) {
