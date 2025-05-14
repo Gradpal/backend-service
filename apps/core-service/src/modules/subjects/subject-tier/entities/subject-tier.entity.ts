@@ -7,7 +7,6 @@ import {
   ManyToOne,
 } from 'typeorm';
 import { Subject } from '../../entities/subject.entity';
-import { ETierCategory } from '../enums/tier-category.enum';
 import { BaseEntity } from '@app/common/database/base.entity';
 import { Portfolio } from '@core-service/modules/portfolio/entities/portfolio.entity';
 
@@ -26,7 +25,7 @@ export class SubjectTier extends BaseEntity {
   portfolio: Portfolio;
 
   @Column()
-  category: ETierCategory;
+  category: string;
 
   @Column()
   credits: number;

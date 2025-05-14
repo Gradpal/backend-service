@@ -17,9 +17,8 @@ export class CreateSubjectTierDto {
   subjectsIds: string[];
 
   @IsNotEmpty()
-  @IsEnum(ETierCategory)
-  @ApiProperty({ enum: ETierCategory })
-  category: ETierCategory;
+  @IsString()
+  category: string;
 }
 
 export class InitializeSubjectTierDto {
