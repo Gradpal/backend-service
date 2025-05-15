@@ -19,7 +19,7 @@ export class BaseDto extends DtoAudit {
     required: false,
   })
   @IsOptional()
-  id: string;
+  id?: string;
 
   @IsOptional()
   @ApiProperty({
@@ -43,5 +43,5 @@ export class BaseDto extends DtoAudit {
     },
     required: false,
   })
-  supportingDocuments: Express.Multer.File[];
+  supportingDocuments?: Express.Multer.File[];
 }

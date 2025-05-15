@@ -25,6 +25,7 @@ import { RequestSessionExtensionDto } from './dto/request-extion.dto';
 import { WeeklyAvailabilityService } from '../portfolio/weekly-availability/weekly-availability';
 import { normalizeArray } from '@core-service/common/helpers/all.helpers';
 import { generateUUID } from '@app/common/helpers/shared.helpers';
+import { SessionTimelineType } from './enums/session-timeline-type.enum';
 @Injectable()
 export class ClassSessionService {
   constructor(
@@ -73,6 +74,8 @@ export class ClassSessionService {
       }
     }
 
+    const createdAt = new Date();
+    const updatedAt = createdAt;
     const session = this.classSessionRepository.create({
       ...sessionData,
       tutor,
@@ -82,6 +85,22 @@ export class ClassSessionService {
       price: subjectTier.credits,
       attachments: attachments,
       timeSlots: timeslots,
+      sessionTimelines: [
+        {
+          type: SessionTimelineType.REQUEST_SUBMITTED,
+          description: 'Session request submitted',
+          actor: student,
+          createdAt: createdAt,
+          updatedAt: updatedAt,
+        },
+        {
+          type: SessionTimelineType.PAYMENT_PROCESSED,
+          description: 'Payment processed',
+          actor: student,
+          createdAt: createdAt,
+          updatedAt: updatedAt,
+        },
+      ],
       goalDescription: sessionData.description,
     });
     session.id = generateUUID();
@@ -97,14 +116,20 @@ export class ClassSessionService {
 
   async findAll(): Promise<ClassSession[]> {
     return this.classSessionRepository.find({
-      relations: ['tutor', 'student'],
+      relations: ['tutor', 'student', 'subject'],
     });
   }
 
   async findOne(id: string): Promise<ClassSession> {
     const session = await this.classSessionRepository.findOne({
       where: { id },
-      relations: ['tutor', 'student', 'subject', 'subject.subjectTier'],
+      relations: [
+        'tutor',
+        'student',
+        'tutor.portfolio',
+        'student.portfolio',
+        'subject',
+      ],
     });
 
     if (!session) {
@@ -156,15 +181,32 @@ export class ClassSessionService {
   ): Promise<ClassSession> {
     return this.classSessionRepository.findOne({
       where: { id: sessionId, tutor: { id: tutorId } },
-      relations: ['tutor', 'student'],
+      relations: [
+        'tutor',
+        'student',
+        'subject',
+        'tutor.portfolio',
+        'student.portfolio',
+      ],
     });
   }
   async acceptSession(sessionId: string, user: User): Promise<ClassSession> {
+    const createdAt = new Date();
+    const updatedAt = createdAt;
     const session = await this.findOneByIdAndTutor(sessionId, user.id);
     if (!session) {
       this.exceptionHandler.throwBadRequest(_403.SESSION_NOT_YOURS);
     }
     session.acceptanceStatus = ESessionAcceptanceStatus.ACCEPTED;
+    const sessionTimelines = session.sessionTimelines || [];
+    sessionTimelines.push({
+      type: SessionTimelineType.REQUEST_ACCEPTED,
+      description: 'Session request accepted',
+      actor: user,
+      createdAt: createdAt,
+      updatedAt: updatedAt,
+    });
+    session.sessionTimelines = sessionTimelines;
     return this.classSessionRepository.save(session);
   }
 
@@ -249,14 +291,26 @@ export class ClassSessionService {
   async findByTutor(tutorId: string): Promise<ClassSession[]> {
     return this.classSessionRepository.find({
       where: { tutor: { id: tutorId } },
-      relations: ['tutor', 'student', 'subject', 'subject.subjectTier'],
+      relations: [
+        'tutor',
+        'student',
+        'tutor.portfolio',
+        'student.portfolio',
+        'subject',
+      ],
     });
   }
 
   async findByStudent(studentId: string): Promise<ClassSession[]> {
     return this.classSessionRepository.find({
       where: { student: { id: studentId } },
-      relations: ['tutor', 'student', 'subject', 'subject.subjectTier'],
+      relations: [
+        'tutor',
+        'student',
+        'tutor.portfolio',
+        'student.portfolio',
+        'subject',
+      ],
     });
   }
 
@@ -330,7 +384,13 @@ export class ClassSessionService {
           startTime: MoreThanOrEqual(currentDate),
         },
       ],
-      relations: ['tutor', 'student', 'subject', 'subject.subjectTier'],
+      relations: [
+        'tutor',
+        'student',
+        'tutor.portfolio',
+        'student.portfolio',
+        'subject',
+      ],
       order: {
         startTime: 'ASC',
       },
