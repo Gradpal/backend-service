@@ -7,7 +7,6 @@ import {
   JoinColumn,
   JoinTable,
   ManyToMany,
-  OneToMany,
 } from 'typeorm';
 import {
   ESessionAcceptanceStatus,
@@ -18,6 +17,7 @@ import { Subject } from '@core-service/modules/subjects/entities/subject.entity'
 import { AttachmentDto } from '@app/common/dtos/attachment.dto';
 import { TimeSlot } from '@core-service/modules/portfolio/weekly-availability/entities/weeky-availability.entity';
 import { SessionTimelineDto } from '../dto/session-timeline.dto';
+
 @Entity()
 export class ClassSession extends BaseEntity {
   @ManyToOne(() => User)
