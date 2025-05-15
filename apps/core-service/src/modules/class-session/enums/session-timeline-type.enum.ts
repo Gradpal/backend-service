@@ -1,0 +1,16 @@
+export enum SessionTimelineType {
+  REQUEST_SUBMITTED = 'request_submitted',
+  REQUEST_ACCEPTED = 'request_accepted',
+  REQUEST_REJECTED = 'request_rejected',
+  SESSION_STARTED = 'session_started',
+  SESSION_ENDED = 'session_ended',
+  SESSION_CANCELLED = 'session_cancelled',
+  SESSION_POSTPONED = 'session_postponed',
+  SESSION_RESCHEDULED = 'session_rescheduled',
+  PAYMENT_PROCESSED = 'payment_processed',
+  PAYMENT_FAILED = 'payment_failed',
+  PAYMENT_REFUNDED = 'payment_refunded',
+  PAYMENT_REVERSED = 'payment_reversed',
+  PAYMENT_EXPIRED = 'payment_expired',
+  PAYMENT_CANCELLED = 'payment_cancelled',
+}

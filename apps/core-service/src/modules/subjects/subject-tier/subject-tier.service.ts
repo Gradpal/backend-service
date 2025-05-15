@@ -7,7 +7,6 @@ import {
   UpdateSubjectTierDto,
   InitializeSubjectTierDto,
   MoveSubjectFromOneTierToAnotherDto,
-  UpdateSubjectTierPricesDto,
   UpdateSubjectTiersPricesDto,
 } from './dto/create-subject-tier.entity';
 import { Subject } from '../entities/subject.entity';
@@ -304,7 +303,7 @@ export class SubjectTierService {
       this.exceptionHandler.throwNotFound(_404.PORTFOLIO_NOT_FOUND);
     }
 
-    const subjectTier = await this.subjectTierRepository.findOne({
+    const subjectTier: SubjectTier = await this.subjectTierRepository.findOne({
       where: { id },
       relations: ['subjects'],
     });
@@ -335,9 +334,6 @@ export class SubjectTierService {
         subjectTier.subjects = [...existingSubjects, ...subjectsNotInTiers];
       }
     }
-
-    console.log(subjectTier, 'subject tier------>');
-
     return this.subjectTierRepository.save(subjectTier);
   }
 
