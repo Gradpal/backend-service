@@ -80,8 +80,6 @@ export class ClassSessionService {
       status: ESessionStatus.SCHEDULED,
       subject: { id: sessionData.subjectId },
       price: subjectTier.credits,
-      startTime: sessionData.startTime,
-      endTime: sessionData.endTime,
       attachments: attachments,
       timeSlots: timeslots,
       goalDescription: sessionData.description,
@@ -312,19 +310,29 @@ export class ClassSessionService {
     return this.classSessionRepository.save(session);
   }
 
-  async getTopUpcomingSessions(student: User): Promise<ClassSession[]> {
+  async getTopUpcomingSessions(user: User): Promise<ClassSession[]> {
     const currentDate = new Date();
 
     return this.classSessionRepository.find({
-      where: {
-        student: {
-          id: student.id,
+      where: [
+        {
+          student: {
+            id: user.id,
+          },
+          status: ESessionStatus.SCHEDULED,
+          startTime: MoreThanOrEqual(currentDate),
         },
-        status: ESessionStatus.SCHEDULED,
-      },
+        {
+          tutor: {
+            id: user.id,
+          },
+          status: ESessionStatus.SCHEDULED,
+          startTime: MoreThanOrEqual(currentDate),
+        },
+      ],
       relations: ['tutor', 'student', 'subject', 'subject.subjectTier'],
       order: {
-        stattTimartTime: 'ASC',
+        startTime: 'ASC',
       },
       take: 3,
     });
