@@ -5,6 +5,7 @@ export enum ESessionStatus {
   CANCELLED = 'CANCELLED',
   IN_PROGRESS = 'IN_PROGRESS',
   EXTENDED = 'EXTENDED',
+  COMPLAINED = 'COMPLAINED',
 }
 
 export enum ESessionAcceptanceStatus {

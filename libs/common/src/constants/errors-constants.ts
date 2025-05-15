@@ -224,6 +224,11 @@ export const _409 = {
     code: 'PHONE_NUMBER_ALREADY_EXISTS',
     message: 'Phone number already exists',
   },
+  COMPLAINT_ALREADY_EXISTS: {
+    code: 'COMPLAINT_ALREADY_EXISTS',
+    message:
+      'A complaint with the same description, session, issue type and priority already exists',
+  },
 };
 
 // internal server error
