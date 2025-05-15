@@ -71,3 +71,24 @@ export class AssignBulkSubjectsDto {
   @ApiProperty({ type: [MoveSubjectFromOneTierToAnotherDto] })
   subjectTiers: MoveSubjectFromOneTierToAnotherDto[];
 }
+
+export class UpdateSubjectTierPricesDto {
+  @IsNotEmpty()
+  @IsNumber()
+  @ApiProperty({ type: Number })
+  credits: number;
+
+  @ApiProperty({ type: 'string' })
+  @IsString()
+  @IsNotEmpty()
+  subjectTierId: string;
+}
+
+export class UpdateSubjectTiersPricesDto {
+  @IsNotEmpty()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => UpdateSubjectTierPricesDto)
+  @ApiProperty({ type: [UpdateSubjectTierPricesDto] })
+  subjectTiers: UpdateSubjectTierPricesDto[];
+}

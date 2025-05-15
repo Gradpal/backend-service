@@ -13,14 +13,6 @@ export class CreateClassSessionDto extends BaseDto {
   @IsNotEmpty()
   subjectId: string;
 
-  @ApiProperty({ description: 'Scheduled time for the session' })
-  @IsNotEmpty()
-  startTime: Date;
-
-  @ApiProperty({ description: 'End time for the session' })
-  @IsNotEmpty()
-  endTime: Date;
-
   @ApiProperty({ description: 'Additional URLs (optional)', required: false })
   @IsOptional()
   urls?: string[];

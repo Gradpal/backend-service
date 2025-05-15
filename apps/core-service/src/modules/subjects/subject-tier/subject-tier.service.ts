@@ -7,6 +7,8 @@ import {
   UpdateSubjectTierDto,
   InitializeSubjectTierDto,
   MoveSubjectFromOneTierToAnotherDto,
+  UpdateSubjectTierPricesDto,
+  UpdateSubjectTiersPricesDto,
 } from './dto/create-subject-tier.entity';
 import { Subject } from '../entities/subject.entity';
 import { In } from 'typeorm';
@@ -185,6 +187,7 @@ export class SubjectTierService {
   ): Promise<SubjectTier> {
     return this.subjectTierRepository.findOne({
       where: { portfolio: { id: portfolioId }, subjects: { id: subject } },
+      relations: ['subjects'],
     });
   }
 
@@ -372,5 +375,22 @@ export class SubjectTierService {
         subjects: { id: subjectId },
       },
     });
+  }
+  async updateSubjectTierPrices(
+    portfolioId: string,
+    updateSubjectTiersPricesDto: UpdateSubjectTiersPricesDto,
+  ) {
+    for (const subjectTierDto of updateSubjectTiersPricesDto.subjectTiers) {
+      const subjectTier = await this.subjectTierRepository.findOne({
+        where: {
+          id: subjectTierDto.subjectTierId,
+          portfolio: { id: portfolioId },
+        },
+      });
+      if (subjectTier) {
+        subjectTier.credits = subjectTierDto.credits;
+        await this.subjectTierRepository.save(subjectTier);
+      }
+    }
   }
 }

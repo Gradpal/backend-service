@@ -5,15 +5,15 @@ export const createMailerConfig = (
   configService: NotificationConfigService,
 ): MailerOptions => ({
   transport: {
-    host: 'live.smtp.mailtrap.io',
+    host: 'mail.rp.ac.rw',
     port: 587,
     secure: false,
     auth: {
-      user: configService.smtpUser,
+      user: configService.smtpEmail,
       pass: configService.smtpPassword,
     },
   },
   defaults: {
-    from: `"Gradpal" <${configService.smtpEmail}>`,
+    from: `"E-portfolio" <${configService.smtpEmail}>`,
   },
 });

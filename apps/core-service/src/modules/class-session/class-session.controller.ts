@@ -153,6 +153,15 @@ export class ClassSessionController {
     return this.classSessionService.leaveSession(id, req.user as User);
   }
 
+  @Post(':id/accept')
+  @ApiOperation({ summary: 'Accept a class session' })
+  @ApiParam({ name: 'id', description: 'Class session ID' })
+  @AuthUser()
+  @ApiResponse({ status: 200, type: ClassSession })
+  acceptSession(@Param('id') id: string, @Req() req) {
+    return this.classSessionService.acceptSession(id, req.user as User);
+  }
+
   @Post(':id/postpone')
   @ApiOperation({ summary: 'Postpone a class session' })
   @ApiParam({ name: 'id', description: 'Class session ID' })
@@ -209,11 +218,10 @@ export class ClassSessionController {
     );
   }
 
-  @Get('student/:studentId/upcoming')
+  @Get('all/upcoming')
   @ApiOperation({ summary: 'Get top upcoming sessions for a student' })
-  @ApiParam({ name: 'studentId', description: 'Student ID' })
   @ApiResponse({ status: 200, type: [ClassSession] })
-  getTopUpcomingSessions(@Param('studentId') studentId: string, @Req() req) {
+  getTopUpcomingSessions(@Req() req) {
     return this.classSessionService.getTopUpcomingSessions(req.user as User);
   }
 }
