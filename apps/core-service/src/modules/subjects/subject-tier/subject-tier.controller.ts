@@ -15,6 +15,7 @@ import {
   InitializeSubjectTierDto,
   MoveSubjectFromOneTierToAnotherDto,
   UpdateSubjectTierDto,
+  UpdateSubjectTiersPricesDto,
 } from './dto/create-subject-tier.entity';
 import { SubjectTier } from './entities/subject-tier.entity';
 import { User } from '@core-service/modules/user/entities/user.entity';
@@ -155,6 +156,22 @@ export class SubjectTierController {
     return this.subjectTierService.assignSubjectsToTiers(
       subjectId,
       subjecttierId,
+    );
+  }
+  @ApiParam({ name: 'portfolioId', type: String })
+  @ApiBody({ type: UpdateSubjectTiersPricesDto })
+  @ApiOperation({ summary: 'Update subject tier prices' })
+  @ApiResponse({ type: SubjectTier })
+  @ApiConsumes('application/json')
+  @ApiProduces('application/json')
+  @Patch('update-subject-tier-prices/:portfolioId')
+  updateSubjectTierPrices(
+    @Param('portfolioId') portfolioId: string,
+    @Body() updateSubjectTiersPricesDto: UpdateSubjectTiersPricesDto,
+  ) {
+    return this.subjectTierService.updateSubjectTierPrices(
+      portfolioId,
+      updateSubjectTiersPricesDto,
     );
   }
 

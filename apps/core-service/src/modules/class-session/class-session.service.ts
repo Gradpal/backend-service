@@ -11,6 +11,7 @@ import { UserService } from '../user/user.service';
 import {
   ESessionJoinStatus,
   ESessionStatus,
+  ESessionAcceptanceStatus,
 } from './enums/session-status.enum';
 import { MoreThanOrEqual } from 'typeorm';
 import { User } from '../user/entities/user.entity';
@@ -105,13 +106,12 @@ export class ClassSessionService {
   async findOne(id: string): Promise<ClassSession> {
     const session = await this.classSessionRepository.findOne({
       where: { id },
-      relations: ['tutor', 'student'],
+      relations: ['tutor', 'student', 'subject', 'subject.subjectTier'],
     });
 
     if (!session) {
-      throw new NotFoundException(`Class session with ID ${id} not found`);
+      this.exceptionHandler.throwNotFound(_404.CLASS_SESSION_NOT_FOUND);
     }
-
     return session;
   }
 
@@ -149,6 +149,24 @@ export class ClassSessionService {
         ? ESessionJoinStatus.STUDENT_JOINED
         : ESessionJoinStatus.TUTOR_JOINED;
     }
+    return this.classSessionRepository.save(session);
+  }
+
+  async findOneByIdAndTutor(
+    sessionId: string,
+    tutorId: string,
+  ): Promise<ClassSession> {
+    return this.classSessionRepository.findOne({
+      where: { id: sessionId, tutor: { id: tutorId } },
+      relations: ['tutor', 'student'],
+    });
+  }
+  async acceptSession(sessionId: string, user: User): Promise<ClassSession> {
+    const session = await this.findOneByIdAndTutor(sessionId, user.id);
+    if (!session) {
+      this.exceptionHandler.throwBadRequest(_403.SESSION_NOT_YOURS);
+    }
+    session.acceptanceStatus = ESessionAcceptanceStatus.ACCEPTED;
     return this.classSessionRepository.save(session);
   }
 
@@ -233,14 +251,14 @@ export class ClassSessionService {
   async findByTutor(tutorId: string): Promise<ClassSession[]> {
     return this.classSessionRepository.find({
       where: { tutor: { id: tutorId } },
-      relations: ['tutor', 'student'],
+      relations: ['tutor', 'student', 'subject', 'subject.subjectTier'],
     });
   }
 
   async findByStudent(studentId: string): Promise<ClassSession[]> {
     return this.classSessionRepository.find({
       where: { student: { id: studentId } },
-      relations: ['tutor', 'student'],
+      relations: ['tutor', 'student', 'subject', 'subject.subjectTier'],
     });
   }
 
@@ -302,12 +320,11 @@ export class ClassSessionService {
         student: {
           id: student.id,
         },
-        startTime: MoreThanOrEqual(currentDate),
         status: ESessionStatus.SCHEDULED,
       },
-      relations: ['tutor', 'student'],
+      relations: ['tutor', 'student', 'subject', 'subject.subjectTier'],
       order: {
-        startTime: 'ASC',
+        stattTimartTime: 'ASC',
       },
       take: 3,
     });

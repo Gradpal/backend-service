@@ -196,6 +196,10 @@ export const _404 = {
     code: 'DAY_SCHEDULE_NOT_FOUND',
     message: 'The requested day schedule was not found',
   },
+  CLASS_SESSION_NOT_FOUND: {
+    code: 'CLASS_SESSION_NOT_FOUND',
+    message: 'The requested class session was not found',
+  },
 };
 
 // conflict

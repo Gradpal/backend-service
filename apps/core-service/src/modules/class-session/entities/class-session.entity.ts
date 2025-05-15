@@ -61,14 +61,14 @@ export class ClassSession extends BaseEntity {
   })
   joinStatus: ESessionJoinStatus;
 
-  @Column({ type: 'timestamp', nullable: false })
-  startTime: Date;
-
-  @Column({ type: 'timestamp', nullable: false })
-  endTime: Date;
-
   @Column({ default: null, nullable: true })
   extensionTime: Date;
+
+  @Column({ default: null, nullable: true })
+  startTime: Date;
+
+  @Column({ default: null, nullable: true })
+  endTime: Date;
 
   @Column({ type: 'json', nullable: true })
   notes: any;
