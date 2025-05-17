@@ -1,5 +1,11 @@
 import { ComplaintIssueType } from '../enums/complaints.enum';
-import { IsEnum, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import {
+  IsBoolean,
+  IsEnum,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+} from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateComplaintDto {
@@ -24,6 +30,13 @@ export class CreateComplaintDto {
     description: 'The session id of the complaint',
   })
   sessionId: string;
+
+  @IsBoolean()
+  @IsNotEmpty()
+  @ApiProperty({
+    description: 'Whether the user wants a refund',
+  })
+  wantRefund: boolean;
 
   @IsOptional()
   @ApiProperty({
