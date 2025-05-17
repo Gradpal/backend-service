@@ -70,11 +70,27 @@ export class ClassSessionController {
     );
   }
 
-  @Get()
+  @Get('all/mine')
   @ApiOperation({ summary: 'Get all class sessions' })
-  @ApiResponse({ status: 200, type: [ClassSession] })
-  findAll() {
-    return this.classSessionService.findAll();
+  @ApiQuery({ name: 'status', enum: ESessionStatus })
+  @ApiQuery({ name: 'searchKeyword', required: false })
+  @ApiQuery({ name: 'page', default: 1, required: false })
+  @ApiQuery({ name: 'limit', default: 10, required: false })
+  @AuthUser()
+  findSessionsForLoggedInUser(
+    @Query('status') status: ESessionStatus,
+    @Query('searchKeyword') searchKeyword: string,
+    @Query('page') page: number,
+    @Query('limit') limit: number,
+    @Req() req,
+  ) {
+    return this.classSessionService.findSessionsForLoggedInUser(
+      status,
+      searchKeyword,
+      req.user as User,
+      page,
+      limit,
+    );
   }
 
   @Get(':id')
