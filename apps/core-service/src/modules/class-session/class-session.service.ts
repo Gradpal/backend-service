@@ -129,9 +129,12 @@ export class ClassSessionService {
       .leftJoinAndSelect('classSession.subject', 'subject');
 
     if (sessionStatus) {
-      classSessionQuery.andWhere('classSession.status = :status', {
-        status: sessionStatus,
-      });
+      classSessionQuery.andWhere(
+        '(classSession.status = :status OR classSession.joinStatus = :status OR classSession.acceptanceStatus = :status)',
+        {
+          status: sessionStatus,
+        },
+      );
     }
 
     if (searchKeyword) {
