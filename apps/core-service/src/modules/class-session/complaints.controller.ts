@@ -23,7 +23,6 @@ export class ComplaintsController {
   getMyComplaints(@Req() req) {
     return this.complaintsService.getMyComplaints(req.user);
   }
-
   @Post()
   @ApiConsumes('multipart/form-data')
   @ApiBody({ type: CreateComplaintDto })

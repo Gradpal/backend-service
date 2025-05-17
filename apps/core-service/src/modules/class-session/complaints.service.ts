@@ -32,7 +32,6 @@ export class ComplaintsService {
         createComplaintDto.description,
         session,
         createComplaintDto.issueType,
-        createComplaintDto.priority,
       );
     if (complaintExists) {
       this.exceptionHandler.throwBadRequest(_409.COMPLAINT_ALREADY_EXISTS);
@@ -41,6 +40,9 @@ export class ComplaintsService {
       this.complaintRepository.create(createComplaintDto);
     complaint.session = session;
 
+    if (this.issueTypeExistsInIssueTypeEnum(createComplaintDto.issueType)) {
+      complaint.priority = ComplaintPriority.HIGH;
+    }
     const evidenceFileUrl =
       await this.minioService.getUploadedFilePath(evidenceFile);
 
@@ -52,16 +54,21 @@ export class ComplaintsService {
     description: string,
     session: ClassSession,
     issueType: ComplaintIssueType,
-    priority: ComplaintPriority,
   ) {
-    return this.complaintRepository.exists({
+    const complaint = await this.complaintRepository.findOne({
       where: {
         description: description,
-        session: session,
+        session: { id: session.id },
         issueType: issueType,
-        priority: priority,
       },
     });
+    return !!complaint;
+  }
+
+  issueTypeExistsInIssueTypeEnum(issueType: string) {
+    return Object.values(ComplaintIssueType).includes(
+      issueType as ComplaintIssueType,
+    );
   }
   async getMyComplaints(user: User) {
     return this.complaintRepository.find({
