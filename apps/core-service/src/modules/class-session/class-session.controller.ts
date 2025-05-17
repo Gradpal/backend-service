@@ -72,13 +72,13 @@ export class ClassSessionController {
 
   @Get('all/mine')
   @ApiOperation({ summary: 'Get all class sessions' })
-  @ApiQuery({ name: 'status', enum: ESessionStatus })
+  @ApiQuery({ name: 'status', type: 'string', required: false })
   @ApiQuery({ name: 'searchKeyword', required: false })
   @ApiQuery({ name: 'page', default: 1, required: false })
   @ApiQuery({ name: 'limit', default: 10, required: false })
   @AuthUser()
   findSessionsForLoggedInUser(
-    @Query('status') status: ESessionStatus,
+    @Query('status') status: string,
     @Query('searchKeyword') searchKeyword: string,
     @Query('page') page: number,
     @Query('limit') limit: number,

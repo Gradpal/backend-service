@@ -116,13 +116,12 @@ export class ClassSessionService {
   }
 
   async findSessionsForLoggedInUser(
-    sessionStatus?: ESessionStatus,
+    sessionStatus?: string,
     searchKeyword?: string,
     loggedInUser?: User,
     page?: number,
     limit?: number,
   ) {
-    console.log('Status parameter:', sessionStatus);
     const classSessionQuery = this.classSessionRepository
       .createQueryBuilder('classSession')
       .leftJoinAndSelect('classSession.tutor', 'tutor')
@@ -130,7 +129,6 @@ export class ClassSessionService {
       .leftJoinAndSelect('classSession.subject', 'subject');
 
     if (sessionStatus) {
-      console.log('Adding status filter:', sessionStatus);
       classSessionQuery.andWhere('classSession.status = :status', {
         status: sessionStatus,
       });
