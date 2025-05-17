@@ -42,25 +42,22 @@ export class ClassSession extends BaseEntity {
   urls: string[];
 
   @Column({
-    type: 'enum',
-    enum: ESessionStatus,
+    type: 'varchar',
     default: ESessionStatus.SCHEDULED,
   })
-  status: ESessionStatus;
+  status: string;
 
   @Column({
-    type: 'enum',
-    enum: ESessionAcceptanceStatus,
+    type: 'varchar',
     default: ESessionAcceptanceStatus.PENDING,
   })
-  acceptanceStatus: ESessionAcceptanceStatus;
+  acceptanceStatus: string;
 
   @Column({
-    type: 'enum',
-    enum: ESessionJoinStatus,
+    type: 'varchar',
     default: ESessionJoinStatus.NONE_JOINED,
   })
-  joinStatus: ESessionJoinStatus;
+  joinStatus: string;
 
   @Column({ default: null, nullable: true })
   extensionTime: Date;
