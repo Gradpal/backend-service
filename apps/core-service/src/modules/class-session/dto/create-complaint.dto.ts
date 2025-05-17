@@ -1,6 +1,4 @@
 import { ComplaintIssueType } from '../enums/complaints.enum';
-
-import { ComplaintPriority } from '../enums/complaints.enum';
 import { IsEnum, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
@@ -12,14 +10,6 @@ export class CreateComplaintDto {
     enum: ComplaintIssueType,
   })
   issueType: ComplaintIssueType;
-
-  @IsEnum(ComplaintPriority)
-  @IsNotEmpty()
-  @ApiProperty({
-    description: 'The priority of the complaint',
-    enum: ComplaintPriority,
-  })
-  priority: ComplaintPriority;
 
   @IsString()
   @IsNotEmpty()

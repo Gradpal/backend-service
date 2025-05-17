@@ -1,3 +1,13 @@
+export enum HighPriorityIssueType {
+  HARASSMENT_OR_ABUSE = 'Harassment or Abuse',
+  FRAUD_OR_SCAM = 'Fraud or Scam',
+  INAPPROPRIATE_BEHAVIOR = 'Inappropriate Behavior',
+  PRIVACY_BREACH = 'Privacy Breach or Data Misuse',
+  ACADEMIC_DISHONESTY = 'Academic Dishonesty',
+  REPEATED_NO_SHOWS = 'Repeated No-Shows or Cancellations',
+  IMPERSONATION = 'Impersonation',
+}
+
 export enum ComplaintPriority {
   LOW = 'LOW',
   MEDIUM = 'MEDIUM',
