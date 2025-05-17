@@ -26,6 +26,7 @@ import { WeeklyAvailabilityService } from '../portfolio/weekly-availability/week
 import { normalizeArray } from '@core-service/common/helpers/all.helpers';
 import { generateUUID } from '@app/common/helpers/shared.helpers';
 import { SessionTimelineType } from './enums/session-timeline-type.enum';
+import { createPaginatedResponse } from '@app/common/helpers/pagination.helper';
 @Injectable()
 export class ClassSessionService {
   constructor(
@@ -114,10 +115,45 @@ export class ClassSessionService {
     return savedSession;
   }
 
-  async findAll(): Promise<ClassSession[]> {
-    return this.classSessionRepository.find({
-      relations: ['tutor', 'student', 'subject'],
-    });
+  async findSessionsForLoggedInUser(
+    sessionStatus?: ESessionStatus,
+    searchKeyword?: string,
+    loggedInUser?: User,
+    page?: number,
+    limit?: number,
+  ) {
+    console.log('Status parameter:', sessionStatus);
+    const classSessionQuery = this.classSessionRepository
+      .createQueryBuilder('classSession')
+      .leftJoinAndSelect('classSession.tutor', 'tutor')
+      .leftJoinAndSelect('classSession.student', 'student')
+      .leftJoinAndSelect('classSession.subject', 'subject');
+
+    if (sessionStatus) {
+      console.log('Adding status filter:', sessionStatus);
+      classSessionQuery.andWhere('classSession.status = :status', {
+        status: sessionStatus,
+      });
+    }
+
+    if (searchKeyword) {
+      classSessionQuery.andWhere(
+        'classSession.description  LIKE :keyword OR tutor.name LIKE :keyword OR student.name LIKE :keyword OR subject.name LIKE :keyword OR tutor.email LIKE :keyword OR student.email LIKE :keyword',
+        {
+          keyword: `%${searchKeyword}%`,
+        },
+      );
+    }
+    classSessionQuery.andWhere(
+      '(classSession.tutor.id = :userId OR classSession.student.id = :userId)',
+      {
+        userId: loggedInUser.id,
+      },
+    );
+    classSessionQuery.skip((page - 1) * limit).take(limit);
+
+    const [sessions, total] = await classSessionQuery.getManyAndCount();
+    return createPaginatedResponse(sessions, total, page, limit);
   }
 
   async findOne(id: string): Promise<ClassSession> {
