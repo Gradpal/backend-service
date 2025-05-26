@@ -13,7 +13,7 @@
     "collect-protos": "sh scripts/copy-protos.sh",
     "prebuild": "yarn collect-protos",
     "predev": "yarn collect-protos",
-    "build": "  yarn prebuild && nest build",
+    "build": " nest build",
     "build:core": "yarn prebuild && nest build core-service",
     "format": "prettier --write \"apps/**/*.ts\" \"libs/**/*.ts\"",
     "start": "yarn prebuild && nest start",
