@@ -98,4 +98,7 @@ export class EnvironmentVariables {
   GOOGLE_CLIENT_SECRET: string;
   @Expose()
   GOOGLE_REDIRECT_URI: string;
+
+  @Expose()
+  GRADPAL_MEETS_HOST: string;
 }

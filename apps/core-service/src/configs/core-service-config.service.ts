@@ -120,6 +120,10 @@ export class CoreServiceConfigService {
     return this.configService.getOrThrow('CLIENT_URL');
   }
 
+  getMeetHost(): string {
+    return this.configService.getOrThrow('GRADPAL_MEETS_HOST');
+  }
+
   getPostgresInfo(): TypeOrmModuleOptions {
     return {
       name: 'default',

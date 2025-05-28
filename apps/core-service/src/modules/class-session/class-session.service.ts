@@ -27,6 +27,7 @@ import { normalizeArray } from '@core-service/common/helpers/all.helpers';
 import { generateUUID } from '@app/common/helpers/shared.helpers';
 import { SessionTimelineType } from './enums/session-timeline-type.enum';
 import { createPaginatedResponse } from '@app/common/helpers/pagination.helper';
+import { CoreServiceConfigService } from '@core-service/configs/core-service-config.service';
 @Injectable()
 export class ClassSessionService {
   constructor(
@@ -37,6 +38,7 @@ export class ClassSessionService {
     private readonly minioService: MinioClientService,
     private readonly exceptionHandler: ExceptionHandler,
     private readonly weeklyAvailabilityService: WeeklyAvailabilityService,
+    private readonly configService: CoreServiceConfigService,
   ) {}
 
   async create(
@@ -77,7 +79,7 @@ export class ClassSessionService {
 
     const createdAt = new Date();
     const updatedAt = createdAt;
-    const session = this.classSessionRepository.create({
+    const session: ClassSession = this.classSessionRepository.create({
       ...sessionData,
       tutor,
       student,
@@ -108,6 +110,9 @@ export class ClassSessionService {
 
     student.credits -= subjectTier.credits;
 
+    const meetId = generateUUID();
+    const sessionMeetLink = `${this.configService.getMeetHost()}/join/${session.id}/meetId=${meetId}`;
+    session.meetLink = sessionMeetLink;
     const [updatedStudent, savedSession] = await Promise.all([
       this.userService.save(student),
       this.classSessionRepository.save(session),

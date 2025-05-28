@@ -68,6 +68,9 @@ export class ClassSession extends BaseEntity {
   @Column({ default: null, nullable: true })
   endTime: Date;
 
+  @Column({ default: null, nullable: true })
+  meetLink: string;
+
   @Column({ type: 'json', nullable: true })
   notes: any;
 
