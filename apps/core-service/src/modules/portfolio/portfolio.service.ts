@@ -166,7 +166,7 @@ export class PortfolioService {
       ),
     );
 
-    if (basicSubjectTier) {
+    if (!basicSubjectTier) {
       basicSubjectTier = await this.subjectTierService
         .getSubjectTierRepository()
         .create({
@@ -184,6 +184,11 @@ export class PortfolioService {
         ...(portfolio.subjectTiers || []),
         basicSubjectTier,
       ];
+      basicSubjectTier =
+        await this.subjectTierService.findByPortfolioIdAndCategory(
+          portfolioId,
+          ETierCategory.BASIC,
+        );
     }
 
     const subjectsThatNotExistInBasicTier = newSubjects.filter(
