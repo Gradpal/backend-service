@@ -71,6 +71,7 @@ export class ClassSessionService {
 
     if (timeSlotIds.length > 0) {
       for (const timeSlotId of timeSlotIds) {
+        console.log(timeSlotId);
         const timeSlot =
           await this.weeklyAvailabilityService.findOne(timeSlotId);
         timeslots.push(timeSlot);
@@ -79,7 +80,10 @@ export class ClassSessionService {
 
     const createdAt = new Date();
     const updatedAt = createdAt;
-    const session: ClassSession = this.classSessionRepository.create({
+    sessionData.id = generateUUID();
+    sessionData.createdAt = new Date();
+    sessionData.updatedAt = sessionData.createdAt;
+    const session = this.classSessionRepository.create({
       ...sessionData,
       tutor,
       student,
@@ -106,12 +110,12 @@ export class ClassSessionService {
       ],
       goalDescription: sessionData.description,
     });
-    session.id = generateUUID();
 
     student.credits -= subjectTier.credits;
+    console.log('Session before save', session);
 
     const meetId = generateUUID();
-    const sessionMeetLink = `${this.configService.getMeetHost()}/join/${session.id}/meetId=${meetId}`;
+    const sessionMeetLink = `${this.configService.getMeetHost()}/join/?sessionId=${session.id}&meetId=${meetId}`;
     session.meetLink = sessionMeetLink;
     const [updatedStudent, savedSession] = await Promise.all([
       this.userService.save(student),
