@@ -28,6 +28,8 @@ import { generateUUID } from '@app/common/helpers/shared.helpers';
 import { SessionTimelineType } from './enums/session-timeline-type.enum';
 import { createPaginatedResponse } from '@app/common/helpers/pagination.helper';
 import { CoreServiceConfigService } from '@core-service/configs/core-service-config.service';
+import { BrainService } from '@app/common/brain/brain.service';
+import { MEETING_CACHE } from '@core-service/common/constants/brain.constants';
 @Injectable()
 export class ClassSessionService {
   constructor(
@@ -39,6 +41,7 @@ export class ClassSessionService {
     private readonly exceptionHandler: ExceptionHandler,
     private readonly weeklyAvailabilityService: WeeklyAvailabilityService,
     private readonly configService: CoreServiceConfigService,
+    private readonly brainService: BrainService,
   ) {}
 
   async create(
@@ -112,16 +115,35 @@ export class ClassSessionService {
     });
 
     student.credits -= subjectTier.credits;
-    console.log('Session before save', session);
 
     const meetId = generateUUID();
     const sessionMeetLink = `${this.configService.getMeetHost()}/join/?sessionId=${session.id}&meetId=${meetId}`;
+    const key = `${MEETING_CACHE.name}:${session.id}`;
+    await this.brainService.memorize(key, meetId);
+
     session.meetLink = sessionMeetLink;
     const [updatedStudent, savedSession] = await Promise.all([
       this.userService.save(student),
       this.classSessionRepository.save(session),
     ]);
     return savedSession;
+  }
+
+  async validateMeetingLink(sessionId: string, meetId: string) {
+    const session: ClassSession = await this.findOne(sessionId);
+    const isMeetingValid = await this.brainService.verifyMeetingId(
+      sessionId,
+      meetId,
+    );
+    if (!isMeetingValid) {
+      this.exceptionHandler.throwBadRequest(
+        _403.NOT_AUTHORIZED_TO_JOIN_SESSION,
+      );
+    }
+    return {
+      sessionTitle: `Session with ${session.tutor?.firstName ?? session.tutor?.lastName} about ${session.subject?.name}`,
+      isValid: true,
+    };
   }
 
   async findSessionsForLoggedInUser(

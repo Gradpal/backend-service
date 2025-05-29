@@ -4,6 +4,7 @@ import Redis from 'ioredis';
 import { ONE_MONTH } from '../constants/all.constants';
 import { BrainConfigService } from './brain-config.service';
 import {
+  MEETING_CACHE,
   RESET_PASSWORD_CACHE,
   USER_BY_EMAIL_CACHE,
 } from '@core-service/common/constants/brain.constants';
@@ -152,6 +153,16 @@ export class BrainService {
     const key = `${RESET_PASSWORD_CACHE.name}:${email}`;
     const storedOTP = await this.remindMe<number>(key);
     if (!storedOTP || storedOTP != otp) {
+      return false;
+    }
+    await this.forget(key);
+    return true;
+  }
+
+  async verifyMeetingId(sessionId: string, meetId: string) {
+    const key = `${MEETING_CACHE.name}:${sessionId}`;
+    const storedMeetId = await this.remindMe<string>(key);
+    if (!storedMeetId || storedMeetId !== meetId) {
       return false;
     }
     await this.forget(key);

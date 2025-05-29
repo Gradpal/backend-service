@@ -244,4 +244,16 @@ export class ClassSessionController {
   getTopUpcomingSessions(@Req() req) {
     return this.classSessionService.getTopUpcomingSessions(req.user as User);
   }
+
+  @Get('validate-meeting-link/:sessionId/:meetId')
+  @ApiOperation({ summary: 'Validate a meeting link' })
+  @ApiParam({ name: 'sessionId', description: 'Class session ID' })
+  @ApiParam({ name: 'meetId', description: 'Meeting ID' })
+  @ApiResponse({ status: 200, type: ClassSession })
+  validateMeetingLink(
+    @Param('sessionId') sessionId: string,
+    @Param('meetId') meetId: string,
+  ) {
+    return this.classSessionService.validateMeetingLink(sessionId, meetId);
+  }
 }
