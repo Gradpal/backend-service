@@ -17,6 +17,7 @@ import { Subject } from '@core-service/modules/subjects/entities/subject.entity'
 import { AttachmentDto } from '@app/common/dtos/attachment.dto';
 import { TimeSlot } from '@core-service/modules/portfolio/weekly-availability/entities/weeky-availability.entity';
 import { SessionTimelineDto } from '../dto/session-timeline.dto';
+import { SessionReviewDto } from '../dto/session-review.dto';
 
 @Entity()
 export class ClassSession extends BaseEntity {
@@ -86,4 +87,7 @@ export class ClassSession extends BaseEntity {
 
   @Column({ type: 'json', nullable: true })
   sessionTimelines: SessionTimelineDto[];
+
+  @Column({ type: 'json', nullable: true })
+  sessionReview: SessionReviewDto;
 }
