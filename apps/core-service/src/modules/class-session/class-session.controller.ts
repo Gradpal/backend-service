@@ -36,6 +36,7 @@ import {
 import { CancelLessonDto } from './dto/cancel-lesson.dto';
 import { RequestSessionExtensionDto } from './dto/request-extion.dto';
 import { AuthUser } from '@core-service/decorators/auth.decorator';
+import { normalizeArray } from '@core-service/common/helpers/all.helpers';
 
 @ApiTags('Class Sessions')
 @Controller('class-session')
@@ -63,6 +64,9 @@ export class ClassSessionController {
     @Req() req,
     @UploadedFiles() files: Express.Multer.File[],
   ) {
+    createClassSessionDto.timeSlotIds = normalizeArray(
+      createClassSessionDto.timeSlotIds,
+    );
     return this.classSessionService.create(
       req.user as User,
       createClassSessionDto,
