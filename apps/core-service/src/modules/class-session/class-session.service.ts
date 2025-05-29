@@ -30,6 +30,10 @@ import { createPaginatedResponse } from '@app/common/helpers/pagination.helper';
 import { CoreServiceConfigService } from '@core-service/configs/core-service-config.service';
 import { BrainService } from '@app/common/brain/brain.service';
 import { MEETING_CACHE } from '@core-service/common/constants/brain.constants';
+import { SessionReviewDto } from './dto/session-review.dto';
+import { TutorProfileDto } from '../portfolio/dto/tutor-profile.dto';
+import { PortfolioService } from '../portfolio/portfolio.service';
+
 @Injectable()
 export class ClassSessionService {
   constructor(
@@ -42,6 +46,7 @@ export class ClassSessionService {
     private readonly weeklyAvailabilityService: WeeklyAvailabilityService,
     private readonly configService: CoreServiceConfigService,
     private readonly brainService: BrainService,
+    private readonly portfolioService: PortfolioService,
   ) {}
 
   async create(
@@ -389,6 +394,25 @@ export class ClassSessionService {
     const session = await this.findOne(id);
     session.status = status;
     return this.classSessionRepository.save(session);
+  }
+  async reviewSession(
+    sessionId: string,
+    user: User,
+    reviewSessionDto: SessionReviewDto,
+  ): Promise<ClassSession> {
+    const session: ClassSession = await this.findOne(sessionId);
+    session.sessionReview = reviewSessionDto;
+    const tutorPortfolio = session.tutor.portfolio;
+
+    tutorPortfolio.rating = reviewSessionDto.rating;
+    const portfolioReviews = tutorPortfolio.reviews || [];
+    portfolioReviews.push(reviewSessionDto);
+    tutorPortfolio.reviews = portfolioReviews;
+    const [updatedTutorProfile, updatedSession] = await Promise.all([
+      this.portfolioService.getPortfolioRepository().save(tutorPortfolio),
+      this.classSessionRepository.save(session),
+    ]);
+    return updatedSession;
   }
 
   async requestSessionExtension(

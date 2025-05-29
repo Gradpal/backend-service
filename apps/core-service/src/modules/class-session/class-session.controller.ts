@@ -37,6 +37,7 @@ import { CancelLessonDto } from './dto/cancel-lesson.dto';
 import { RequestSessionExtensionDto } from './dto/request-extion.dto';
 import { AuthUser } from '@core-service/decorators/auth.decorator';
 import { normalizeArray } from '@core-service/common/helpers/all.helpers';
+import { SessionReviewDto } from './dto/session-review.dto';
 
 @ApiTags('Class Sessions')
 @Controller('class-session')
@@ -255,5 +256,21 @@ export class ClassSessionController {
     @Param('meetId') meetId: string,
   ) {
     return this.classSessionService.validateMeetingLink(sessionId, meetId);
+  }
+
+  @Post(':id/review')
+  @ApiOperation({ summary: 'Review a class session' })
+  @ApiParam({ name: 'id', description: 'Class session ID' })
+  @ApiResponse({ status: 200, type: ClassSession })
+  reviewSession(
+    @Param('id') id: string,
+    @Req() req,
+    @Body() reviewSessionDto: SessionReviewDto,
+  ) {
+    return this.classSessionService.reviewSession(
+      id,
+      req.user as User,
+      reviewSessionDto,
+    );
   }
 }
