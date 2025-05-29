@@ -128,6 +128,10 @@ export const _403 = {
     code: 'SESSION_NOT_YOURS',
     message: 'You are not allowed to perform this action on this session',
   },
+  NOT_AUTHORIZED_TO_JOIN_SESSION: {
+    code: 'NOT_AUTHORIZED_TO_JOIN_SESSION',
+    message: 'You are not authorized to join this session',
+  },
   UNAUTHORIZED_TO_UPDATE_PORTFOLIO: {
     code: 'UNAUTHORIZED_TO_UPDATE_PORTFOLIO',
     message:
