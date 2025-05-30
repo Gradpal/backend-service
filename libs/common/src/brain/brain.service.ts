@@ -165,7 +165,6 @@ export class BrainService {
     if (!storedMeetId || storedMeetId !== meetId) {
       return false;
     }
-    await this.forget(key);
     return true;
   }
 
