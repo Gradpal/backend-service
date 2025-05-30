@@ -81,7 +81,6 @@ export class ClassSessionService {
 
     if (timeSlotIds.length > 0) {
       for (const timeSlotId of timeSlotIds) {
-        console.log(timeSlotId);
         const timeSlot =
           await this.weeklyAvailabilityService.findOne(timeSlotId);
         timeslots.push(timeSlot);

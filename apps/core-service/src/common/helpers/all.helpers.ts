@@ -9,7 +9,11 @@ export async function hashPassword(password: string): Promise<string> {
 
 // Normalize the skills data: ensure it's always an array
 export function normalizeArray<T>(array: T[]) {
-  return Array.isArray(array) ? array : array ? [array] : [];
+  return Array.isArray(array)
+    ? array
+    : array
+      ? (array as string).split(',')
+      : [];
 }
 
 export function generateAlphaNumericCode(length) {
