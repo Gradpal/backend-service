@@ -1,5 +1,7 @@
 import {
   ForbiddenException,
+  forwardRef,
+  Inject,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -31,7 +33,6 @@ import { CoreServiceConfigService } from '@core-service/configs/core-service-con
 import { BrainService } from '@app/common/brain/brain.service';
 import { MEETING_CACHE } from '@core-service/common/constants/brain.constants';
 import { SessionReviewDto } from './dto/session-review.dto';
-import { TutorProfileDto } from '../portfolio/dto/tutor-profile.dto';
 import { PortfolioService } from '../portfolio/portfolio.service';
 
 @Injectable()
@@ -46,6 +47,7 @@ export class ClassSessionService {
     private readonly weeklyAvailabilityService: WeeklyAvailabilityService,
     private readonly configService: CoreServiceConfigService,
     private readonly brainService: BrainService,
+    @Inject(forwardRef(() => PortfolioService))
     private readonly portfolioService: PortfolioService,
   ) {}
 
