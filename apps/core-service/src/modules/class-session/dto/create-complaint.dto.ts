@@ -31,7 +31,6 @@ export class CreateComplaintDto {
   })
   sessionId: string;
 
-  @IsBoolean()
   @IsNotEmpty()
   @ApiProperty({
     description: 'Whether the user wants a refund',
