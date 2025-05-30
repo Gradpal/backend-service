@@ -124,7 +124,7 @@ export class ClassSessionService {
     student.credits -= subjectTier.credits;
 
     const meetId = generateUUID();
-    const sessionMeetLink = `${this.configService.getMeetHost()}/join/?sessionId=${session.id}&meetId=${meetId}`;
+    const sessionMeetLink = `${this.configService.getMeetHost()}/join?sessionId=${session.id}&meetId=${meetId}`;
     const key = `${MEETING_CACHE.name}:${session.id}`;
     await this.brainService.memorize(key, meetId);
 
