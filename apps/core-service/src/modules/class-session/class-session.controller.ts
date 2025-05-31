@@ -38,6 +38,7 @@ import { RequestSessionExtensionDto } from './dto/request-extion.dto';
 import { AuthUser } from '@core-service/decorators/auth.decorator';
 import { normalizeArray } from '@core-service/common/helpers/all.helpers';
 import { SessionReviewDto } from './dto/session-review.dto';
+import { Public } from '@app/common/decorators/public.decorator';
 
 @ApiTags('Class Sessions')
 @Controller('class-session')
@@ -247,6 +248,7 @@ export class ClassSessionController {
   }
 
   @Get('validate-meeting-link/:sessionId/:meetId')
+  @Public()
   @ApiOperation({ summary: 'Validate a meeting link' })
   @ApiParam({ name: 'sessionId', description: 'Class session ID' })
   @ApiParam({ name: 'meetId', description: 'Meeting ID' })
