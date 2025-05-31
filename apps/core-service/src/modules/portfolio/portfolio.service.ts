@@ -250,64 +250,6 @@ export class PortfolioService {
     }
   }
 
-  // async addEducationRecord(
-  //   portfolioId: string,
-  //   createEducationRecordDto: CreateEducationInstitutionRecordDto,
-  // ): Promise<EducationInstitutionRecord> {
-  //   const portfolio = await this.findOne(portfolioId);
-
-  //   const educationInstitutionRecord = new EducationInstitutionRecord();
-  //   const educationInstitutionRecords = portfolio.educationInstitutionRecords;
-
-  //   if (createEducationRecordDto.certificate) {
-  //     const certificateUrl = await this.minioService.getUploadedFilePath(
-  //       createEducationRecordDto.certificate,
-  //     );
-  //     educationInstitutionRecord.certificate = certificateUrl;
-  //   }
-  //   educationInstitutionRecords.push(educationInstitutionRecord);
-  //   portfolio.educationInstitutionRecords = educationInstitutionRecords;
-  //   return this.educationInstitutionRecordRepository.save(
-  //     educationInstitutionRecord,
-  //   );
-  // }
-
-  // async updateEducationRecord(
-  //   portfolioId: string,
-  //   educationRecordId: string,
-  //   updateEducationRecordDto: UpdateEducationRecordDto,
-  // ): Promise<EducationInstitutionRecord> {
-  //   const educationRecord =
-  //     await this.educationInstitutionRecordRepository.findOne({
-  //       where: { id: educationRecordId, portfolio: { id: portfolioId } },
-  //     });
-
-  //   if (!educationRecord) {
-  //     throw new NotFoundException(
-  //       `Education record with ID ${educationRecordId} not found in portfolio ${portfolioId}`,
-  //     );
-  //   }
-
-  //   Object.assign(educationRecord, updateEducationRecordDto);
-  //   return this.educationInstitutionRecordRepository.save(educationRecord);
-  // }
-
-  // async removeEducationRecord(
-  //   portfolioId: string,
-  //   educationRecordId: string,
-  // ): Promise<void> {
-  //   const educationRecord =
-  //     await this.educationInstitutionRecordRepository.findOne({
-  //       where: { id: ed   ucationRecordId },
-  //     });
-
-  //   if (!educationRecord) {
-  //     this.exceptionHandler.throwNotFound(_404.DATABASE_RECORD_NOT_FOUND);
-  //   }
-
-  //   await this.educationInstitutionRecordRepository.remove(educationRecord);
-  // }
-
   async updatePortfolioProfile(
     id: string,
     updatePortfolioProfileDto: UpdatePortfolioProfileDto,
@@ -414,14 +356,16 @@ export class PortfolioService {
     let weeklyAvailability = new WeeklyAvailability();
 
     weeklyAvailability.timezone = portfolio.timezone;
+
     weeklyAvailability =
       await this.weeklyAvailabilityRepository.save(weeklyAvailability);
 
     if (availabilityDto.monday) {
       const slotsDtos = availabilityDto.monday;
 
-      const mondaySchedule = new DaySchedule();
+      let mondaySchedule = new DaySchedule();
       mondaySchedule.day = WeekDay.MONDAY;
+      mondaySchedule = await this.dayScheduleRepository.save(mondaySchedule);
 
       const timeSlots = [];
 
@@ -441,8 +385,9 @@ export class PortfolioService {
     if (availabilityDto.tuesday) {
       const slotsDtos = availabilityDto.monday;
 
-      const tuesdaySchedule = new DaySchedule();
+      let tuesdaySchedule = new DaySchedule();
       tuesdaySchedule.day = WeekDay.TUESDAY;
+      tuesdaySchedule = await this.dayScheduleRepository.save(tuesdaySchedule);
 
       const timeSlots = [];
 
@@ -462,8 +407,10 @@ export class PortfolioService {
     if (availabilityDto.wednesday) {
       const slotsDtos = availabilityDto.wednesday;
 
-      const wednesdaySchedule = new DaySchedule();
+      let wednesdaySchedule = new DaySchedule();
       wednesdaySchedule.day = WeekDay.WEDNESDAY;
+      wednesdaySchedule =
+        await this.dayScheduleRepository.save(wednesdaySchedule);
 
       const timeSlots = [];
 
@@ -483,8 +430,10 @@ export class PortfolioService {
     if (availabilityDto.thursday) {
       const slotsDtos = availabilityDto.thursday;
 
-      const thursdaySchedule = new DaySchedule();
+      let thursdaySchedule = new DaySchedule();
       thursdaySchedule.day = WeekDay.THURSDAY;
+      thursdaySchedule =
+        await this.dayScheduleRepository.save(thursdaySchedule);
 
       const timeSlots = [];
 
@@ -504,8 +453,9 @@ export class PortfolioService {
     if (availabilityDto.friday) {
       const slotsDtos = availabilityDto.friday;
 
-      const fridaySchedule = new DaySchedule();
+      let fridaySchedule = new DaySchedule();
       fridaySchedule.day = WeekDay.FRIDAY;
+      fridaySchedule = await this.dayScheduleRepository.save(fridaySchedule);
 
       const timeSlots = [];
 
@@ -525,8 +475,10 @@ export class PortfolioService {
     if (availabilityDto.saturday) {
       const slotsDtos = availabilityDto.saturday;
 
-      const saturdaySchedule = new DaySchedule();
+      let saturdaySchedule = new DaySchedule();
       saturdaySchedule.day = WeekDay.SATURDAY;
+      saturdaySchedule =
+        await this.dayScheduleRepository.save(saturdaySchedule);
 
       const timeSlots = [];
 
@@ -546,8 +498,9 @@ export class PortfolioService {
     if (availabilityDto.sunday) {
       const slotsDtos = availabilityDto.sunday;
 
-      const sundaySchedule = new DaySchedule();
+      let sundaySchedule = new DaySchedule();
       sundaySchedule.day = WeekDay.SUNDAY;
+      sundaySchedule = await this.dayScheduleRepository.save(sundaySchedule);
 
       const timeSlots = [];
 
@@ -581,28 +534,6 @@ export class PortfolioService {
 
     return TutorProfileDto.fromEntity(portfolio.user, portfolio);
   }
-
-  // async getTutorSchedule(
-  //   id: string,
-  //   startDate?: string,
-  // ): Promise<WeeklyScheduleDto> {
-  //   const portfolio = await this.portfolioRepository.findOne({
-  //     where: { id },
-  //     relations: ['user'],
-  //   });
-
-  //   if (!portfolio) {
-  //     this.exceptionHandler.throwNotFound(_404.DATABASE_RECORD_NOT_FOUND);
-  //   }
-
-  //   if (portfolio.user.role !== EUserRole.TUTOR) {
-  //     this.exceptionHandler.throwNotFound(_404.TUTOR_NOT_FOUND);
-  //   }
-
-  //   // Implementation of schedule retrieval logic
-  //   // This is a placeholder - you'll need to implement the actual schedule logic
-  //   return new WeeklyScheduleDto();
-  // }
 
   async getUpcomingSessions(id: string): Promise<Booking[]> {
     const portfolio = await this.portfolioRepository.findOne({

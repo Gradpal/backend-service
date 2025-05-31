@@ -130,27 +130,6 @@ export class PortfolioController {
     );
   }
 
-  // @Patch(':id/education/:educationId')
-  // updateEducationRecord(
-  //   @Param('id') id: string,
-  //   @Param('educationId') educationId: string,
-  //   @Body() updateEducationRecordDto: UpdateEducationRecordDto,
-  // ) {
-  //   return this.portfolioService.updateEducationRecord(
-  //     id,
-  //     educationId,
-  //     updateEducationRecordDto,
-  //   );
-  // }
-
-  // @Delete(':id/education/:educationId')
-  // removeEducationRecord(
-  //   @Param('id') id: string,
-  //   @Param('educationId') educationId: string,
-  // ) {
-  //   return this.portfolioService.removeEducationRecord(id, educationId);
-  // }
-
   @Put(':id/profile')
   @UseGuards(AuthGuard)
   @ApiOperation({ summary: 'Update portfolio profile' })
@@ -212,24 +191,6 @@ export class PortfolioController {
   getTutorProfile(@Param('id') id: string): Promise<TutorProfileDto> {
     return this.portfolioService.getTutorProfile(id);
   }
-
-  // @Get(':id/tutor/schedule')
-  // @Public()
-  // @ApiOperation({ summary: 'Get tutor weekly schedule' })
-  // @ApiParam({ name: 'id', description: 'Portfolio ID' })
-  // @ApiQuery({
-  //   name: 'startDate',
-  //   required: false,
-  //   type: String,
-  //   description: 'Start date for the schedule (YYYY-MM-DD)',
-  // })
-  // @ApiResponse({ status: 200, type: WeeklyScheduleDto })
-  // getTutorSchedule(
-  //   @Param('id') id: string,
-  //   @Query('startDate') startDate?: string,
-  // ): Promise<WeeklyScheduleDto> {
-  //   return this.portfolioService.getTutorSchedule(id, startDate);
-  // }
 
   @Get(':id/sessions/upcoming')
   @PreAuthorize(EUserRole.TUTOR)
