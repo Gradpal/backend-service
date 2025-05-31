@@ -135,4 +135,11 @@ export class UserController {
   findAllStudents() {
     return this.userService.findAllStudents();
   }
+
+  @Patch('accept-terms-and-conditions')
+  @Public()
+  acceptTermsAndConditions(@Req() req) {
+    const loggedInUser = req.user as User;
+    return this.userService.acceptTermsAndConditions(loggedInUser);
+  }
 }

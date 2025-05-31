@@ -283,4 +283,9 @@ export class UserService {
   async save(user: User) {
     return await this.userRepository.save(user);
   }
+
+  async acceptTermsAndConditions(user: User) {
+    user.termsAndConditionsAccepted = true;
+    return await this.userRepository.save(user);
+  }
 }

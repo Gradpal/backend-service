@@ -34,6 +34,7 @@ import { BrainService } from '@app/common/brain/brain.service';
 import { MEETING_CACHE } from '@core-service/common/constants/brain.constants';
 import { SessionReviewDto } from './dto/session-review.dto';
 import { PortfolioService } from '../portfolio/portfolio.service';
+import { TimeSlot } from '../portfolio/weekly-availability/entities/weeky-availability.entity';
 
 @Injectable()
 export class ClassSessionService {
@@ -92,10 +93,15 @@ export class ClassSessionService {
     sessionData.id = generateUUID();
     sessionData.createdAt = new Date();
     sessionData.updatedAt = sessionData.createdAt;
+    const { startTime, endTime } =
+      this.calculateSessionStartTimeAndEndTimeBasedOnTimeSlots(timeslots);
+
     const session = this.classSessionRepository.create({
       ...sessionData,
       tutor,
       student,
+      startTime: new Date(startTime),
+      endTime: new Date(endTime),
       status: ESessionStatus.SCHEDULED,
       subject: { id: sessionData.subjectId },
       price: subjectTier.credits,
@@ -142,9 +148,9 @@ export class ClassSessionService {
       meetId,
     );
     if (!isMeetingValid) {
-      this.exceptionHandler.throwBadRequest(
-        _403.NOT_AUTHORIZED_TO_JOIN_SESSION,
-      );
+      return {
+        isValid: false,
+      };
     }
     return {
       sessionTitle: `Session with ${session.tutor?.firstName ?? session.tutor?.lastName} about ${session.subject?.name}`,
@@ -192,6 +198,12 @@ export class ClassSessionService {
 
     const [sessions, total] = await classSessionQuery.getManyAndCount();
     return createPaginatedResponse(sessions, total, page, limit);
+  }
+
+  calculateSessionStartTimeAndEndTimeBasedOnTimeSlots(timeSlots: TimeSlot[]) {
+    const startTime = timeSlots[0].startTime;
+    const endTime = timeSlots[timeSlots.length - 1].endTime;
+    return { startTime, endTime };
   }
 
   async findOne(id: string): Promise<ClassSession> {
