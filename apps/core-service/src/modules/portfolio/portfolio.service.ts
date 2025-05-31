@@ -582,28 +582,6 @@ export class PortfolioService {
     return TutorProfileDto.fromEntity(portfolio.user, portfolio);
   }
 
-  // async getTutorSchedule(
-  //   id: string,
-  //   startDate?: string,
-  // ): Promise<WeeklyScheduleDto> {
-  //   const portfolio = await this.portfolioRepository.findOne({
-  //     where: { id },
-  //     relations: ['user'],
-  //   });
-
-  //   if (!portfolio) {
-  //     this.exceptionHandler.throwNotFound(_404.DATABASE_RECORD_NOT_FOUND);
-  //   }
-
-  //   if (portfolio.user.role !== EUserRole.TUTOR) {
-  //     this.exceptionHandler.throwNotFound(_404.TUTOR_NOT_FOUND);
-  //   }
-
-  //   // Implementation of schedule retrieval logic
-  //   // This is a placeholder - you'll need to implement the actual schedule logic
-  //   return new WeeklyScheduleDto();
-  // }
-
   async getUpcomingSessions(id: string): Promise<Booking[]> {
     const portfolio = await this.portfolioRepository.findOne({
       where: { id },
