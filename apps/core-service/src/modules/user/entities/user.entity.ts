@@ -57,4 +57,7 @@ export class User extends BaseEntity {
 
   @OneToMany(() => TimeSlot, (timeSlot) => timeSlot.owner)
   timeSlots: TimeSlot[];
+
+  @Column({ default: false })
+  termsAndConditionsAccepted: boolean;
 }

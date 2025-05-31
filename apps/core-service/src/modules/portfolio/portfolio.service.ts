@@ -355,7 +355,7 @@ export class PortfolioService {
 
     let weeklyAvailability = new WeeklyAvailability();
 
-    weeklyAvailability.timezone = portfolio.timezone;
+    weeklyAvailability.timezone = portfolio.timezone ?? '';
 
     weeklyAvailability =
       await this.weeklyAvailabilityRepository.save(weeklyAvailability);
