@@ -136,8 +136,8 @@ export class UserController {
     return this.userService.findAllStudents();
   }
 
-  @Patch('accept-terms-and-conditions')
-  @Public()
+  @Patch('/terms-and-conditions/accept')
+  @AuthUser()
   acceptTermsAndConditions(@Req() req) {
     const loggedInUser = req.user as User;
     return this.userService.acceptTermsAndConditions(loggedInUser);

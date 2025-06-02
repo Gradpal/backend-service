@@ -52,15 +52,17 @@ export class AuthService {
     }
 
     let user: User = await this.userService.findByEmail(dto.email);
+
     if (user.status === EUserStatus.NOT_VERIFIED)
       this.exceptionHandler.throwBadRequest(_401.ACCOUNT_NOT_VERIFIED);
 
     const key = `${FAILED_LOGIN_ATTEMPT.name}:${user.email}`;
-    const failedAttempts = await this.brainService.remindMe<number>(key);
+    // const failedAttempts = await this.brainService.remindMe<number>(key);
+    // console.log('dto---->', dto);
 
-    if (failedAttempts !== null && failedAttempts >= MAX_FAILED_ATTEMPTS) {
-      this.exceptionHandler.throwUnauthorized(_401.ACCOUNT_LOCKED);
-    }
+    // if (failedAttempts !== null && failedAttempts >= MAX_FAILED_ATTEMPTS) {
+    //   this.exceptionHandler.throwUnauthorized(_401.ACCOUNT_LOCKED);
+    // }
 
     const passwordsMatch = await bcrypt.compare(
       dto.password.toString(),
