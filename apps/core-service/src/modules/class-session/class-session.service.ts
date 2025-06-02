@@ -35,6 +35,7 @@ import { MEETING_CACHE } from '@core-service/common/constants/brain.constants';
 import { SessionReviewDto } from './dto/session-review.dto';
 import { PortfolioService } from '../portfolio/portfolio.service';
 import { TimeSlot } from '../portfolio/weekly-availability/entities/weeky-availability.entity';
+import { timeStringToDate, timeStringToNextDate } from './helpers';
 
 @Injectable()
 export class ClassSessionService {
@@ -202,8 +203,17 @@ export class ClassSessionService {
 
   calculateSessionStartTimeAndEndTimeBasedOnTimeSlots(timeSlots: TimeSlot[]) {
     const startTime = timeSlots[0].startTime;
+    const startDay =
+      timeSlots[timeSlots.length - 1]?.daySchedule?.day ?? 'Monday';
+
     const endTime = timeSlots[timeSlots.length - 1].endTime;
-    return { startTime, endTime };
+    const endDay =
+      timeSlots[timeSlots.length - 1]?.daySchedule?.day ?? 'Monday';
+
+    return {
+      startTime: timeStringToNextDate(`${startDay}:${startTime}`).toISOString(),
+      endTime: timeStringToNextDate(`${endDay}:${endTime}`).toISOString(),
+    };
   }
 
   async findOne(id: string): Promise<ClassSession> {
