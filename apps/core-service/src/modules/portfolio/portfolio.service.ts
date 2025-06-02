@@ -102,7 +102,13 @@ export class PortfolioService {
   async findOne(id: string): Promise<Portfolio> {
     const portfolio: Portfolio = await this.portfolioRepository.findOne({
       where: { id },
-      relations: ['subjectTiers', 'subjects', 'user', 'subjectsOfInterest'],
+      relations: [
+        'subjectTiers',
+        'subjects',
+        'subjectTiers.subjects',
+        'user',
+        'subjectsOfInterest',
+      ],
     });
     if (!portfolio) {
       this.exceptionHandler.throwNotFound(_404.PORTFOLIO_NOT_FOUND);
@@ -558,6 +564,30 @@ export class PortfolioService {
       },
       relations: ['student', 'tutor'],
     });
+  }
+
+  async removeSubjectFromSubjectsOfInterestAndTiers(
+    portfolioId: string,
+    subjectId: string,
+  ) {
+    const portfolio = await this.findOne(portfolioId);
+    const subjectTier = portfolio.subjectTiers.find((tier) =>
+      tier.subjects.some((subject) => subject.id === subjectId),
+    );
+    if (!subjectTier) {
+      this.exceptionHandler.throwNotFound(_404.DATABASE_RECORD_NOT_FOUND);
+    }
+    subjectTier.subjects = subjectTier.subjects.filter(
+      (subject) => subject.id !== subjectId,
+    );
+    portfolio.subjectsOfInterest = portfolio.subjectsOfInterest.filter(
+      (subject) => subject.id !== subjectId,
+    );
+    const [updatedSubjectTier, updatedPortfolio] = await Promise.all([
+      this.subjectTierService.getSubjectTierRepository().save(subjectTier),
+      this.portfolioRepository.save(portfolio),
+    ]);
+    return updatedPortfolio;
   }
 
   async getSessionDetails(sessionId: string): Promise<SessionDetailsDto> {
