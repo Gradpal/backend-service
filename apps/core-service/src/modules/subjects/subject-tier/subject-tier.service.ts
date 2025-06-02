@@ -51,33 +51,31 @@ export class SubjectTierService {
 
     const currentSubjectTiers = portfolio.subjectTiers || [];
 
-    initializeSubjectTierDto.subjectTiers.forEach(
-      async (initialSubjectTier) => {
-        const subjects = await this.subjectRepository.findBy({
-          id: In(initialSubjectTier.subjectsIds),
+    for (const initialSubjectTier of initializeSubjectTierDto.subjectTiers) {
+      const subjects = await this.subjectRepository.findBy({
+        id: In(initialSubjectTier.subjectsIds),
+      });
+      const existingSubjectTier = currentSubjectTiers.find(
+        (tier) => tier.category === initialSubjectTier.category,
+      );
+      if (existingSubjectTier) {
+        existingSubjectTier.subjects = [
+          ...(existingSubjectTier.subjects || []),
+          ...subjects,
+        ];
+        existingSubjectTier.credits = initialSubjectTier.credits;
+        await this.subjectTierRepository.save(existingSubjectTier);
+      } else {
+        const subjectTier = await this.subjectTierRepository.create({
+          ...initialSubjectTier,
+          portfolio: { id: portfolioId },
+          subjects,
         });
-        const existingSubjectTier = currentSubjectTiers.find(
-          (tier) => tier.category === initialSubjectTier.category,
-        );
-        if (existingSubjectTier) {
-          existingSubjectTier.subjects = [
-            ...existingSubjectTier.subjects,
-            ...subjects,
-          ];
-          existingSubjectTier.credits = initialSubjectTier.credits;
-          await this.subjectTierRepository.save(existingSubjectTier);
-        } else {
-          const subjectTier = await this.subjectTierRepository.create({
-            ...initialSubjectTier,
-            portfolio: { id: portfolioId },
-            subjects,
-          });
-          const newSubjectTier =
-            await this.subjectTierRepository.save(subjectTier);
-          currentSubjectTiers.push(newSubjectTier);
-        }
-      },
-    );
+        const newSubjectTier =
+          await this.subjectTierRepository.save(subjectTier);
+        currentSubjectTiers.push(newSubjectTier);
+      }
+    }
     portfolio.subjectTiers = currentSubjectTiers;
     return await this.portfolioService.getPortfolioRepository().save(portfolio);
   }
