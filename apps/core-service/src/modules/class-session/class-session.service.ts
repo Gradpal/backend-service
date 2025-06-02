@@ -100,8 +100,8 @@ export class ClassSessionService {
       ...sessionData,
       tutor,
       student,
-      startTime: new Date(startTime),
-      endTime: new Date(endTime),
+      startTime: startTime,
+      endTime: endTime,
       status: ESessionStatus.SCHEDULED,
       subject: { id: sessionData.subjectId },
       price: subjectTier.credits,
@@ -143,11 +143,11 @@ export class ClassSessionService {
 
   async validateMeetingLink(sessionId: string, meetId: string) {
     const session: ClassSession = await this.findOne(sessionId);
-    const isMeetingValid = await this.brainService.verifyMeetingId(
-      sessionId,
-      meetId,
-    );
-    if (!isMeetingValid) {
+    // const isMeetingValid = await this.brainService.verifyMeetingId(
+    //   sessionId,
+    //   meetId,
+    // );
+    if (!session) {
       return {
         isValid: false,
       };

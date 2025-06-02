@@ -89,7 +89,6 @@ export class UserService {
         verificationUrl: `${this.configService.clientUrl}user/onboarding/verify-email/?otp=${otp}&email=${createUserDto.email}`,
       },
     );
-    console.log('Email sent');
   }
 
   async getUserEntityFromDto(createUserDto: CreateUserDTO) {

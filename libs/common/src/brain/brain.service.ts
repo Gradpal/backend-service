@@ -65,11 +65,16 @@ export class BrainService {
   async remindMe<T>(key: string): Promise<T> {
     const formattedKey = this.formattedKey(key);
 
-    const value = await this.redis.get(formattedKey);
-    if (value) {
-      return JSON.parse(value);
+    try {
+      const value = await this.redis.get(formattedKey);
+      if (value) {
+        return JSON.parse(value);
+      }
+      return null;
+    } catch (error) {
+      console.error(`Error retrieving key ${formattedKey} from Redis:`, error);
+      return null;
     }
-    return null;
   }
 
   /**

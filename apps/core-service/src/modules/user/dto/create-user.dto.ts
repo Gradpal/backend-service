@@ -5,6 +5,7 @@ import {
   IsOptional,
   IsPhoneNumber,
   IsString,
+  IsBoolean,
 } from 'class-validator';
 import { EUserRole } from '../enums/user-role.enum';
 
@@ -56,6 +57,11 @@ export class CreateUserDTO {
   @ApiProperty({ type: 'string', format: 'binary', required: false })
   @IsOptional()
   profilePicture?: Express.Multer.File;
+
+  @IsBoolean()
+  @ApiProperty({ default: false })
+  @IsOptional()
+  termsAndConditionsAccepted: boolean;
 }
 
 export class AcademicEmailVerificationDTO {
