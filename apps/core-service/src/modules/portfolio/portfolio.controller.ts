@@ -12,6 +12,7 @@ import {
   UploadedFile,
   Req,
   Patch,
+  Delete,
 } from '@nestjs/common';
 import { PortfolioService } from './portfolio.service';
 import {
@@ -127,6 +128,18 @@ export class PortfolioController {
       portfolioId,
       addSubjectsOfInterestDto,
       req.user as User,
+    );
+  }
+  @Delete(
+    ':portfolioId/remove-subject-from-subjects-of-interest-and-tiers/:subjectId',
+  )
+  removeSubjectFromSubjectsOfInterestAndTiers(
+    @Param('portfolioId') portfolioId: string,
+    @Param('subjectId') subjectId: string,
+  ) {
+    return this.portfolioService.removeSubjectFromSubjectsOfInterestAndTiers(
+      portfolioId,
+      subjectId,
     );
   }
 
