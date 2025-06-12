@@ -7,7 +7,10 @@ import { ExceptionHandler } from '@app/common/exceptions/exceptions.handler';
 import { plainToClass } from 'class-transformer';
 import { User } from '../user/entities/user.entity';
 import { EducationInstitutionRecord } from './entities/education-record.entity';
-import { CreatePortfolioDto } from './dto/create-portfolio.dto';
+import {
+  AddSessionLengthDto,
+  CreatePortfolioDto,
+} from './dto/create-portfolio.dto';
 import {
   UpdatePersonalStatementDto,
   UpdatePortfolioProfileDto,
@@ -793,5 +796,34 @@ export class PortfolioService {
     }
 
     return portfolio.subjectTiers?.[subject] || null;
+  }
+
+  async addSessionLength(
+    portfolioId: string,
+    sessionLengthDto: AddSessionLengthDto,
+  ) {
+    const portfolio = await this.findOne(portfolioId);
+    const currentSessionLengths = portfolio.sessionLengths || [];
+    if (!currentSessionLengths.includes(sessionLengthDto.sessionLength)) {
+      currentSessionLengths.push(sessionLengthDto.sessionLength);
+    }
+    portfolio.sessionLengths = currentSessionLengths;
+    return await this.portfolioRepository.save(portfolio);
+  }
+
+  async removeSessionLength(
+    portfolioId: string,
+    sessionLengthDto: AddSessionLengthDto,
+  ) {
+    const portfolio = await this.findOne(portfolioId);
+    const currentSessionLengths = portfolio.sessionLengths || [];
+    if (currentSessionLengths.includes(sessionLengthDto.sessionLength)) {
+      currentSessionLengths.splice(
+        currentSessionLengths.indexOf(sessionLengthDto.sessionLength),
+        1,
+      );
+    }
+    portfolio.sessionLengths = currentSessionLengths;
+    return await this.portfolioRepository.save(portfolio);
   }
 }

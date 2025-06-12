@@ -50,6 +50,7 @@ import {
 import { UserService } from '../user/user.service';
 import { CreateEducationInstitutionRecordDto } from './dto/create-education-record.dto';
 import { User } from '../user/entities/user.entity';
+import { AddSessionLengthDto } from './dto/create-portfolio.dto';
 @Controller('portfolio')
 @ApiBearerAuth()
 export class PortfolioController {
@@ -390,5 +391,29 @@ export class PortfolioController {
   @ApiResponse({ status: 200, type: String })
   getSubjectTier(@Param('id') id: string, @Query('subject') subject: string) {
     return this.portfolioService.getSubjectTier(id, subject);
+  }
+
+  @Post(':portfolioId/add-session-length')
+  @AuthUser()
+  addSessionLength(
+    @Param('portfolioId') portfolioId: string,
+    @Body() addSessionLengthDto: AddSessionLengthDto,
+  ) {
+    return this.portfolioService.addSessionLength(
+      portfolioId,
+      addSessionLengthDto,
+    );
+  }
+
+  @Delete(':portfolioId/remove-session-length')
+  @AuthUser()
+  removeSessionLength(
+    @Param('portfolioId') portfolioId: string,
+    @Body() removeSessionLengthDto: AddSessionLengthDto,
+  ) {
+    return this.portfolioService.removeSessionLength(
+      portfolioId,
+      removeSessionLengthDto,
+    );
   }
 }
