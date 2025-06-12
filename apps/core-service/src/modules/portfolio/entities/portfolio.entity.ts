@@ -189,4 +189,7 @@ export class Portfolio extends BaseEntity {
     default: EVerificationStatus.PENDING,
   })
   verificationStatus: EVerificationStatus;
+
+  @Column({ type: 'json', nullable: true })
+  sessionLengths: number[];
 }

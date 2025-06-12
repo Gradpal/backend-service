@@ -1,4 +1,4 @@
-import { IsString, IsOptional } from 'class-validator';
+import { IsString, IsOptional, IsNumber } from 'class-validator';
 import { User } from '../../user/entities/user.entity';
 
 export class CreatePortfolioDto {
@@ -24,4 +24,9 @@ export class CreatePortfolioDto {
   @IsString()
   @IsOptional()
   timezone?: string;
+}
+export class AddSessionLengthDto {
+  @IsNumber()
+  @IsOptional()
+  sessionLength?: number;
 }
