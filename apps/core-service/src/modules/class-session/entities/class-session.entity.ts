@@ -63,11 +63,9 @@ export class ClassSession extends BaseEntity {
   @Column({ default: null, nullable: true })
   extensionTime: Date;
 
-  @Column({ default: null, nullable: true })
-  startTime: Date;
-
-  @Column({ default: null, nullable: true })
-  endTime: Date;
+  @ManyToOne(() => TimeSlot)
+  @JoinColumn({ name: 'time_slot_id' })
+  timeSlot: TimeSlot;
 
   @Column({ default: null, nullable: true })
   meetLink: string;
@@ -81,9 +79,9 @@ export class ClassSession extends BaseEntity {
   @Column({ type: 'json', nullable: true })
   attachments: AttachmentDto[];
 
-  @ManyToMany(() => TimeSlot)
-  @JoinTable({ name: 'session_time_slots' })
-  timeSlots: TimeSlot[];
+  // @ManyToMany(() => TimeSlot)
+  // @JoinTable({ name: 'session_time_slots' })
+  // timeSlots: TimeSlot[];
 
   @Column({ type: 'json', nullable: true })
   sessionTimelines: SessionTimelineDto[];

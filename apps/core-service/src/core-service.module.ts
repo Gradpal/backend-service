@@ -20,6 +20,7 @@ import { ClassSessionModule } from './modules/class-session/class-session.module
 import { BookingModule } from './modules/booking/booking.module';
 import { PortfolioModule } from './modules/portfolio/portfolio.module';
 import { SubjectsModule } from './modules/subjects/subjects.module';
+import { SessionPackageModule } from './modules/session-package/session-package.module';
 
 @Module({
   imports: [
@@ -50,6 +51,7 @@ import { SubjectsModule } from './modules/subjects/subjects.module';
     BookingModule,
     PortfolioModule,
     SubjectsModule,
+    SessionPackageModule,
   ],
   providers: [
     {

@@ -36,6 +36,7 @@ import { SessionReviewDto } from './dto/session-review.dto';
 import { PortfolioService } from '../portfolio/portfolio.service';
 import { TimeSlot } from '../portfolio/weekly-availability/entities/weeky-availability.entity';
 import { timeStringToDate, timeStringToNextDate } from './helpers';
+import { SessionPackageService } from '../session-package/session-package.service';
 
 @Injectable()
 export class ClassSessionService {
@@ -52,6 +53,10 @@ export class ClassSessionService {
     @Inject(forwardRef(() => PortfolioService))
     private readonly portfolioService: PortfolioService,
   ) {}
+
+  async getClassSessionRepository() {
+    return this.classSessionRepository;
+  }
 
   async create(
     student: User,
@@ -97,49 +102,49 @@ export class ClassSessionService {
     const { startTime, endTime } =
       this.calculateSessionStartTimeAndEndTimeBasedOnTimeSlots(timeslots);
 
-    const session = this.classSessionRepository.create({
-      ...sessionData,
-      tutor,
-      student,
-      startTime: startTime,
-      endTime: endTime,
-      status: ESessionStatus.SCHEDULED,
-      subject: { id: sessionData.subjectId },
-      price: subjectTier.credits,
-      attachments: attachments,
-      timeSlots: timeslots,
-      sessionTimelines: [
-        {
-          type: SessionTimelineType.REQUEST_SUBMITTED,
-          description: 'Session request submitted',
-          actor: student,
-          createdAt: createdAt,
-          updatedAt: updatedAt,
-        },
-        {
-          type: SessionTimelineType.PAYMENT_PROCESSED,
-          description: 'Payment processed',
-          actor: student,
-          createdAt: createdAt,
-          updatedAt: updatedAt,
-        },
-      ],
-      goalDescription: sessionData.description,
-    });
+    for (const timeSlot of timeslots) {
+      const session = this.classSessionRepository.create({
+        ...sessionData,
+        tutor,
+        student,
+        status: ESessionStatus.SCHEDULED,
+        subject: { id: sessionData.subjectId },
+        price: subjectTier.credits,
+        attachments: attachments,
+        timeSlot: timeSlot,
+        sessionTimelines: [
+          {
+            type: SessionTimelineType.REQUEST_SUBMITTED,
+            description: 'Session request submitted',
+            actor: student,
+            createdAt: createdAt,
+            updatedAt: updatedAt,
+          },
+          {
+            type: SessionTimelineType.PAYMENT_PROCESSED,
+            description: 'Payment processed',
+            actor: student,
+            createdAt: createdAt,
+            updatedAt: updatedAt,
+          },
+        ],
+        goalDescription: sessionData.description,
+      });
 
-    student.credits -= subjectTier.credits;
+      student.credits -= subjectTier.credits;
 
-    const meetId = generateUUID();
-    const sessionMeetLink = `${this.configService.getMeetHost()}/join?sessionId=${session.id}&meetId=${meetId}`;
-    const key = `${MEETING_CACHE.name}:${session.id}`;
-    await this.brainService.memorize(key, meetId);
+      const meetId = generateUUID();
+      const sessionMeetLink = `${this.configService.getMeetHost()}/join?sessionId=${session.id}&meetId=${meetId}`;
+      const key = `${MEETING_CACHE.name}:${session.id}`;
+      await this.brainService.memorize(key, meetId);
 
-    session.meetLink = sessionMeetLink;
-    const [updatedStudent, savedSession] = await Promise.all([
-      this.userService.save(student),
-      this.classSessionRepository.save(session),
-    ]);
-    return savedSession;
+      session.meetLink = sessionMeetLink;
+      const [updatedStudent, savedSession] = await Promise.all([
+        this.userService.save(student),
+        this.classSessionRepository.save(session),
+      ]);
+      return savedSession;
+    }
   }
 
   async validateMeetingLink(sessionId: string, meetId: string) {
@@ -470,9 +475,9 @@ export class ClassSessionService {
       session.status = ESessionStatus.EXTENDED;
       const extensionTime = session.extensionTime;
       session.extensionTime = null;
-      session.endTime = new Date(
-        session.endTime.getTime() + extensionTime.getTime(),
-      );
+      session.timeSlot.endTime = timeStringToNextDate(
+        session.timeSlot.endTime,
+      ).toISOString();
     } else {
       session.extensionTime = null;
     }
@@ -489,14 +494,18 @@ export class ClassSessionService {
             id: user.id,
           },
           status: ESessionStatus.SCHEDULED,
-          startTime: MoreThanOrEqual(currentDate),
+          // timeSlot: {
+          //   startTime: MoreThanOrEqual(currentDate),
+          // },
         },
         {
           tutor: {
             id: user.id,
           },
           status: ESessionStatus.SCHEDULED,
-          startTime: MoreThanOrEqual(currentDate),
+          // timeSlot: {
+          //   startTime: MoreThanOrEqual(currentDate),
+          // },
         },
       ],
       relations: [
@@ -507,7 +516,9 @@ export class ClassSessionService {
         'subject',
       ],
       order: {
-        startTime: 'ASC',
+        timeSlot: {
+          startTime: 'ASC',
+        },
       },
       take: 3,
     });

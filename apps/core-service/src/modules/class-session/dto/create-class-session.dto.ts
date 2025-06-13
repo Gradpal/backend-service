@@ -2,7 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsOptional, IsString, IsUUID } from 'class-validator';
 import { BaseDto } from '@core-service/common/dtos/all.dto';
 
-export class CreateClassSessionDto extends BaseDto {
+export class CreateClassSessionPackageDto extends BaseDto {
   @ApiProperty({ description: 'Tutor ID' })
   @IsUUID()
   @IsNotEmpty()
