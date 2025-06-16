@@ -80,6 +80,10 @@ export const _400 = {
     code: 'STRIPE_ACCOUNT_RETRIEVAL_FAILED',
     message: 'Failed to retrieve Stripe account',
   },
+  PACKAGE_TYPE_ALREADY_EXISTS: {
+    code: 'PACKAGE_TYPE_ALREADY_EXISTS',
+    message: 'A package type with the same maximum sessions already exists',
+  },
 };
 
 // unauthorized
@@ -203,6 +207,10 @@ export const _404 = {
   CLASS_SESSION_NOT_FOUND: {
     code: 'CLASS_SESSION_NOT_FOUND',
     message: 'The requested class session was not found',
+  },
+  PACKAGE_TYPE_NOT_FOUND: {
+    code: 'PACKAGE_TYPE_NOT_FOUND',
+    message: 'The requested package type was not found',
   },
 };
 

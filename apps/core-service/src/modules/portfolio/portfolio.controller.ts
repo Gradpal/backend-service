@@ -51,6 +51,7 @@ import { UserService } from '../user/user.service';
 import { CreateEducationInstitutionRecordDto } from './dto/create-education-record.dto';
 import { User } from '../user/entities/user.entity';
 import { AddSessionLengthDto } from './dto/create-portfolio.dto';
+import { AddSessionTypeOfferingDto } from './dto/add-session-type-offering.dto';
 @Controller('portfolio')
 @ApiBearerAuth()
 export class PortfolioController {
@@ -414,6 +415,18 @@ export class PortfolioController {
     return this.portfolioService.removeSessionLength(
       portfolioId,
       removeSessionLengthDto,
+    );
+  }
+
+  @Post(':portfolioId/add-session-package-offering')
+  @AuthUser()
+  async addSessionPackageOffering(
+    @Param('portfolioId') portfolioId: string,
+    @Body() addSessionPackageOfferingDto: AddSessionTypeOfferingDto,
+  ) {
+    return this.portfolioService.addSessionPackageOffering(
+      portfolioId,
+      addSessionPackageOfferingDto,
     );
   }
 }
