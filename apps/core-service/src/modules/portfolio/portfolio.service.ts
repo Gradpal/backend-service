@@ -40,6 +40,8 @@ import {
 import { WeekDay } from './weekly-availability/enums/week-day.enum';
 import { SubjectTierService } from '../subjects/subject-tier/subject-tier.service';
 import { ETierCategory } from '../subjects/subject-tier/enums/tier-category.enum';
+import { AddSessionTypeOfferingDto } from './dto/add-session-type-offering.dto';
+import { SessionPackageService } from '../session-package/session-package.service';
 @Injectable()
 export class PortfolioService {
   constructor(
@@ -60,6 +62,7 @@ export class PortfolioService {
     private readonly subjectService: SubjectsService,
     private readonly sessionService: ClassSessionService,
     private readonly subjectTierService: SubjectTierService,
+    private readonly sessionPackageService: SessionPackageService,
   ) {}
 
   getPortfolioRepository() {
@@ -98,7 +101,13 @@ export class PortfolioService {
 
   async findAll(): Promise<Portfolio[]> {
     return this.portfolioRepository.find({
-      relations: ['subjectTiers', 'subjects', 'user', 'subjectsOfInterest'],
+      relations: [
+        'subjectTiers',
+        'sessionPackageOfferings',
+        'subjects',
+        'user',
+        'subjectsOfInterest',
+      ],
     });
   }
 
@@ -109,6 +118,7 @@ export class PortfolioService {
         'subjectTiers',
         'subjects',
         'subjectTiers.subjects',
+        'sessionPackageOfferings',
         'user',
         'subjectsOfInterest',
       ],
@@ -123,7 +133,7 @@ export class PortfolioService {
     console.log('loggedin user', user);
     return this.portfolioRepository.findOne({
       where: { user: { id: user.id } },
-      relations: ['subjectTiers'],
+      relations: ['subjectTiers', 'sessionPackageOfferings'],
     });
   }
 
@@ -808,6 +818,23 @@ export class PortfolioService {
       currentSessionLengths.push(sessionLengthDto.sessionLength);
     }
     portfolio.sessionLengths = currentSessionLengths;
+    return await this.portfolioRepository.save(portfolio);
+  }
+
+  async addSessionPackageOffering(
+    portfolioId: string,
+    addSessionTypeOfferingDto: AddSessionTypeOfferingDto,
+  ) {
+    const portfolio = await this.findOne(portfolioId);
+    const sessionPackageTypes = portfolio.sessionPackageTypes || [];
+    for (const sessionPackageTypeId of addSessionTypeOfferingDto.sessionPackageTypeIds) {
+      const sessionPackageType =
+        await this.sessionPackageService.findOnePackageType(
+          sessionPackageTypeId,
+        );
+      sessionPackageTypes.push(sessionPackageType);
+    }
+    portfolio.sessionPackageTypes = sessionPackageTypes;
     return await this.portfolioRepository.save(portfolio);
   }
 

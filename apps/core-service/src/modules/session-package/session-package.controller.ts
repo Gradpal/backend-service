@@ -4,11 +4,16 @@ import {
   CreateClassSessionPackageDto,
   CreatePackageTypeDto,
 } from './dto/create-session-package.dto';
+import { AuthUser } from '@core-service/decorators/auth.decorator';
+import { ApiOperation } from '@nestjs/swagger';
 
 @Controller('session-package')
 export class SessionPackageController {
   constructor(private readonly sessionPackageService: SessionPackageService) {}
 
+  @Post()
+  @ApiOperation({ summary: 'Create session package' })
+  @AuthUser()
   create(
     @Req() req,
     createClassSessionPackageDto: CreateClassSessionPackageDto,
