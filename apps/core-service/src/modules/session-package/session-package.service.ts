@@ -178,12 +178,15 @@ export class SessionPackageService {
   async addSessionDetailsToClassSession(
     classSessionId: string,
     addSessionsDetailsDto: AddSessionsDetailsDto,
+    files: {
+      supportingDocuments?: Express.Multer.File[];
+    },
   ) {
     const classSession = await this.findOneClassSession(classSessionId);
     classSession.goalDescription = addSessionsDetailsDto.goalDescription;
     classSession.urls = addSessionsDetailsDto.urls;
     const attachments = await this.minioService.uploadAttachments(
-      addSessionsDetailsDto.supportingDocuments,
+      files.supportingDocuments,
       classSession.attachments,
     );
     classSession.attachments = attachments;

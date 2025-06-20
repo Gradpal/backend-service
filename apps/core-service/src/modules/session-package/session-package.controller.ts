@@ -1,12 +1,31 @@
-import { Body, Controller, Get, Param, Post, Req } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Req,
+  UploadedFiles,
+  UseInterceptors,
+} from '@nestjs/common';
 import { SessionPackageService } from './session-package.service';
 import {
   CreateClassSessionPackageDto,
   CreatePackageTypeDto,
   AddSessionsDetailsDto,
 } from './dto/create-session-package.dto';
-import { AuthUser } from '@core-service/decorators/auth.decorator';
-import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import {
+  AuthUser,
+  PreAuthorize,
+} from '@core-service/decorators/auth.decorator';
+import {
+  ApiBearerAuth,
+  ApiConsumes,
+  ApiOperation,
+  ApiTags,
+} from '@nestjs/swagger';
+import { FileFieldsInterceptor } from '@nestjs/platform-express';
+import { EUserRole } from '../user/enums/user-role.enum';
 
 @Controller('session-package')
 @ApiTags('Session Package')
@@ -42,13 +61,23 @@ export class SessionPackageController {
   }
 
   @Post('sessions/:id/add-session-details')
+  @UseInterceptors(
+    FileFieldsInterceptor([{ name: 'supportingDocuments', maxCount: 10 }]),
+  )
+  @ApiConsumes('multipart/form-data')
+  @PreAuthorize(EUserRole.STUDENT)
   addSessionDetailsToClassSession(
     @Param('id') id: string,
     @Body() addSessionsDetailsDto: AddSessionsDetailsDto,
+    @UploadedFiles()
+    files: {
+      supportingDocuments?: Express.Multer.File[];
+    },
   ) {
     return this.sessionPackageService.addSessionDetailsToClassSession(
       id,
       addSessionsDetailsDto,
+      files,
     );
   }
 }
