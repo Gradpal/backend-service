@@ -13,7 +13,6 @@ import {
   UploadedFiles,
 } from '@nestjs/common';
 import { ClassSessionService } from './class-session.service';
-import { CreateClassSessionDto } from './dto/create-class-session.dto';
 import {
   ApiBearerAuth,
   ApiBody,
@@ -51,7 +50,6 @@ export class ClassSessionController {
   @ApiOperation({ summary: 'Create a new class session' })
   @ApiResponse({ status: 201, type: ClassSession })
   @ApiConsumes('multipart/form-data')
-  @ApiBody({ type: CreateClassSessionDto })
   @AuthUser()
   @UseInterceptors(
     FileInterceptor('supportingDocuments', {
@@ -61,21 +59,6 @@ export class ClassSessionController {
       },
     }),
   )
-  create(
-    @Body() createClassSessionDto: CreateClassSessionDto,
-    @Req() req,
-    @UploadedFiles() files: Express.Multer.File[],
-  ) {
-    createClassSessionDto.timeSlotIds = normalizeArray(
-      createClassSessionDto.timeSlotIds,
-    );
-    return this.classSessionService.create(
-      req.user as User,
-      createClassSessionDto,
-      files,
-    );
-  }
-
   @Get('all/mine')
   @ApiOperation({ summary: 'Get all class sessions' })
   @ApiQuery({ name: 'status', type: 'string', required: false })
@@ -106,23 +89,6 @@ export class ClassSessionController {
   findOne(@Param('id') id: string) {
     return this.classSessionService.findOne(id);
   }
-
-  @Patch(':id')
-  @ApiOperation({ summary: 'Update a class session' })
-  @ApiParam({ name: 'id', description: 'Class session ID' })
-  @ApiResponse({ status: 200, type: ClassSession })
-  update(
-    @Param('id') id: string,
-    @Body() updateClassSessionDto: Partial<CreateClassSessionDto>,
-    @Req() req,
-  ) {
-    return this.classSessionService.update(
-      req.user as User,
-      id,
-      updateClassSessionDto,
-    );
-  }
-
   @Delete(':id')
   @ApiOperation({ summary: 'Delete a class session' })
   @ApiParam({ name: 'id', description: 'Class session ID' })

@@ -31,12 +31,14 @@ export class SessionPackageService {
     private readonly sessionPackageRepository: Repository<SessionPackage>,
     @InjectRepository(PackageType)
     private readonly packageTypeRepository: Repository<PackageType>,
+    @InjectRepository(ClassSession)
+    private readonly classSessionRepository: Repository<ClassSession>,
     private readonly classSessionService: ClassSessionService,
     private readonly userService: UserService,
     private readonly exceptionHandler: ExceptionHandler,
     private readonly subjectTierService: SubjectTierService,
     private readonly weeklyAvailabilityService: WeeklyAvailabilityService,
-    private readonly classSessionRepository: Repository<ClassSession>,
+
     private readonly brainService: BrainService,
     private readonly minioService: MinioClientService,
     private readonly coreServiceConfigService: CoreServiceConfigService,
