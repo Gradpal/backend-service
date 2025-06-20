@@ -17,7 +17,6 @@ import { AttachmentDto } from '@app/common/dtos/attachment.dto';
 import { Subject } from '@core-service/modules/subjects/entities/subject.entity';
 import { SavedTutorDto } from '../dto/dashboard-response.dto';
 import { EVerificationStatus } from '../../user/enums/verification-status.enum';
-import { SessionPackage } from '@core-service/modules/session-package/entities/session-package.entity';
 import { PackageType } from '@core-service/modules/session-package/entities/package-type.entity';
 
 @Entity('portfolio')
