@@ -182,6 +182,7 @@ export class UserService {
         'portfolio',
         'portfolio.subjects',
         'portfolio.subjectTiers',
+        'portfolio.sessionPackageTypes',
         'timeSlots',
         'timeSlots.daySchedule',
         'timeSlots.daySchedule.weeklyAvailability',

@@ -428,7 +428,7 @@ export class PortfolioController {
     );
   }
 
-  @Delete(':portfolioId/remove-session-package-offering')
+  @Delete(':portfolioId/remove-session-package-offering/:sessionPackageTypeId')
   removeSessionPackageOffering(
     @Param('portfolioId') portfolioId: string,
     @Param('sessionPackageTypeId') sessionPackageTypeId: string,
