@@ -118,7 +118,7 @@ export class PortfolioService {
         'subjectTiers',
         'subjects',
         'subjectTiers.subjects',
-        'sessionPackageOfferings',
+        'sessionPackageTypes',
         'user',
         'subjectsOfInterest',
       ],
@@ -133,7 +133,7 @@ export class PortfolioService {
     console.log('loggedin user', user);
     return this.portfolioRepository.findOne({
       where: { user: { id: user.id } },
-      relations: ['subjectTiers', 'sessionPackageOfferings'],
+      relations: ['subjectTiers', 'sessionPackageTypes'],
     });
   }
 

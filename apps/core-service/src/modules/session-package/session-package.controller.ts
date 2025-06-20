@@ -5,9 +5,11 @@ import {
   CreatePackageTypeDto,
 } from './dto/create-session-package.dto';
 import { AuthUser } from '@core-service/decorators/auth.decorator';
-import { ApiOperation } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 
 @Controller('session-package')
+@ApiTags('Session Package')
+@ApiBearerAuth()
 export class SessionPackageController {
   constructor(private readonly sessionPackageService: SessionPackageService) {}
 
