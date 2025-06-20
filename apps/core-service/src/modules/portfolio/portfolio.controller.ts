@@ -395,7 +395,6 @@ export class PortfolioController {
   }
 
   @Post(':portfolioId/add-session-length')
-  @AuthUser()
   addSessionLength(
     @Param('portfolioId') portfolioId: string,
     @Body() addSessionLengthDto: AddSessionLengthDto,
@@ -407,7 +406,6 @@ export class PortfolioController {
   }
 
   @Delete(':portfolioId/remove-session-length')
-  @AuthUser()
   removeSessionLength(
     @Param('portfolioId') portfolioId: string,
     @Body() removeSessionLengthDto: AddSessionLengthDto,

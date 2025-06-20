@@ -15,6 +15,7 @@ import { DaySchedule } from './weekly-availability/entities/weeky-availability.e
 import { TimeSlot } from './weekly-availability/entities/weeky-availability.entity';
 import { WeeklyAvailability } from './weekly-availability/entities/weeky-availability.entity';
 import { WeeklyAvailabilityService } from './weekly-availability/weekly-availability';
+import { SessionPackageModule } from '../session-package/session-package.module';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { WeeklyAvailabilityService } from './weekly-availability/weekly-availabi
     ]),
     UserModule,
     MinioClientModule,
+    forwardRef(() => SessionPackageModule),
     forwardRef(() => SubjectsModule),
     forwardRef(() => ClassSessionModule),
   ],

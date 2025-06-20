@@ -8,7 +8,6 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { ClassSession } from './entities/class-session.entity';
-import { CreateClassSessionDto } from './dto/create-class-session.dto';
 import { UserService } from '../user/user.service';
 import {
   ESessionJoinStatus,
@@ -37,6 +36,7 @@ import { PortfolioService } from '../portfolio/portfolio.service';
 import { TimeSlot } from '../portfolio/weekly-availability/entities/weeky-availability.entity';
 import { timeStringToDate, timeStringToNextDate } from './helpers';
 import { SessionPackageService } from '../session-package/session-package.service';
+import { CreateClassSessionPackageDto } from './dto/create-class-session.dto';
 
 @Injectable()
 export class ClassSessionService {
@@ -56,95 +56,6 @@ export class ClassSessionService {
 
   async getClassSessionRepository() {
     return this.classSessionRepository;
-  }
-
-  async create(
-    student: User,
-    createClassSessionDto: CreateClassSessionDto,
-    files: Express.Multer.File[],
-  ): Promise<ClassSession> {
-    const { tutorId, ...sessionData } = createClassSessionDto;
-
-    const timeSlotIds = normalizeArray(createClassSessionDto.timeSlotIds);
-    createClassSessionDto.urls = normalizeArray(createClassSessionDto.urls);
-
-    const tutor = await this.userService.findOne(tutorId);
-    if (!tutor) {
-      this.exceptionHandler.throwNotFound(_404.TUTOR_NOT_FOUND);
-    }
-    const subjectTier =
-      await this.subjectTierService.findSubjectTierWhichHasSubjectByTutorId(
-        tutor.id,
-        sessionData.subjectId,
-      );
-
-    if (!subjectTier) {
-      this.exceptionHandler.throwNotFound(_404.SUBJECT_TIER_NOT_FOUND);
-    }
-
-    const attachments = await this.minioService.uploadAttachments(files, []);
-
-    const timeslots = [];
-
-    if (timeSlotIds.length > 0) {
-      for (const timeSlotId of timeSlotIds) {
-        const timeSlot =
-          await this.weeklyAvailabilityService.findOne(timeSlotId);
-        timeslots.push(timeSlot);
-      }
-    }
-
-    const createdAt = new Date();
-    const updatedAt = createdAt;
-    sessionData.id = generateUUID();
-    sessionData.createdAt = new Date();
-    sessionData.updatedAt = sessionData.createdAt;
-    const { startTime, endTime } =
-      this.calculateSessionStartTimeAndEndTimeBasedOnTimeSlots(timeslots);
-
-    for (const timeSlot of timeslots) {
-      const session = this.classSessionRepository.create({
-        ...sessionData,
-        tutor,
-        student,
-        status: ESessionStatus.SCHEDULED,
-        subject: { id: sessionData.subjectId },
-        price: subjectTier.credits,
-        attachments: attachments,
-        timeSlot: timeSlot,
-        sessionTimelines: [
-          {
-            type: SessionTimelineType.REQUEST_SUBMITTED,
-            description: 'Session request submitted',
-            actor: student,
-            createdAt: createdAt,
-            updatedAt: updatedAt,
-          },
-          {
-            type: SessionTimelineType.PAYMENT_PROCESSED,
-            description: 'Payment processed',
-            actor: student,
-            createdAt: createdAt,
-            updatedAt: updatedAt,
-          },
-        ],
-        goalDescription: sessionData.description,
-      });
-
-      student.credits -= subjectTier.credits;
-
-      const meetId = generateUUID();
-      const sessionMeetLink = `${this.configService.getMeetHost()}/join?sessionId=${session.id}&meetId=${meetId}`;
-      const key = `${MEETING_CACHE.name}:${session.id}`;
-      await this.brainService.memorize(key, meetId);
-
-      session.meetLink = sessionMeetLink;
-      const [updatedStudent, savedSession] = await Promise.all([
-        this.userService.save(student),
-        this.classSessionRepository.save(session),
-      ]);
-      return savedSession;
-    }
   }
 
   async validateMeetingLink(sessionId: string, meetId: string) {
@@ -362,7 +273,7 @@ export class ClassSessionService {
   async update(
     student: User,
     id: string,
-    updateData: Partial<CreateClassSessionDto>,
+    updateData: Partial<CreateClassSessionPackageDto>,
   ): Promise<ClassSession> {
     const session = await this.findOne(id);
 
