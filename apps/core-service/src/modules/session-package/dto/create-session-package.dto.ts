@@ -1,4 +1,3 @@
-import { BaseDto } from '@core-service/common/dtos/all.dto';
 import { ApiProperty } from '@nestjs/swagger';
 import {
   IsNotEmpty,

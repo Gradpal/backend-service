@@ -427,4 +427,15 @@ export class PortfolioController {
       addSessionPackageOfferingDto,
     );
   }
+
+  @Delete(':portfolioId/remove-session-package-offering')
+  removeSessionPackageOffering(
+    @Param('portfolioId') portfolioId: string,
+    @Param('sessionPackageTypeId') sessionPackageTypeId: string,
+  ) {
+    return this.portfolioService.removeSessionPackageOffering(
+      portfolioId,
+      sessionPackageTypeId,
+    );
+  }
 }

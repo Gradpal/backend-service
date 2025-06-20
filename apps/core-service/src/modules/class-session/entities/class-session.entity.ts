@@ -36,7 +36,7 @@ export class ClassSession extends BaseEntity {
   @Column({ type: 'decimal', precision: 10, scale: 2, nullable: false })
   price: number;
 
-  @Column()
+  @Column({ nullable: true })
   goalDescription: string;
 
   @Column({ nullable: true, type: 'json' })
