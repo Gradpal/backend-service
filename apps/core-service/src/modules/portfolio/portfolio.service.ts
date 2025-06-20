@@ -838,6 +838,18 @@ export class PortfolioService {
     return await this.portfolioRepository.save(portfolio);
   }
 
+  async removeSessionPackageOffering(
+    portfolioId: string,
+    sessionPackageTypeId: string,
+  ) {
+    const portfolio = await this.findOne(portfolioId);
+    const sessionPackageTypes = portfolio.sessionPackageTypes || [];
+    portfolio.sessionPackageTypes = sessionPackageTypes.filter(
+      (sessionPackageType) => sessionPackageType.id !== sessionPackageTypeId,
+    );
+    return await this.portfolioRepository.save(portfolio);
+  }
+
   async removeSessionLength(
     portfolioId: string,
     sessionLengthDto: AddSessionLengthDto,

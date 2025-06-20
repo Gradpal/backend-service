@@ -18,7 +18,7 @@ export class SessionPackageController {
   @AuthUser()
   create(
     @Req() req,
-    createClassSessionPackageDto: CreateClassSessionPackageDto,
+    @Body() createClassSessionPackageDto: CreateClassSessionPackageDto,
   ) {
     return this.sessionPackageService.create(
       req.user,
