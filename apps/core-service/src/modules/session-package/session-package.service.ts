@@ -22,6 +22,7 @@ import { PackageType } from './entities/package-type.entity';
 import {
   CreateClassSessionPackageDto,
   CreatePackageTypeDto,
+  AddSessionsDetailsDto,
 } from './dto/create-session-package.dto';
 
 @Injectable()
@@ -165,5 +166,29 @@ export class SessionPackageService {
       this.exceptionHandler.throwNotFound(_404.PACKAGE_TYPE_NOT_FOUND);
     }
     return packageType;
+  }
+
+  async findOneClassSession(id: string) {
+    const classSession = await this.classSessionRepository.findOne({
+      where: { id },
+    });
+    return classSession;
+  }
+
+  async addSessionDetailsToClassSession(
+    classSessionId: string,
+    addSessionsDetailsDto: AddSessionsDetailsDto,
+  ) {
+    const classSession = await this.findOneClassSession(classSessionId);
+    classSession.goalDescription = addSessionsDetailsDto.goalDescription;
+    classSession.urls = addSessionsDetailsDto.urls;
+    const attachments = await this.minioService.uploadAttachments(
+      addSessionsDetailsDto.supportingDocuments,
+      classSession.attachments,
+    );
+    classSession.attachments = attachments;
+    classSession.notes = addSessionsDetailsDto.goalDescription;
+    classSession.updatedAt = new Date();
+    return this.classSessionRepository.save(classSession);
   }
 }

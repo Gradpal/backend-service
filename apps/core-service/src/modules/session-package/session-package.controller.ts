@@ -3,6 +3,7 @@ import { SessionPackageService } from './session-package.service';
 import {
   CreateClassSessionPackageDto,
   CreatePackageTypeDto,
+  AddSessionsDetailsDto,
 } from './dto/create-session-package.dto';
 import { AuthUser } from '@core-service/decorators/auth.decorator';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
@@ -38,5 +39,16 @@ export class SessionPackageController {
   @Get('package-type/:id')
   findOnePackageType(@Param('id') id: string) {
     return this.sessionPackageService.findOnePackageType(id);
+  }
+
+  @Post('sessions/:id/add-session-details')
+  addSessionDetailsToClassSession(
+    @Param('id') id: string,
+    @Body() addSessionsDetailsDto: AddSessionsDetailsDto,
+  ) {
+    return this.sessionPackageService.addSessionDetailsToClassSession(
+      id,
+      addSessionsDetailsDto,
+    );
   }
 }

@@ -1,10 +1,14 @@
+import { AttachmentDto } from '@app/common/dtos/attachment.dto';
+import { DESCRIPTION_MAX_LENGTH } from '@core-service/common/constants/all.constants';
 import { ApiProperty } from '@nestjs/swagger';
 import {
+  IsArray,
   IsNotEmpty,
   IsNumber,
   IsOptional,
   IsString,
   IsUUID,
+  MaxLength,
 } from 'class-validator';
 
 export class CreatePackageTypeDto {
@@ -48,4 +52,36 @@ export class CreateClassSessionPackageDto {
   @ApiProperty({ description: 'Time slot IDs', required: false })
   @IsOptional()
   timeSlotIds?: string[];
+}
+
+export class AddSessionsDetailsDto {
+  @ApiProperty({ description: 'URLs' })
+  @IsArray()
+  @IsOptional()
+  urls?: string[];
+
+  @IsOptional()
+  @ApiProperty({
+    description: 'This is not needed to create this request - ingore it',
+  })
+  attachments?: AttachmentDto[];
+
+  @IsOptional()
+  @MaxLength(DESCRIPTION_MAX_LENGTH)
+  @ApiProperty({ maxLength: DESCRIPTION_MAX_LENGTH, required: false })
+  @IsString()
+  @IsNotEmpty()
+  goalDescription: string;
+
+  @IsOptional()
+  @ApiProperty({
+    description: 'Supporting documents - If any',
+    type: 'array',
+    items: {
+      type: 'string',
+      format: 'binary',
+    },
+    required: false,
+  })
+  supportingDocuments?: Express.Multer.File[];
 }
