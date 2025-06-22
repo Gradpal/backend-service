@@ -52,13 +52,11 @@ export class SessionPackageService {
   async create(
     student: User,
     createClassSessionPackageDto: CreateClassSessionPackageDto,
-  ): Promise<SessionPackage> {
+  ) {
     const packageType = await this.findOnePackageType(
       createClassSessionPackageDto.packageTypeId,
     );
-    const sessionPackage = this.sessionPackageRepository.create({
-      sessionPackageType: packageType,
-    });
+
     const sessions = [];
 
     const { ...sessionData } = createClassSessionPackageDto;
@@ -78,6 +76,12 @@ export class SessionPackageService {
 
     const createdAt = new Date();
     const updatedAt = createdAt;
+    let sessionPackage = this.sessionPackageRepository.create({
+      sessionPackageType: packageType,
+      tutor: student,
+      student: student,
+    });
+    sessionPackage = await this.sessionPackageRepository.save(sessionPackage);
 
     for (const timeSlot of timeslots) {
       const subjectTier =
@@ -85,6 +89,9 @@ export class SessionPackageService {
           timeSlot.owner.id,
           sessionData.subjectId,
         );
+      sessionPackage.tutor = timeSlot.owner;
+      sessionPackage = await this.sessionPackageRepository.save(sessionPackage);
+
       // Price calculation
       const price =
         (subjectTier.credits *
@@ -94,12 +101,11 @@ export class SessionPackageService {
 
       const session = this.classSessionRepository.create({
         ...sessionData,
-        tutor: timeSlot.owner,
-        student,
         status: ESessionStatus.SCHEDULED,
         subject: { id: sessionData.subjectId },
         price: price,
         timeSlot: timeSlot,
+        sessionPackage: sessionPackage,
         sessionTimelines: [
           {
             type: SessionTimelineType.REQUEST_SUBMITTED,
@@ -132,8 +138,6 @@ export class SessionPackageService {
         this.classSessionRepository.save(session),
       ]);
     }
-    sessionPackage.classSessions = sessions;
-    return this.sessionPackageRepository.save(sessionPackage);
   }
 
   // Session Package Type CRUD
@@ -193,5 +197,152 @@ export class SessionPackageService {
     classSession.notes = addSessionsDetailsDto.goalDescription;
     classSession.updatedAt = new Date();
     return this.classSessionRepository.save(classSession);
+  }
+
+  async findAllSessionPackagesLoggedInUser(user: User) {
+    return this.sessionPackageRepository.find({
+      where: [{ tutor: user }, { student: user }],
+      relations: ['sessionPackageType', 'tutor', 'student', 'classSessions'],
+      select: {
+        id: true,
+        sessionPackageType: {
+          id: true,
+        },
+        tutor: {
+          id: true,
+          firstName: true,
+          lastName: true,
+          profilePicture: true,
+        },
+        student: {
+          id: true,
+          firstName: true,
+          lastName: true,
+          profilePicture: true,
+        },
+        classSessions: {
+          id: true,
+          status: true,
+          timeSlot: {
+            startTime: true,
+            endTime: true,
+            isBooked: true,
+            daySchedule: {
+              day: true,
+              weeklyAvailability: {
+                timezone: true,
+              },
+            },
+            owner: {
+              id: true,
+              firstName: true,
+              lastName: true,
+            },
+          },
+        },
+      },
+    });
+  }
+
+  async getSessionPackageById(id: string) {
+    return this.sessionPackageRepository.findOne({
+      where: { id: id },
+      relations: ['sessionPackageType', 'tutor', 'student', 'classSessions'],
+      select: {
+        id: true,
+        sessionPackageType: {
+          id: true,
+        },
+        tutor: {
+          id: true,
+          firstName: true,
+          lastName: true,
+          profilePicture: true,
+        },
+        student: {
+          id: true,
+          firstName: true,
+          lastName: true,
+          profilePicture: true,
+        },
+        classSessions: {
+          id: true,
+          status: true,
+          timeSlot: {
+            startTime: true,
+            endTime: true,
+            isBooked: true,
+            daySchedule: {
+              day: true,
+              weeklyAvailability: {
+                timezone: true,
+              },
+            },
+            owner: {
+              id: true,
+              firstName: true,
+              lastName: true,
+            },
+          },
+        },
+      },
+    });
+  }
+
+  async findAllClassSessionByPackageIdAndLoggedInUserAndStatus(
+    packageId: string,
+    user: User,
+    status: ESessionStatus,
+  ) {
+    return this.classSessionRepository.find({
+      where: {
+        status: status,
+        sessionPackage: [
+          {
+            id: packageId,
+            student: user,
+          },
+          {
+            id: packageId,
+            tutor: user,
+          },
+        ],
+      },
+      relations: [
+        'sessionPackage',
+        'sessionPackage.tutor',
+        'sessionPackage.student',
+        'sessionPackage.tutor.portfolio',
+        'sessionPackage.student.portfolio',
+      ],
+      select: {
+        id: true,
+        status: true,
+        timeSlot: {
+          startTime: true,
+        },
+        subject: {
+          id: true,
+          name: true,
+        },
+        price: true,
+        sessionPackage: {
+          id: true,
+          sessionPackageType: {
+            id: true,
+          },
+        },
+        sessionTimelines: {
+          type: true,
+          description: true,
+          actor: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            profilePicture: true,
+          },
+        },
+      },
+    });
   }
 }

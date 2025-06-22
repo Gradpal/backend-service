@@ -70,7 +70,7 @@ export class ClassSessionService {
       };
     }
     return {
-      sessionTitle: `Session with ${session.tutor?.firstName ?? session.tutor?.lastName} about ${session.subject?.name}`,
+      sessionTitle: `Session with ${session.sessionPackage?.tutor?.firstName ?? session.sessionPackage?.tutor?.lastName} about ${session.subject?.name}`,
       isValid: true,
     };
   }
@@ -136,10 +136,11 @@ export class ClassSessionService {
     const session = await this.classSessionRepository.findOne({
       where: { id },
       relations: [
-        'tutor',
-        'student',
-        'tutor.portfolio',
-        'student.portfolio',
+        'sessionPackage',
+        'sessionPackage.tutor',
+        'sessionPackage.student',
+        'sessionPackage.tutor.portfolio',
+        'sessionPackage.student.portfolio',
         'subject',
       ],
     });
@@ -161,7 +162,10 @@ export class ClassSessionService {
     if (session.status == ESessionStatus.COMPLETED) {
       this.exceptionHandler.throwBadRequest(_400.SESSION_COMPLETED);
     }
-    if (session.student.id !== user.id && session.tutor.id !== user.id) {
+    if (
+      session.sessionPackage.student.id !== user.id &&
+      session.sessionPackage.tutor.id !== user.id
+    ) {
       this.exceptionHandler.throwBadRequest(_403.SESSION_NOT_YOURS);
     }
     const isUserTutor = user.role == EUserRole.TUTOR;
@@ -192,13 +196,14 @@ export class ClassSessionService {
     tutorId: string,
   ): Promise<ClassSession> {
     return this.classSessionRepository.findOne({
-      where: { id: sessionId, tutor: { id: tutorId } },
+      where: { id: sessionId, sessionPackage: { tutor: { id: tutorId } } },
       relations: [
-        'tutor',
-        'student',
+        'sessionPackage',
+        'sessionPackage.tutor',
+        'sessionPackage.student',
         'subject',
-        'tutor.portfolio',
-        'student.portfolio',
+        'sessionPackage.tutor.portfolio',
+        'sessionPackage.student.portfolio',
       ],
     });
   }
@@ -224,7 +229,10 @@ export class ClassSessionService {
 
   async leaveSession(sessionId: string, user: User): Promise<ClassSession> {
     const session = await this.findOne(sessionId);
-    if (session.student.id !== user.id && session.tutor.id !== user.id) {
+    if (
+      session.sessionPackage.student.id !== user.id &&
+      session.sessionPackage.tutor.id !== user.id
+    ) {
       this.exceptionHandler.throwBadRequest(_403.SESSION_NOT_YOURS);
     }
     if (session.joinStatus == ESessionJoinStatus.NONE_JOINED) {
@@ -247,7 +255,7 @@ export class ClassSessionService {
   }
   async postponeSession(sessionId: string, user: User): Promise<ClassSession> {
     const session = await this.findOne(sessionId);
-    if (session.tutor.id !== user.id) {
+    if (session.sessionPackage.tutor.id !== user.id) {
       this.exceptionHandler.throwBadRequest(_403.SESSION_NOT_YOURS);
     }
     session.status = ESessionStatus.POSTPONED;
@@ -260,7 +268,7 @@ export class ClassSessionService {
     cancelLessonDto: CancelLessonDto,
   ): Promise<ClassSession> {
     const session = await this.findOne(sessionId);
-    if (session.tutor.id !== user.id) {
+    if (session.sessionPackage.tutor.id !== user.id) {
       this.exceptionHandler.throwBadRequest(_403.SESSION_NOT_YOURS);
     }
     if (session.status != ESessionStatus.SCHEDULED) {
@@ -282,10 +290,10 @@ export class ClassSessionService {
       if (!tutor) {
         throw new NotFoundException('Tutor not found');
       }
-      session.tutor = tutor;
+      session.sessionPackage.tutor = tutor;
     }
 
-    if (student.id !== session.student.id) {
+    if (student.id !== session.sessionPackage.student.id) {
       throw new ForbiddenException(
         'You are not allowed to update this session',
       );
@@ -302,12 +310,13 @@ export class ClassSessionService {
 
   async findByTutor(tutorId: string): Promise<ClassSession[]> {
     return this.classSessionRepository.find({
-      where: { tutor: { id: tutorId } },
+      where: { sessionPackage: { tutor: { id: tutorId } } },
       relations: [
-        'tutor',
-        'student',
-        'tutor.portfolio',
-        'student.portfolio',
+        'sessionPackage',
+        'sessionPackage.tutor',
+        'sessionPackage.student',
+        'sessionPackage.tutor.portfolio',
+        'sessionPackage.student.portfolio',
         'subject',
       ],
     });
@@ -315,12 +324,13 @@ export class ClassSessionService {
 
   async findByStudent(studentId: string): Promise<ClassSession[]> {
     return this.classSessionRepository.find({
-      where: { student: { id: studentId } },
+      where: { sessionPackage: { student: { id: studentId } } },
       relations: [
-        'tutor',
-        'student',
-        'tutor.portfolio',
-        'student.portfolio',
+        'sessionPackage',
+        'sessionPackage.tutor',
+        'sessionPackage.student',
+        'sessionPackage.tutor.portfolio',
+        'sessionPackage.student.portfolio',
         'subject',
       ],
     });
@@ -341,7 +351,7 @@ export class ClassSessionService {
   ): Promise<ClassSession> {
     const session: ClassSession = await this.findOne(sessionId);
     session.sessionReview = reviewSessionDto;
-    const tutorPortfolio = session.tutor.portfolio;
+    const tutorPortfolio = session.sessionPackage.tutor.portfolio;
 
     tutorPortfolio.rating = reviewSessionDto.rating;
     const portfolioReviews = tutorPortfolio.reviews || [];
@@ -360,7 +370,7 @@ export class ClassSessionService {
     requestSessionExtensionDto: RequestSessionExtensionDto,
   ): Promise<ClassSession> {
     const session: ClassSession = await this.findOne(sessionId);
-    if (session.tutor.id !== user.id) {
+    if (session.sessionPackage.tutor.id !== user.id) {
       this.exceptionHandler.throwBadRequest(_403.SESSION_NOT_YOURS);
     }
     if (session.status != ESessionStatus.IN_PROGRESS) {
@@ -376,7 +386,7 @@ export class ClassSessionService {
     accept: boolean,
   ): Promise<ClassSession> {
     const session: ClassSession = await this.findOne(sessionId);
-    if (session.tutor.id !== user.id) {
+    if (session.sessionPackage.tutor.id !== user.id) {
       this.exceptionHandler.throwBadRequest(_403.SESSION_NOT_YOURS);
     }
     if (session.status != ESessionStatus.IN_PROGRESS) {
@@ -401,8 +411,10 @@ export class ClassSessionService {
     return this.classSessionRepository.find({
       where: [
         {
-          student: {
-            id: user.id,
+          sessionPackage: {
+            student: {
+              id: user.id,
+            },
           },
           status: ESessionStatus.SCHEDULED,
           // timeSlot: {
@@ -410,8 +422,10 @@ export class ClassSessionService {
           // },
         },
         {
-          tutor: {
-            id: user.id,
+          sessionPackage: {
+            tutor: {
+              id: user.id,
+            },
           },
           status: ESessionStatus.SCHEDULED,
           // timeSlot: {
@@ -420,10 +434,11 @@ export class ClassSessionService {
         },
       ],
       relations: [
-        'tutor',
-        'student',
-        'tutor.portfolio',
-        'student.portfolio',
+        'sessionPackage',
+        'sessionPackage.tutor',
+        'sessionPackage.student',
+        'sessionPackage.tutor.portfolio',
+        'sessionPackage.student.portfolio',
         'subject',
       ],
       order: {

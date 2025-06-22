@@ -26,6 +26,7 @@ import {
 } from '@nestjs/swagger';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { EUserRole } from '../user/enums/user-role.enum';
+import { ESessionStatus } from '../class-session/enums/session-status.enum';
 
 @Controller('session-package')
 @ApiTags('Session Package')
@@ -78,6 +79,30 @@ export class SessionPackageController {
       id,
       addSessionsDetailsDto,
       files,
+    );
+  }
+
+  @Get()
+  findAllSessionPackagesLoggedInUser(@Req() req) {
+    return this.sessionPackageService.findAllSessionPackagesLoggedInUser(
+      req.user,
+    );
+  }
+
+  @Get(':id')
+  getSessionPackageById(@Param('id') id: string) {
+    return this.sessionPackageService.getSessionPackageById(id);
+  }
+
+  @Get(':id/class-sessions')
+  findAllClassSessionByPackageIdAndLoggedInUserAndStatus(
+    @Param('id') id: string,
+    @Req() req,
+  ) {
+    return this.sessionPackageService.findAllClassSessionByPackageIdAndLoggedInUserAndStatus(
+      id,
+      req.user,
+      ESessionStatus.SCHEDULED,
     );
   }
 }

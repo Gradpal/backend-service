@@ -73,9 +73,19 @@ export class ComplaintsService {
   async getMyComplaints(user: User) {
     return this.complaintRepository.find({
       where: {
-        session: [{ student: { id: user.id } }, { tutor: { id: user.id } }],
+        session: {
+          sessionPackage: [
+            { student: { id: user.id } },
+            { tutor: { id: user.id } },
+          ],
+        },
       },
-      relations: ['session'],
+      relations: [
+        'session',
+        'session.sessionPackage',
+        'session.sessionPackage.tutor',
+        'session.sessionPackage.student',
+      ],
     });
   }
 }
