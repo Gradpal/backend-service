@@ -706,6 +706,8 @@ export class PortfolioService {
       .leftJoinAndSelect('portfolio.user', 'user')
       .leftJoinAndSelect('user.timeSlots', 'timeSlots')
       .leftJoinAndSelect('timeSlots.daySchedule', 'daySchedule')
+      .leftJoinAndSelect('portfolio.sessionPackageTypes', 'sessionPackageTypes')
+
       .leftJoinAndSelect('daySchedule.weeklyAvailability', 'weeklyAvailability')
       .leftJoinAndSelect('portfolio.subjectTiers', 'subjectTier')
       .leftJoinAndSelect('subjectTier.subjects', 'subjects')
