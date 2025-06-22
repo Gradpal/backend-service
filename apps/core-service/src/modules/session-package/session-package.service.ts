@@ -138,6 +138,7 @@ export class SessionPackageService {
         this.classSessionRepository.save(session),
       ]);
     }
+    return await this.getSessionPackageById(sessionPackage.id);
   }
 
   // Session Package Type CRUD
@@ -202,17 +203,28 @@ export class SessionPackageService {
   async findAllSessionPackagesLoggedInUser(user: User) {
     return this.sessionPackageRepository.find({
       where: [{ tutor: user }, { student: user }],
-      relations: ['sessionPackageType', 'tutor', 'student', 'classSessions'],
+      relations: [
+        'sessionPackageType',
+        'tutor',
+        'tutor.portfolio',
+        'student',
+        'student.portfolio',
+        'classSessions',
+        'classSessions.timeSlot',
+        'classSessions.subject',
+      ],
       select: {
         id: true,
         sessionPackageType: {
           id: true,
+          maximumSessions: true,
         },
         tutor: {
           id: true,
           firstName: true,
           lastName: true,
           profilePicture: true,
+          role: true,
         },
         student: {
           id: true,
@@ -223,6 +235,10 @@ export class SessionPackageService {
         classSessions: {
           id: true,
           status: true,
+          subject: {
+            id: true,
+            name: true,
+          },
           timeSlot: {
             startTime: true,
             endTime: true,
@@ -247,11 +263,22 @@ export class SessionPackageService {
   async getSessionPackageById(id: string) {
     return this.sessionPackageRepository.findOne({
       where: { id: id },
-      relations: ['sessionPackageType', 'tutor', 'student', 'classSessions'],
+      relations: [
+        'sessionPackageType',
+        'tutor',
+        'student',
+        'classSessions',
+        'classSessions.timeSlot',
+        'classSessions.timeSlot.daySchedule',
+        'classSessions.timeSlot.daySchedule.weeklyAvailability',
+        'classSessions.timeSlot.owner',
+        'classSessions.subject',
+      ],
       select: {
         id: true,
         sessionPackageType: {
           id: true,
+          maximumSessions: true,
         },
         tutor: {
           id: true,
@@ -281,6 +308,7 @@ export class SessionPackageService {
             owner: {
               id: true,
               firstName: true,
+              role: true,
               lastName: true,
             },
           },
