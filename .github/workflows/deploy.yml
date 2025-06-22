@@ -47,4 +47,7 @@ jobs:
 
             # Cleanup
             docker system prune -f
+
+            # docker exec -it redis redis-cli SLAVEOF NO ONE
+            # docker exec -it redis redis-cli INFO replication
           EOF

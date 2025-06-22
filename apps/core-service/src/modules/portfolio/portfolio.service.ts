@@ -712,7 +712,8 @@ export class PortfolioService {
       .leftJoinAndSelect('portfolio.subjectTiers', 'subjectTier')
       .leftJoinAndSelect('subjectTier.subjects', 'subjects')
       .where('user.role = :role', { role: EUserRole.TUTOR })
-      .andWhere('portfolio.timeSlots IS NOT NULL')
+      .andWhere('user.timeSlots IS NOT NULL')
+      //
       .andWhere('portfolio.sessionPackageTypes IS NOT NULL')
       .andWhere('portfolio.sessionLengths IS NOT NULL');
 
