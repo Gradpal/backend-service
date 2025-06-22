@@ -18,17 +18,10 @@ import { AttachmentDto } from '@app/common/dtos/attachment.dto';
 import { TimeSlot } from '@core-service/modules/portfolio/weekly-availability/entities/weeky-availability.entity';
 import { SessionTimelineDto } from '../dto/session-timeline.dto';
 import { SessionReviewDto } from '../dto/session-review.dto';
+import { SessionPackage } from '@core-service/modules/session-package/entities/session-package.entity';
 
 @Entity()
 export class ClassSession extends BaseEntity {
-  @ManyToOne(() => User)
-  @JoinColumn({ name: 'tutor_id' })
-  tutor: User;
-
-  @ManyToOne(() => User)
-  @JoinColumn({ name: 'student_id' })
-  student: User;
-
   @ManyToOne(() => Subject)
   @JoinColumn({ name: 'subject_id' })
   subject: Subject;
@@ -88,4 +81,11 @@ export class ClassSession extends BaseEntity {
 
   @Column({ type: 'json', nullable: true })
   sessionReview: SessionReviewDto;
+
+  @ManyToOne(
+    () => SessionPackage,
+    (sessionPackage) => sessionPackage.classSessions,
+  )
+  @JoinColumn({ name: 'session_package_id' })
+  sessionPackage: SessionPackage;
 }
