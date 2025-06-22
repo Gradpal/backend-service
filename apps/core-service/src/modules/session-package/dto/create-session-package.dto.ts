@@ -39,11 +39,6 @@ export class CreateClassSessionPackageDto {
   @IsNotEmpty()
   sessionLength: number;
 
-  @ApiProperty({ description: 'Tutor ID' })
-  @IsUUID()
-  @IsNotEmpty()
-  tutorId: string;
-
   @ApiProperty({ description: 'Subject ID' })
   @IsUUID()
   @IsNotEmpty()

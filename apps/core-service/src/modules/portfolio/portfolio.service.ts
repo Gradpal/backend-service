@@ -711,7 +711,10 @@ export class PortfolioService {
       .leftJoinAndSelect('daySchedule.weeklyAvailability', 'weeklyAvailability')
       .leftJoinAndSelect('portfolio.subjectTiers', 'subjectTier')
       .leftJoinAndSelect('subjectTier.subjects', 'subjects')
-      .where('user.role = :role', { role: EUserRole.TUTOR });
+      .where('user.role = :role', { role: EUserRole.TUTOR })
+      .andWhere('portfolio.timeSlots IS NOT NULL')
+      .andWhere('portfolio.sessionPackageTypes IS NOT NULL')
+      .andWhere('portfolio.sessionLengths IS NOT NULL');
 
     if (name) {
       query.andWhere(

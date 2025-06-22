@@ -88,7 +88,7 @@ export class SessionPackageService {
       // Price calculation
       const price =
         (subjectTier.credits *
-          createClassSessionPackageDto.sessionLength *
+          (createClassSessionPackageDto.sessionLength / 60) *
           packageType.discount) /
         100;
 
