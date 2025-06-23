@@ -4,6 +4,7 @@ import {
   Get,
   Param,
   Post,
+  Query,
   Req,
   UploadedFiles,
   UseInterceptors,
@@ -22,6 +23,7 @@ import {
   ApiBearerAuth,
   ApiConsumes,
   ApiOperation,
+  ApiQuery,
   ApiTags,
 } from '@nestjs/swagger';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
@@ -83,9 +85,43 @@ export class SessionPackageController {
   }
 
   @Get()
-  findAllSessionPackagesLoggedInUser(@Req() req) {
-    return this.sessionPackageService.findAllSessionPackagesLoggedInUser(
+  @ApiQuery({
+    name: 'status',
+    type: String,
+    required: false,
+    description: 'Status of the session package',
+  })
+  @ApiQuery({
+    name: 'searchKeyword',
+    type: String,
+    required: false,
+    description: 'Search keyword for the session package',
+  })
+  @ApiQuery({
+    name: 'page',
+    type: Number,
+    required: false,
+    description: 'Page number for pagination',
+  })
+  @ApiQuery({
+    name: 'limit',
+    type: Number,
+    required: false,
+    description: 'Limit number for pagination',
+  })
+  findAllSessionPackagesLoggedInUserAndStatus(
+    @Req() req,
+    @Query('status') status: ESessionStatus,
+    @Query('searchKeyword') searchKeyword: string,
+    @Query('page') page: number = 1,
+    @Query('limit') limit: number = 10,
+  ) {
+    return this.sessionPackageService.findAllSessionPackagesLoggedInUserAndStatus(
       req.user,
+      status,
+      searchKeyword,
+      page,
+      limit,
     );
   }
 

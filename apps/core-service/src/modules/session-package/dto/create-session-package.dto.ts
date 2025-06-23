@@ -51,7 +51,6 @@ export class CreateClassSessionPackageDto {
 
 export class AddSessionsDetailsDto {
   @ApiProperty({ description: 'URLs' })
-  @IsArray()
   @IsOptional()
   urls?: string[];
 

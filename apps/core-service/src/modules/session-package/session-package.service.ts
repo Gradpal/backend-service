@@ -24,6 +24,7 @@ import {
   CreatePackageTypeDto,
   AddSessionsDetailsDto,
 } from './dto/create-session-package.dto';
+import { createPaginatedResponse } from '@app/common/helpers/pagination.helper';
 
 @Injectable()
 export class SessionPackageService {
@@ -189,7 +190,7 @@ export class SessionPackageService {
   ) {
     const classSession = await this.findOneClassSession(classSessionId);
     classSession.goalDescription = addSessionsDetailsDto.goalDescription;
-    classSession.urls = addSessionsDetailsDto.urls;
+    classSession.urls = normalizeArray(addSessionsDetailsDto.urls);
     const attachments = await this.minioService.uploadAttachments(
       files.supportingDocuments,
       classSession.attachments,
@@ -200,9 +201,19 @@ export class SessionPackageService {
     return this.classSessionRepository.save(classSession);
   }
 
-  async findAllSessionPackagesLoggedInUser(user: User) {
-    return this.sessionPackageRepository.find({
-      where: [{ tutor: user }, { student: user }],
+  async findAllSessionPackagesLoggedInUserAndStatus(
+    user: User,
+    status: ESessionStatus,
+    searchKeyword: string,
+    page: number,
+    limit: number,
+  ) {
+    console.log('Reaching the server');
+    const sessionPackages = await this.sessionPackageRepository.find({
+      where: [
+        { tutor: user, classSessions: { status: status } },
+        { student: user, classSessions: { status: status } },
+      ],
       relations: [
         'sessionPackageType',
         'tutor',
@@ -225,39 +236,78 @@ export class SessionPackageService {
           lastName: true,
           profilePicture: true,
           role: true,
-        },
-        student: {
-          id: true,
-          firstName: true,
-          lastName: true,
-          profilePicture: true,
+          portfolio: {
+            id: true,
+            university: true,
+            isVerified: true,
+          },
         },
         classSessions: {
           id: true,
           status: true,
-          subject: {
-            id: true,
-            name: true,
-          },
-          timeSlot: {
-            startTime: true,
-            endTime: true,
-            isBooked: true,
-            daySchedule: {
-              day: true,
-              weeklyAvailability: {
-                timezone: true,
-              },
-            },
-            owner: {
-              id: true,
-              firstName: true,
-              lastName: true,
-            },
-          },
+          price: true,
         },
       },
     });
+    const packagesIds = sessionPackages.map(
+      (sessionPackage) => sessionPackage.id,
+    );
+
+    const sessionPackageQuery = this.sessionPackageRepository
+      .createQueryBuilder('SessionPackage')
+      .leftJoinAndSelect(
+        'SessionPackage.sessionPackageType',
+        'sessionPackageType',
+      )
+      .leftJoinAndSelect('SessionPackage.classSessions', 'classSessions')
+      .leftJoinAndSelect('SessionPackage.tutor', 'tutor')
+      .leftJoinAndSelect('tutor.portfolio', 'tutorPortfolio')
+      .leftJoinAndSelect('classSessions.timeSlot', 'timeSlot')
+      .leftJoinAndSelect('timeSlot.daySchedule', 'daySchedule')
+      .leftJoinAndSelect('daySchedule.weeklyAvailability', 'weeklyAvailability')
+      .leftJoinAndSelect('timeSlot.owner', 'owner')
+      .leftJoinAndSelect('classSessions.subject', 'subject')
+      .where('SessionPackage.id IN (:...packagesIds)', { packagesIds });
+
+    if (status) {
+      sessionPackageQuery.andWhere('SessionPackage.status = :status', {
+        status,
+      });
+    }
+
+    if (searchKeyword) {
+      sessionPackageQuery.andWhere(
+        'owner.firstName LIKE :searchKeyword OR owner.lastName LIKE :searchKeyword OR tutor.firstName LIKE :searchKeyword OR tutor.lastName LIKE :searchKeyword OR subject.name LIKE :searchKeyword',
+        {
+          searchKeyword: `%${searchKeyword}%`,
+        },
+      );
+    }
+    if (page && limit) {
+      sessionPackageQuery.skip((page - 1) * limit).take(limit);
+    }
+
+    sessionPackageQuery.select([
+      'SessionPackage.id',
+      'SessionPackage.createdAt',
+      'sessionPackageType.id',
+      'sessionPackageType.maximumSessions',
+      'tutor.id',
+      'tutor.firstName',
+      'tutor.lastName',
+      'tutor.profilePicture',
+      'tutor.role',
+      'tutorPortfolio.id',
+      'tutorPortfolio.university',
+      'tutorPortfolio.isVerified',
+      'classSessions.id',
+      'classSessions.status',
+      'classSessions.price',
+    ]);
+    const [sessionPackagesResponse, total] =
+      await sessionPackageQuery.getManyAndCount();
+
+    return createPaginatedResponse(sessionPackagesResponse, total, page, limit);
   }
 
   async getSessionPackageById(id: string) {
@@ -276,6 +326,7 @@ export class SessionPackageService {
       ],
       select: {
         id: true,
+        createdAt: true,
         sessionPackageType: {
           id: true,
           maximumSessions: true,
@@ -295,6 +346,18 @@ export class SessionPackageService {
         classSessions: {
           id: true,
           status: true,
+          urls: true,
+          joinStatus: true,
+          attachments: true,
+          sessionTimelines: {
+            actor: {
+              firstName: true,
+              lastName: true,
+              profilePicture: true,
+            },
+            type: true,
+          },
+          goalDescription: true,
           timeSlot: {
             startTime: true,
             endTime: true,
@@ -304,12 +367,6 @@ export class SessionPackageService {
               weeklyAvailability: {
                 timezone: true,
               },
-            },
-            owner: {
-              id: true,
-              firstName: true,
-              role: true,
-              lastName: true,
             },
           },
         },
@@ -337,37 +394,22 @@ export class SessionPackageService {
         ],
       },
       relations: [
-        'sessionPackage',
-        'sessionPackage.tutor',
-        'sessionPackage.student',
-        'sessionPackage.tutor.portfolio',
-        'sessionPackage.student.portfolio',
+        'timeSlot',
+        'timeSlot.daySchedule',
+        'timeSlot.daySchedule.weeklyAvailability',
       ],
       select: {
         id: true,
         status: true,
         timeSlot: {
           startTime: true,
-        },
-        subject: {
-          id: true,
-          name: true,
-        },
-        price: true,
-        sessionPackage: {
-          id: true,
-          sessionPackageType: {
-            id: true,
-          },
-        },
-        sessionTimelines: {
-          type: true,
-          description: true,
-          actor: {
-            id: true,
-            firstName: true,
-            lastName: true,
-            profilePicture: true,
+          endTime: true,
+          isBooked: true,
+          daySchedule: {
+            day: true,
+            weeklyAvailability: {
+              timezone: true,
+            },
           },
         },
       },

@@ -10,12 +10,10 @@ import {
   Query,
   Req,
   UseInterceptors,
-  UploadedFiles,
 } from '@nestjs/common';
 import { ClassSessionService } from './class-session.service';
 import {
   ApiBearerAuth,
-  ApiBody,
   ApiConsumes,
   ApiOperation,
   ApiParam,
@@ -35,7 +33,6 @@ import {
 import { CancelLessonDto } from './dto/cancel-lesson.dto';
 import { RequestSessionExtensionDto } from './dto/request-extion.dto';
 import { AuthUser } from '@core-service/decorators/auth.decorator';
-import { normalizeArray } from '@core-service/common/helpers/all.helpers';
 import { SessionReviewDto } from './dto/session-review.dto';
 import { Public } from '@app/common/decorators/public.decorator';
 
