@@ -190,7 +190,7 @@ export class SessionPackageService {
   ) {
     const classSession = await this.findOneClassSession(classSessionId);
     classSession.goalDescription = addSessionsDetailsDto.goalDescription;
-    classSession.urls = addSessionsDetailsDto.urls;
+    classSession.urls = normalizeArray(addSessionsDetailsDto.urls);
     const attachments = await this.minioService.uploadAttachments(
       files.supportingDocuments,
       classSession.attachments,
