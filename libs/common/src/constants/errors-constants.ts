@@ -212,6 +212,14 @@ export const _404 = {
     code: 'PACKAGE_TYPE_NOT_FOUND',
     message: 'The requested package type was not found',
   },
+  PRICING_MODEL_NOT_FOUND: {
+    code: 'PRICING_MODEL_NOT_FOUND',
+    message: 'The requested pricing model was not found',
+  },
+  PRICING_RULE_NOT_FOUND: {
+    code: 'PRICING_RULE_NOT_FOUND',
+    message: 'The requested pricing rule was not found',
+  },
 };
 
 // conflict
@@ -240,6 +248,14 @@ export const _409 = {
     code: 'COMPLAINT_ALREADY_EXISTS',
     message:
       'A complaint with the same description, session, issue type and priority already exists',
+  },
+  PRICING_MODEL_ALREADY_EXISTS: {
+    code: 'PRICING_MODEL_ALREADY_EXISTS',
+    message: 'Pricing model already exists',
+  },
+  PRICING_RULE_ALREADY_EXISTS: {
+    code: 'PRICING_RULE_ALREADY_EXISTS',
+    message: 'Pricing rule already exists',
   },
 };
 

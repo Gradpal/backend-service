@@ -4,9 +4,12 @@ import { FinanceController } from './finance.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { PricingRule } from './entities/pricing-rule.entity';
 import { PricingModel } from './entities/prising-model.entity';
+import { FinanceHistory } from './entities/finance-history.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([PricingModel, PricingRule])],
+  imports: [
+    TypeOrmModule.forFeature([PricingModel, PricingRule, FinanceHistory]),
+  ],
   providers: [FinanceService],
   controllers: [FinanceController],
 })
