@@ -257,14 +257,6 @@ export const _409 = {
     message:
       'A complaint with the same description, session, issue type and priority already exists',
   },
-  PRICING_MODEL_ALREADY_EXISTS: {
-    code: 'PRICING_MODEL_ALREADY_EXISTS',
-    message: 'Pricing model already exists',
-  },
-  PRICING_RULE_ALREADY_EXISTS: {
-    code: 'PRICING_RULE_ALREADY_EXISTS',
-    message: 'Pricing rule already exists',
-  },
 };
 
 // internal server error
