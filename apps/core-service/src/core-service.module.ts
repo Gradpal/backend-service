@@ -21,6 +21,7 @@ import { BookingModule } from './modules/booking/booking.module';
 import { PortfolioModule } from './modules/portfolio/portfolio.module';
 import { SubjectsModule } from './modules/subjects/subjects.module';
 import { SessionPackageModule } from './modules/session-package/session-package.module';
+import { FinanceModule } from './modules/finance/finance.module';
 
 @Module({
   imports: [
@@ -52,6 +53,7 @@ import { SessionPackageModule } from './modules/session-package/session-package.
     PortfolioModule,
     SubjectsModule,
     SessionPackageModule,
+    FinanceModule,
   ],
   providers: [
     {
