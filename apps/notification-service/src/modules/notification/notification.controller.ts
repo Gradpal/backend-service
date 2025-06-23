@@ -14,9 +14,7 @@ import { ApiQuery } from '@nestjs/swagger';
 // TODO: Protect these endpoints so that they can only be accessed by authenticated users or Consider dispatching them to core-service through GRPC
 @Controller('notifications')
 export class NotificationController {
-  constructor(
-    private readonly notificationService: NotificationService,
-  ) {}
+  constructor(private readonly notificationService: NotificationService) {}
 
   @Get(':id')
   async findById(@Param('id') id: string) {
