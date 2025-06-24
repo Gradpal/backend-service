@@ -30,6 +30,7 @@ import {
 import { createPaginatedResponse } from '@app/common/helpers/pagination.helper';
 import { AcceptPackageSessionDto } from '../finance/dtos/accept-package-session.dto';
 import { PackageStatus } from './enums/paclage-status.enum';
+import { normalize } from 'path';
 
 @Injectable()
 export class SessionPackageService {
@@ -297,6 +298,7 @@ export class SessionPackageService {
     sessionPackageQuery.select([
       'SessionPackage.id',
       'SessionPackage.createdAt',
+      'SessionPackage.status',
       'sessionPackageType.id',
       'sessionPackageType.maximumSessions',
       'tutor.id',
@@ -431,15 +433,12 @@ export class SessionPackageService {
     acceptPackageSessionDto: AcceptPackageSessionDto,
     sessionPackageId: string,
   ) {
+    acceptPackageSessionDto.sessionIds = normalizeArray(
+      acceptPackageSessionDto.sessionIds,
+    );
+    console.log(acceptPackageSessionDto.sessionIds);
     const sessionPackage = await this.sessionPackageRepository.findOne({
       where: { id: sessionPackageId },
-    });
-
-    const sessions = await this.classSessionRepository.find({
-      where: {
-        id: In(acceptPackageSessionDto.sessionIds),
-        sessionPackage: { id: sessionPackageId },
-      },
     });
     await Promise.all([
       this.classSessionRepository.update(
@@ -471,6 +470,6 @@ export class SessionPackageService {
     sessionPackage.status = PackageStatus.ACCEPTED;
     await this.sessionPackageRepository.save(sessionPackage);
 
-    return sessions;
+    return sessionPackage;
   }
 }
