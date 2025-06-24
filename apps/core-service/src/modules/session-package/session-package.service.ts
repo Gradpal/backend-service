@@ -208,7 +208,6 @@ export class SessionPackageService {
     page: number,
     limit: number,
   ) {
-    console.log('Reaching the server');
     const sessionPackages = await this.sessionPackageRepository.find({
       where: [
         { tutor: user, classSessions: { status: status } },
@@ -226,6 +225,7 @@ export class SessionPackageService {
       ],
       select: {
         id: true,
+        status: true,
         sessionPackageType: {
           id: true,
           maximumSessions: true,
@@ -245,6 +245,8 @@ export class SessionPackageService {
         classSessions: {
           id: true,
           status: true,
+          joinStatus: true,
+          acceptanceStatus: true,
           price: true,
         },
       },
@@ -327,6 +329,7 @@ export class SessionPackageService {
       select: {
         id: true,
         createdAt: true,
+        status: true,
         sessionPackageType: {
           id: true,
           maximumSessions: true,
@@ -348,6 +351,7 @@ export class SessionPackageService {
           status: true,
           urls: true,
           joinStatus: true,
+          acceptanceStatus: true,
           attachments: true,
           sessionTimelines: {
             actor: {
@@ -401,6 +405,8 @@ export class SessionPackageService {
       select: {
         id: true,
         status: true,
+        joinStatus: true,
+        acceptanceStatus: true,
         timeSlot: {
           startTime: true,
           endTime: true,
