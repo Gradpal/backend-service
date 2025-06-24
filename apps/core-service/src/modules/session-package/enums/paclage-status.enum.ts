@@ -4,4 +4,5 @@ export enum PackageStatus {
   ACCEPTED = 'accepted',
   REJECTED = 'rejected',
   CANCELLED = 'cancelled',
+  REQUESTED = 'requested',
 }

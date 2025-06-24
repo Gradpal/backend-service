@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { In, Not, Repository } from 'typeorm';
 import { SessionPackage } from './entities/session-package.entity';
 import { MEETING_CACHE } from '@core-service/common/constants/brain.constants';
 import { generateUUID } from '@app/common/helpers/shared.helpers';
@@ -14,7 +14,10 @@ import { ExceptionHandler } from '@app/common/exceptions/exceptions.handler';
 import { ClassSession } from '../class-session/entities/class-session.entity';
 import { BrainService } from '@app/common/brain/brain.service';
 import { SubjectTierService } from '../subjects/subject-tier/subject-tier.service';
-import { ESessionStatus } from '../class-session/enums/session-status.enum';
+import {
+  ESessionAcceptanceStatus,
+  ESessionStatus,
+} from '../class-session/enums/session-status.enum';
 import { WeeklyAvailabilityService } from '../portfolio/weekly-availability/weekly-availability';
 import { MinioClientService } from '../minio-client/minio-client.service';
 import { CoreServiceConfigService } from '@core-service/configs/core-service-config.service';
@@ -25,6 +28,8 @@ import {
   AddSessionsDetailsDto,
 } from './dto/create-session-package.dto';
 import { createPaginatedResponse } from '@app/common/helpers/pagination.helper';
+import { AcceptPackageSessionDto } from '../finance/dtos/accept-package-session.dto';
+import { PackageStatus } from './enums/paclage-status.enum';
 
 @Injectable()
 export class SessionPackageService {
@@ -420,5 +425,52 @@ export class SessionPackageService {
         },
       },
     });
+  }
+
+  async acceptPackageSessions(
+    acceptPackageSessionDto: AcceptPackageSessionDto,
+    sessionPackageId: string,
+  ) {
+    const sessionPackage = await this.sessionPackageRepository.findOne({
+      where: { id: sessionPackageId },
+    });
+
+    const sessions = await this.classSessionRepository.find({
+      where: {
+        id: In(acceptPackageSessionDto.sessionIds),
+        sessionPackage: { id: sessionPackageId },
+      },
+    });
+    await Promise.all([
+      this.classSessionRepository.update(
+        {
+          id: In(acceptPackageSessionDto.sessionIds),
+          sessionPackage: {
+            id: sessionPackageId,
+            status: PackageStatus.PENDING,
+          },
+        },
+        {
+          acceptanceStatus: ESessionAcceptanceStatus.ACCEPTED,
+        },
+      ),
+      this.classSessionRepository.update(
+        {
+          id: Not(In(acceptPackageSessionDto.sessionIds)),
+          sessionPackage: {
+            id: sessionPackageId,
+            status: PackageStatus.PENDING,
+          },
+        },
+        {
+          acceptanceStatus: ESessionAcceptanceStatus.ACCEPTED,
+        },
+      ),
+    ]);
+
+    sessionPackage.status = PackageStatus.ACCEPTED;
+    await this.sessionPackageRepository.save(sessionPackage);
+
+    return sessions;
   }
 }
