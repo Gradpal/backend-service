@@ -1,7 +1,7 @@
 export enum PackageStatus {
   PENDING = 'pending',
-  BOOKED = 'booked',
   COMPLETED = 'completed',
+  ACCEPTED = 'accepted',
+  REJECTED = 'rejected',
   CANCELLED = 'cancelled',
-  REQUESTED = 'requested',
 }

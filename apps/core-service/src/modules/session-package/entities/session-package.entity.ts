@@ -18,7 +18,7 @@ export class SessionPackage extends BaseEntity {
   @Column({
     type: 'enum',
     enum: PackageStatus,
-    default: PackageStatus.REQUESTED,
+    default: PackageStatus.PENDING,
   })
   status: PackageStatus;
 
