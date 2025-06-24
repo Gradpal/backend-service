@@ -1,10 +1,9 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Type } from 'class-transformer';
-import { ValidateNested } from 'class-validator';
+import { IsArray, IsString } from 'class-validator';
 
 export class AcceptPackageSessionDto {
-  @ValidateNested({ each: true })
-  @Type(() => String)
-  @ApiProperty({ type: String, isArray: true })
+  @ApiProperty({ type: [String] })
+  @IsArray()
+  @IsString({ each: true })
   sessionIds: string[];
 }

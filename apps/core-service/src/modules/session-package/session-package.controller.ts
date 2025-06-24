@@ -29,6 +29,7 @@ import {
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { EUserRole } from '../user/enums/user-role.enum';
 import { ESessionStatus } from '../class-session/enums/session-status.enum';
+import { AcceptPackageSessionDto } from '../finance/dtos/accept-package-session.dto';
 
 @Controller('session-package')
 @ApiTags('Session Package')
@@ -139,6 +140,16 @@ export class SessionPackageController {
       id,
       req.user,
       ESessionStatus.SCHEDULED,
+    );
+  }
+  @Post(':packageId/package-sessions/accept')
+  acceptPackageSessions(
+    @Param('packageId') packageId: string,
+    @Body() acceptPackageSessionDto: AcceptPackageSessionDto,
+  ) {
+    return this.sessionPackageService.acceptPackageSessions(
+      acceptPackageSessionDto,
+      packageId,
     );
   }
 }
