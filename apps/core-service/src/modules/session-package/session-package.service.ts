@@ -253,6 +253,7 @@ export class SessionPackageService {
           joinStatus: true,
           acceptanceStatus: true,
           isConfirmed: true,
+          meetLink: true,
           sessionReview: {
             rating: true,
             technicalIssuesEncountered: true,
@@ -366,6 +367,8 @@ export class SessionPackageService {
           joinStatus: true,
           acceptanceStatus: true,
           attachments: true,
+          meetLink: true,
+
           sessionReview: {
             rating: true,
             technicalIssuesEncountered: true,
@@ -426,6 +429,8 @@ export class SessionPackageService {
         status: true,
         joinStatus: true,
         acceptanceStatus: true,
+        meetLink: true,
+
         sessionReview: {
           rating: true,
           technicalIssuesEncountered: true,
