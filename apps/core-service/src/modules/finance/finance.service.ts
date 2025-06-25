@@ -143,10 +143,11 @@ export class FinanceService {
       previousValue: {},
       newValue: ['Pricing rule', createPricingRuleDto.value],
     });
-    await Promise.all([
+    const [savedPricingRule, financialHistory] = await Promise.all([
       this.pricingRuleRepository.save(pricingRule),
       this.financeHistoryRepository.save(financeHistory),
     ]);
+    return savedPricingRule;
   }
 
   async getPricingRuleById(id: string) {
