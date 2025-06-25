@@ -84,6 +84,12 @@ export const _400 = {
     code: 'PACKAGE_TYPE_ALREADY_EXISTS',
     message: 'A package type with the same maximum sessions already exists',
   },
+
+  //complaints
+  COMPLAINT_NOT_PENDING: {
+    code: 'COMPLAINT_NOT_PENDING',
+    message: 'The complaint is not in pending status',
+  },
 };
 
 // unauthorized
@@ -219,6 +225,12 @@ export const _404 = {
   PRICING_RULE_NOT_FOUND: {
     code: 'PRICING_RULE_NOT_FOUND',
     message: 'The requested pricing rule was not found',
+  },
+
+  //complaints
+  COMPLAINT_NOT_FOUND: {
+    code: 'COMPLAINT_NOT_FOUND',
+    message: 'The requested complaint was not found',
   },
 };
 

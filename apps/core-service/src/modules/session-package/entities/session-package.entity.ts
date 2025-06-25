@@ -4,6 +4,7 @@ import { BaseEntity } from '@app/common/database/base.entity';
 import { User } from '@core-service/modules/user/entities/user.entity';
 import { ClassSession } from '@core-service/modules/class-session/entities/class-session.entity';
 import { PackageStatus } from '../enums/paclage-status.enum';
+import { Expose } from 'class-transformer';
 
 @Entity()
 export class SessionPackage extends BaseEntity {
@@ -13,6 +14,7 @@ export class SessionPackage extends BaseEntity {
 
   @ManyToOne(() => User)
   @JoinColumn({ name: 'tutor_id' })
+  @Expose()
   tutor: User;
 
   @Column({

@@ -11,6 +11,7 @@ import { TimeSlot } from '@core-service/modules/portfolio/weekly-availability/en
 import { SessionTimelineDto } from '../dto/session-timeline.dto';
 import { SessionReviewDto } from '../dto/session-review.dto';
 import { SessionPackage } from '@core-service/modules/session-package/entities/session-package.entity';
+import { ApiHideProperty } from '@nestjs/swagger';
 
 @Entity()
 export class ClassSession extends BaseEntity {
