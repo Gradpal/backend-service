@@ -5,6 +5,13 @@ import {
   ComplaintPriority,
 } from '../enums/complaints.enum';
 import { ClassSession } from './class-session.entity';
+import { EComplaintStatus } from '../enums/complaint-status.enum';
+import {
+  SessionComplaintReviewDto,
+  SessionComplaintReviwDecisionDto,
+} from '../dto/complaint-review.dto';
+import { AttachmentDto } from '@app/common/dtos/attachment.dto';
+import { Expose } from 'class-transformer';
 
 @Entity('session_complaint')
 export class Complaint extends BaseEntity {
@@ -17,10 +24,27 @@ export class Complaint extends BaseEntity {
   @Column()
   description: string;
 
+  @Column({
+    default: EComplaintStatus.ADMIN_PENDING,
+    enum: EComplaintStatus,
+    type: 'enum',
+  })
+  status: EComplaintStatus;
+
   @ManyToOne(() => ClassSession)
+  @Expose()
   @JoinColumn({ name: 'session_id' })
   session: ClassSession;
 
-  @Column({ nullable: true })
-  evidenceFileUrl: string;
+  @Column({ type: 'json', nullable: true })
+  evidenceFiles: AttachmentDto[];
+
+  @Column({ type: 'json', nullable: true })
+  teacherReview: SessionComplaintReviewDto;
+
+  @Column({ type: 'json', nullable: true })
+  adminReviewDecision: SessionComplaintReviwDecisionDto;
+
+  @Column({ type: 'json', nullable: true })
+  adminNotes: string[];
 }

@@ -42,6 +42,7 @@ export class CreateComplaintDto {
     type: 'string',
     format: 'binary',
     description: 'The evidence file of the complaint',
+    required: false,
   })
   evidenceFile: Express.Multer.File;
 }
