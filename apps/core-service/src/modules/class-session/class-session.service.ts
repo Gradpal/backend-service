@@ -417,9 +417,6 @@ export class ClassSessionService {
             },
           },
           status: ESessionStatus.SCHEDULED,
-          // timeSlot: {
-          //   startTime: MoreThanOrEqual(currentDate),
-          // },
         },
         {
           sessionPackage: {
@@ -428,9 +425,6 @@ export class ClassSessionService {
             },
           },
           status: ESessionStatus.SCHEDULED,
-          // timeSlot: {
-          //   startTime: MoreThanOrEqual(currentDate),
-          // },
         },
       ],
       relations: [

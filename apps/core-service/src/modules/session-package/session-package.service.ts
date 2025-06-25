@@ -436,7 +436,6 @@ export class SessionPackageService {
     acceptPackageSessionDto.sessionIds = normalizeArray(
       acceptPackageSessionDto.sessionIds,
     );
-    console.log(acceptPackageSessionDto.sessionIds);
     const sessionPackage = await this.sessionPackageRepository.findOne({
       where: { id: sessionPackageId },
     });

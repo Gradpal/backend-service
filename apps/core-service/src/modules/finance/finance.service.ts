@@ -120,7 +120,6 @@ export class FinanceService {
     loggedInUser: User,
     createPricingRuleDto: CreatePricingRuleDto,
   ) {
-    console.log(createPricingRuleDto);
     const exists = await this.existsByTitle(createPricingRuleDto.title);
     if (exists) {
       this.exceptionHandler.throwConflict(_409.DATABASE_RECORD_ALREADY_EXISTS);

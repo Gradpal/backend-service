@@ -79,18 +79,18 @@ export class FinanceController {
     return this.financeService.getPricingRules(pricingModelId);
   }
 
-  @Put('pricing-rule/:id')
-  async updatePricingRule(
-    @Req() req,
-    @Param('id') id: string,
-    @Body() updatePricingRuleDto: CreatePricingRuleDto,
-  ) {
-    return this.financeService.updatePricingRule(
-      req.user as User,
-      id,
-      updatePricingRuleDto,
-    );
-  }
+  // @Put('pricing-rule/:id')
+  // async updatePricingRule(
+  //   @Req() req,
+  //   @Param('id') id: string,
+  //   @Body() updatePricingRuleDto: CreatePricingRuleDto,
+  // ) {
+  //   return this.financeService.updatePricingRule(
+  //     req.user as User,
+  //     id,
+  //     updatePricingRuleDto,
+  //   );
+  // }
 
   @Put('pricing-rules/bulk')
   async updateBulkPricingRuleValue(
