@@ -30,7 +30,6 @@ import {
 import { createPaginatedResponse } from '@app/common/helpers/pagination.helper';
 import { AcceptPackageSessionDto } from '../finance/dtos/accept-package-session.dto';
 import { PackageStatus } from './enums/paclage-status.enum';
-import { normalize } from 'path';
 
 @Injectable()
 export class SessionPackageService {
@@ -253,6 +252,13 @@ export class SessionPackageService {
           status: true,
           joinStatus: true,
           acceptanceStatus: true,
+          isConfirmed: true,
+          sessionReview: {
+            rating: true,
+            technicalIssuesEncountered: true,
+            tutorCanbeRecommended: true,
+            intendToWorkWithTutorAgain: true,
+          },
           price: true,
         },
       },
@@ -360,6 +366,12 @@ export class SessionPackageService {
           joinStatus: true,
           acceptanceStatus: true,
           attachments: true,
+          sessionReview: {
+            rating: true,
+            technicalIssuesEncountered: true,
+            tutorCanbeRecommended: true,
+            intendToWorkWithTutorAgain: true,
+          },
           sessionTimelines: {
             actor: {
               firstName: true,
@@ -414,6 +426,12 @@ export class SessionPackageService {
         status: true,
         joinStatus: true,
         acceptanceStatus: true,
+        sessionReview: {
+          rating: true,
+          technicalIssuesEncountered: true,
+          tutorCanbeRecommended: true,
+          intendToWorkWithTutorAgain: true,
+        },
         timeSlot: {
           startTime: true,
           endTime: true,

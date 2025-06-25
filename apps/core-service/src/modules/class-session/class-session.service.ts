@@ -351,6 +351,7 @@ export class ClassSessionService {
   ): Promise<ClassSession> {
     const session: ClassSession = await this.findOne(sessionId);
     session.sessionReview = reviewSessionDto;
+    session.isConfirmed = true;
     const tutorPortfolio = session.sessionPackage.tutor.portfolio;
 
     tutorPortfolio.rating = reviewSessionDto.rating;
