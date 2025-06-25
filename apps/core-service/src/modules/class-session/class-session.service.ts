@@ -351,6 +351,7 @@ export class ClassSessionService {
   ): Promise<ClassSession> {
     const session: ClassSession = await this.findOne(sessionId);
     session.sessionReview = reviewSessionDto;
+    session.isConfirmed = true;
     const tutorPortfolio = session.sessionPackage.tutor.portfolio;
 
     tutorPortfolio.rating = reviewSessionDto.rating;
@@ -417,9 +418,6 @@ export class ClassSessionService {
             },
           },
           status: ESessionStatus.SCHEDULED,
-          // timeSlot: {
-          //   startTime: MoreThanOrEqual(currentDate),
-          // },
         },
         {
           sessionPackage: {
@@ -428,9 +426,6 @@ export class ClassSessionService {
             },
           },
           status: ESessionStatus.SCHEDULED,
-          // timeSlot: {
-          //   startTime: MoreThanOrEqual(currentDate),
-          // },
         },
       ],
       relations: [

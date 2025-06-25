@@ -1,13 +1,5 @@
 import { BaseEntity } from '@app/common/database/base.entity';
-import { User } from '@core-service/modules/user/entities/user.entity';
-import {
-  Entity,
-  Column,
-  ManyToOne,
-  JoinColumn,
-  JoinTable,
-  ManyToMany,
-} from 'typeorm';
+import { Entity, Column, ManyToOne, JoinColumn } from 'typeorm';
 import {
   ESessionAcceptanceStatus,
   ESessionJoinStatus,
@@ -34,6 +26,9 @@ export class ClassSession extends BaseEntity {
 
   @Column({ nullable: true, type: 'json' })
   urls: string[];
+
+  @Column({ default: false, nullable: true })
+  isConfirmed: boolean;
 
   @Column({
     type: 'varchar',
@@ -71,10 +66,6 @@ export class ClassSession extends BaseEntity {
 
   @Column({ type: 'json', nullable: true })
   attachments: AttachmentDto[];
-
-  // @ManyToMany(() => TimeSlot)
-  // @JoinTable({ name: 'session_time_slots' })
-  // timeSlots: TimeSlot[];
 
   @Column({ type: 'json', nullable: true })
   sessionTimelines: SessionTimelineDto[];
