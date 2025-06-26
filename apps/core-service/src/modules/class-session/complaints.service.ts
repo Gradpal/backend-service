@@ -358,9 +358,9 @@ export class ComplaintsService {
     evidenceFiles: Express.Multer.File[],
   ) {
     const complaint = await this.getComplaintById(complaintId);
-    if (complaint.status !== EComplaintStatus.ADMIN_PENDING) {
-      this.exceptionHandler.throwBadRequest(_400.COMPLAINT_NOT_PENDING);
-    }
+    // if (complaint.status !== EComplaintStatus.ADMIN_PENDING) {
+    //   this.exceptionHandler.throwBadRequest(_400.COMPLAINT_NOT_PENDING);
+    // }
     const evidenceAttachments = await this.minioService.uploadAttachments(
       evidenceFiles,
       [],
