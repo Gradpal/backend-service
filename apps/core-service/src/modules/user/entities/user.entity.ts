@@ -19,7 +19,7 @@ export class User extends BaseEntity {
   @Column()
   password: string;
 
-  @Column()
+  @Column({ unique: true })
   userName: string;
 
   @Column({ nullable: true })
@@ -28,7 +28,7 @@ export class User extends BaseEntity {
   @Column()
   role: EUserRole;
 
-  @Column()
+  @Column({ nullable: true })
   phoneNumber: string;
 
   @Column({
@@ -39,7 +39,7 @@ export class User extends BaseEntity {
   })
   status: EUserStatus;
 
-  @Column()
+  @Column({ nullable: true })
   referalCode: string;
 
   @Column({ nullable: true })

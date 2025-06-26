@@ -226,6 +226,10 @@ export const _404 = {
     code: 'PRICING_RULE_NOT_FOUND',
     message: 'The requested pricing rule was not found',
   },
+  NATIONAL_PORTAL_NOT_FOUND: {
+    code: 'NATIONAL_PORTAL_NOT_FOUND',
+    message: 'The requested national portal was not found',
+  },
 
   //complaints
   COMPLAINT_NOT_FOUND: {
@@ -268,6 +272,10 @@ export const _409 = {
     code: 'COMPLAINT_ALREADY_EXISTS',
     message:
       'A complaint with the same description, session, issue type and priority already exists',
+  },
+  NATIONAL_PORTAL_ALREADY_EXISTS: {
+    code: 'NATIONAL_PORTAL_ALREADY_EXISTS',
+    message: 'National portal already exists',
   },
 };
 
