@@ -255,9 +255,9 @@ export class ClassSessionService {
   }
   async postponeSession(sessionId: string, user: User): Promise<ClassSession> {
     const session = await this.findOne(sessionId);
-    if (session.sessionPackage.tutor.id !== user.id) {
-      this.exceptionHandler.throwBadRequest(_403.SESSION_NOT_YOURS);
-    }
+    // if (session.sessionPackage.tutor.id !== user.id) {
+    //   this.exceptionHandler.throwBadRequest(_403.SESSION_NOT_YOURS);
+    // }
     session.status = ESessionStatus.POSTPONED;
     return this.classSessionRepository.save(session);
   }
@@ -268,9 +268,9 @@ export class ClassSessionService {
     cancelLessonDto: CancelLessonDto,
   ): Promise<ClassSession> {
     const session = await this.findOne(sessionId);
-    if (session.sessionPackage.tutor.id !== user.id) {
-      this.exceptionHandler.throwBadRequest(_403.SESSION_NOT_YOURS);
-    }
+    // if (session.sessionPackage.tutor.id !== user.id) {
+    //   this.exceptionHandler.throwBadRequest(_403.SESSION_NOT_YOURS);
+    // }
     if (session.status != ESessionStatus.SCHEDULED) {
       this.exceptionHandler.throwBadRequest(_400.SESSION_NOT_SCHEDULED);
     }
