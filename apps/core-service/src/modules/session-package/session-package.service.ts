@@ -105,7 +105,7 @@ export class SessionPackageService {
           packageType.discount) /
         100;
 
-      const session = this.classSessionRepository.create({
+      let session = this.classSessionRepository.create({
         ...sessionData,
         status: ESessionStatus.SCHEDULED,
         subject: { id: sessionData.subjectId },
@@ -134,6 +134,7 @@ export class SessionPackageService {
       student.credits -= subjectTier.credits;
 
       const meetId = generateUUID();
+      session = await this.classSessionRepository.save(session);
       const sessionMeetLink = `${this.coreServiceConfigService.getMeetHost()}/join?sessionId=${session.id}&meetId=${meetId}`;
       const key = `${MEETING_CACHE.name}:${session.id}`;
       await this.brainService.memorize(key, meetId);
