@@ -269,6 +269,7 @@ export class ComplaintsService {
       relations: [
         'session',
         'session.sessionPackage',
+        'session.subject',
         'session.sessionPackage.tutor',
         'session.sessionPackage.student',
       ],
@@ -308,6 +309,7 @@ export class ComplaintsService {
         session: {
           id: true,
           subject: {
+            id: true,
             name: true,
           },
           price: true,
