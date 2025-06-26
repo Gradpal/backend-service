@@ -3,6 +3,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { EComplaintRefundDecision } from '../enums/complaint-review.enum';
 import { EComplaintReviewDecision } from '../enums/complaint-review.enum';
 import { BaseDto } from '@core-service/common/dtos/all.dto';
+import { IsEnum, IsNotEmpty } from 'class-validator';
 
 export class SessionComplaintReviewDto {
   @ApiProperty()
@@ -13,23 +14,22 @@ export class SessionComplaintReviewDto {
 }
 
 export class SessionComplaintReviwDecisionDto extends BaseDto {
+  @IsNotEmpty()
+  @IsEnum(EComplaintReviewDecision)
   @ApiProperty({
     required: true,
     example: EComplaintReviewDecision.ACCEPTED,
   })
   decision: EComplaintReviewDecision;
 
+  @IsNotEmpty()
+  @IsEnum(EComplaintRefundDecision)
   @ApiProperty({
     required: true,
-    example: EComplaintRefundDecision.REFUND_DENIED,
+    enum: EComplaintRefundDecision,
   })
   refundDecision: EComplaintRefundDecision;
 
-  @ApiProperty({
-    required: false,
-    example: null,
-    description:
-      'This is not required while making this request -- leave it null',
-  })
-  evidenceFiles: AttachmentDto[];
+  @ApiProperty({ type: [AttachmentDto], required: false })
+  evidenceFiles?: AttachmentDto[];
 }

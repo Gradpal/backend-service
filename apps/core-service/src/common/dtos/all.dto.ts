@@ -28,10 +28,9 @@ export class BaseDto extends DtoAudit {
   attachments?: AttachmentDto[];
 
   @IsOptional()
-  @IsOptional()
   @MaxLength(DESCRIPTION_MAX_LENGTH)
   @ApiProperty({ maxLength: DESCRIPTION_MAX_LENGTH, required: false })
-  description: string;
+  description?: string;
 
   @IsOptional()
   @ApiProperty({

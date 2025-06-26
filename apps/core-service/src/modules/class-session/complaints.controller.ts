@@ -8,6 +8,7 @@ import {
   UseInterceptors,
   Query,
   Param,
+  UploadedFiles,
 } from '@nestjs/common';
 import { ComplaintsService } from './complaints.service';
 import {
@@ -24,7 +25,7 @@ import {
   ApiQuery,
   ApiParam,
 } from '@nestjs/swagger';
-import { FileInterceptor } from '@nestjs/platform-express';
+import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import { EComplaintStatus } from './enums/complaint-status.enum';
 import { EUserRole } from '../user/enums/user-role.enum';
 import { SessionComplaintReviwDecisionDto } from './dto/complaint-review.dto';
@@ -110,16 +111,19 @@ export class ComplaintsController {
   @Post(':id/resolve')
   @ApiOperation({ summary: 'Resolve complaint' })
   @PreAuthorize(EUserRole.SUPER_ADMIN)
+  @ApiConsumes('multipart/form-data')
+  @UseInterceptors(FilesInterceptor('supportingDocuments', 3)) // Handle multiple files (max 10)
+  @ApiBody({ type: SessionComplaintReviwDecisionDto })
   @ApiParam({ name: 'id', type: String })
   resolveComplaint(
     @Param('id') id: string,
     @Body() resolveComplaintDto: SessionComplaintReviwDecisionDto,
-    @UploadedFile() evidenceFiles: Express.Multer.File[],
+    @UploadedFiles() supportingDocuments: Express.Multer.File[],
   ) {
     return this.complaintsService.resolveComplaint(
       id,
       resolveComplaintDto,
-      evidenceFiles,
+      supportingDocuments || [],
     );
   }
 }
