@@ -10,8 +10,6 @@ import {
   UseInterceptors,
   UploadedFile,
   Req,
-  Put,
-  UploadedFiles,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import {
