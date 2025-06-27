@@ -248,6 +248,18 @@ export class SessionPackageService {
             isVerified: true,
           },
         },
+        student: {
+          id: true,
+          firstName: true,
+          lastName: true,
+          profilePicture: true,
+          role: true,
+          portfolio: {
+            id: true,
+            university: true,
+            isVerified: true,
+          },
+        },
         classSessions: {
           id: true,
           status: true,
@@ -490,7 +502,7 @@ export class SessionPackageService {
           },
         },
         {
-          acceptanceStatus: ESessionAcceptanceStatus.ACCEPTED,
+          acceptanceStatus: ESessionAcceptanceStatus.REJECTED,
         },
       ),
     ]);
