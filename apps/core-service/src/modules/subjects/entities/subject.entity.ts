@@ -1,5 +1,5 @@
 import { BaseEntity } from '@app/common/database/base.entity';
-import { Column, ManyToMany, JoinTable, ManyToOne } from 'typeorm';
+import { Column, ManyToMany, JoinTable, ManyToOne, JoinColumn } from 'typeorm';
 import { Entity } from 'typeorm';
 import { SubjectTier } from '../subject-tier/entities/subject-tier.entity';
 import { SubjectCategory } from './subject-category.entity';
@@ -17,6 +17,7 @@ export class Subject extends BaseEntity {
   })
   subjectTiers: SubjectTier[];
 
-  @ManyToOne(() => SubjectCategory, (category) => category.subjects)
+  @ManyToOne(() => SubjectCategory, { nullable: true })
+  @JoinColumn({ name: 'category_id' })
   category: SubjectCategory;
 }
