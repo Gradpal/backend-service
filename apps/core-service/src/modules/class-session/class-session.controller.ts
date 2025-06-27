@@ -123,6 +123,7 @@ export class ClassSessionController {
   }
 
   @Post(':id/join')
+  @AuthUser()
   @ApiOperation({ summary: 'Join a class session' })
   @ApiParam({ name: 'id', description: 'Class session ID' })
   @ApiResponse({ status: 200, type: ClassSession })
@@ -131,6 +132,7 @@ export class ClassSessionController {
   }
 
   @Post(':id/leave')
+  @AuthUser()
   @ApiOperation({ summary: 'Leave a class session' })
   @ApiParam({ name: 'id', description: 'Class session ID' })
   @ApiResponse({ status: 200, type: ClassSession })
@@ -148,6 +150,7 @@ export class ClassSessionController {
   }
 
   @Post(':id/postpone')
+  @AuthUser()
   @ApiOperation({ summary: 'Postpone a class session' })
   @ApiParam({ name: 'id', description: 'Class session ID' })
   @ApiResponse({ status: 200, type: ClassSession })
@@ -156,6 +159,7 @@ export class ClassSessionController {
   }
 
   @Post(':id/cancel')
+  @AuthUser()
   @ApiOperation({ summary: 'Cancel a class session' })
   @ApiParam({ name: 'id', description: 'Class session ID' })
   @ApiResponse({ status: 200, type: ClassSession })
