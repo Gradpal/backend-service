@@ -269,6 +269,11 @@ export class SessionPackageService {
       (sessionPackage) => sessionPackage.id,
     );
 
+    // If no packages found, return empty result
+    if (packagesIds.length === 0) {
+      return createPaginatedResponse([], 0, page, limit);
+    }
+
     const sessionPackageQuery = this.sessionPackageRepository
       .createQueryBuilder('SessionPackage')
       .leftJoinAndSelect(
