@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Inject, forwardRef } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { NationalPortal } from './entities/national-portal.entity';
@@ -16,10 +16,14 @@ export class PortalService {
   constructor(
     @InjectRepository(NationalPortal)
     private nationalPortalRepository: Repository<NationalPortal>,
+    @Inject(forwardRef(() => UserService))
     private readonly userService: UserService,
     private readonly exceptionHandler: ExceptionHandler,
   ) {}
 
+  public getNationalPortalRepository() {
+    return this.nationalPortalRepository;
+  }
   async createNationalPortal(createNationalPortalDto: CreateNationalPortalDto) {
     const exists = await this.existsByCountryEmailOrName(
       createNationalPortalDto.countryEmail,

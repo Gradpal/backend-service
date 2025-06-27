@@ -5,12 +5,15 @@ import { Repository } from 'typeorm';
 import { CreateUserDTO } from './dto/create-user.dto';
 import * as bcrypt from 'bcryptjs';
 import { ExceptionHandler } from '@app/common/exceptions/exceptions.handler';
-import { _404, _409 } from '@app/common/constants/errors-constants';
+import { _400, _404, _409 } from '@app/common/constants/errors-constants';
 import { NotificationPreProcessor } from '@core-service/integrations/notification/notification.preprocessor';
 import { EUserStatus } from './enums/user-status.enum';
 import { EUserRole } from './enums/user-role.enum';
 import { CoreServiceConfigService } from '@core-service/configs/core-service-config.service';
-import { CreateAdminDTO } from './dto/create-admin.dto';
+import {
+  CreateAdminDTO,
+  CreateNationalPortalAdminDTO,
+} from './dto/create-admin.dto';
 import { createPaginatedResponse } from '@app/common/helpers/pagination.helper';
 import { plainToClass } from 'class-transformer';
 import { PlatformQueuePayload } from '@app/common/interfaces/shared-queues/platform-queue-payload.interface';
@@ -21,12 +24,14 @@ import {
   generateAlphaNumericCode,
   hashPassword,
 } from '@core-service/common/helpers/all.helpers';
-import { UpdateSettingsDto } from './dto/update-settings.dto';
+import {
+  DeactivateUserDto,
+  UpdateSettingsDto,
+} from './dto/update-settings.dto';
 import { USER_BY_EMAIL_CACHE } from '@core-service/common/constants/brain.constants';
 import { EmailTemplates } from '@core-service/configs/email-template-configs/email-templates.config';
 import { Booking } from '../booking/entities/booking.entity';
-import { SessionDetailsDto } from '../booking/dto/session-details.dto';
-import { MoreThanOrEqual } from 'typeorm';
+import { PortalService } from '@core-service/portal/portal.service';
 
 @Injectable()
 export class UserService {
@@ -40,6 +45,8 @@ export class UserService {
     private readonly brainService: BrainService,
     private readonly minioService: MinioClientService,
     private readonly configService: CoreServiceConfigService,
+    @Inject(forwardRef(() => PortalService))
+    private readonly nationalPortalService: PortalService,
   ) {}
 
   public getUserRepository() {
@@ -127,11 +134,11 @@ export class UserService {
     page: number,
     limit: number,
     status: EUserStatus,
-    nameKey: string,
+    searchKeyword: string,
     role: EUserRole,
   ) {
     const query = this.userRepository.createQueryBuilder('user');
-    const searchKey = nameKey || '';
+    const searchKey = searchKeyword || '';
 
     if (status) {
       query.andWhere('user.status = :status', { status });
@@ -188,6 +195,7 @@ export class UserService {
         'timeSlots.daySchedule.weeklyAvailability',
       ],
     });
+    if (!user) this.exceptionHandler.throwNotFound(_404.USER_NOT_FOUND);
     return user;
   }
 
@@ -287,5 +295,42 @@ export class UserService {
   async acceptTermsAndConditions(user: User) {
     user.termsAndConditionsAccepted = true;
     return await this.userRepository.save(user);
+  }
+  async deactivateUser(userId: string, deactivateUserDto: DeactivateUserDto) {
+    const user = await this.findOne(userId);
+    console.log(user);
+    if (user.status === EUserStatus.INACTIVE) {
+      this.exceptionHandler.throwConflict(_400.USER_ALREADY_DEACTIVATED);
+    }
+    user.status = EUserStatus.INACTIVE;
+    user.deactivation = deactivateUserDto;
+    return await this.userRepository.save(user);
+  }
+  async activateUser(userId: string) {
+    const user = await this.findOne(userId);
+    if (user.status === EUserStatus.ACTIVE) {
+      this.exceptionHandler.throwConflict(_400.USER_ALREADY_ACTIVATED);
+    }
+    user.status = EUserStatus.ACTIVE;
+    return await this.userRepository.save(user);
+  }
+  async createNationalPortalAdmin(
+    createNationalPortalAdminDto: CreateNationalPortalAdminDTO,
+  ) {
+    const portal = await this.nationalPortalService.getNationalPortalById(
+      createNationalPortalAdminDto.countryId,
+    );
+    const user = await this.userRepository.create({
+      email: createNationalPortalAdminDto.email,
+      role: EUserRole.NATIONAL_PORTAL_ADMIN,
+      userName: createNationalPortalAdminDto.email,
+      password: await hashPassword(createNationalPortalAdminDto.email),
+    });
+    portal.admin = user;
+    const [updatedPortal, updatedUser] = await Promise.all([
+      this.userRepository.save(user),
+      this.nationalPortalService.getNationalPortalRepository().save(portal),
+    ]);
+    return updatedUser;
   }
 }

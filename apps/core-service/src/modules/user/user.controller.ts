@@ -34,8 +34,12 @@ import { EUserRole } from './enums/user-role.enum';
 import { Public } from '@app/common/decorators/public.decorator';
 import { EUserStatus } from './enums/user-status.enum';
 import { User } from './entities/user.entity';
-import { UpdateSettingsDto } from './dto/update-settings.dto';
+import {
+  DeactivateUserDto,
+  UpdateSettingsDto,
+} from './dto/update-settings.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { CreateNationalPortalAdminDTO } from './dto/create-admin.dto';
 
 @Controller('user')
 @ApiTags('user')
@@ -59,6 +63,16 @@ export class UserController {
     return this.userService.create(createUserDto, profilePicture);
   }
 
+  @Post('/national-portal-admin')
+  @Public()
+  @ApiBody({ type: CreateNationalPortalAdminDTO })
+  async createNationalPortalAdmin(
+    @Body() createNationalPortalAdminDto: CreateNationalPortalAdminDTO,
+  ) {
+    return this.userService.createNationalPortalAdmin(
+      createNationalPortalAdminDto,
+    );
+  }
   @Get()
   @ApiQuery({ name: 'page', required: false, example: 1 })
   @ApiQuery({ name: 'limit', required: false, example: 10 })
@@ -141,5 +155,23 @@ export class UserController {
   acceptTermsAndConditions(@Req() req) {
     const loggedInUser = req.user as User;
     return this.userService.acceptTermsAndConditions(loggedInUser);
+  }
+
+  @Patch('/deactivate/:userId')
+  @ApiParam({ name: 'userId', required: true })
+  @ApiBody({ type: DeactivateUserDto })
+  @PreAuthorize(EUserRole.SUPER_ADMIN)
+  deactivateUser(
+    @Param('userId') userId: string,
+    @Body() deactivateUserDto: DeactivateUserDto,
+  ) {
+    return this.userService.deactivateUser(userId, deactivateUserDto);
+  }
+
+  @Patch('/activate/:userId')
+  @ApiParam({ name: 'userId', required: true })
+  @PreAuthorize(EUserRole.SUPER_ADMIN)
+  activateUser(@Param('userId') userId: string) {
+    return this.userService.activateUser(userId);
   }
 }

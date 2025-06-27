@@ -28,3 +28,15 @@ export class UpdateSettingsDto {
   @IsStrongPassword()
   password: string;
 }
+
+export class DeactivateUserDto {
+  @IsString()
+  @IsNotEmpty()
+  @ApiProperty()
+  reason: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @ApiProperty()
+  message: string;
+}
