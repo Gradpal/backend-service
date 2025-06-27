@@ -134,6 +134,16 @@ export class SubjectsService {
     return this.subjectRepository.save(subject);
   }
 
+  async deleteSubject(id: string) {
+    const subject = await this.getSubjectById(id);
+    return this.subjectRepository.softDelete(subject);
+  }
+
+  async deleteSubjectCategory(id: string) {
+    const subjectCategory = await this.getSubjectCategoryById(id);
+    return this.subjectCategoryRepository.softDelete(subjectCategory);
+  }
+
   async updatePortfolioSubjects(
     user: User,
     subjectId: string,
