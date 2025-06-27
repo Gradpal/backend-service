@@ -1,4 +1,13 @@
-import { Controller, Get, Post, Body, Param, Query, Put } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  Query,
+  Put,
+  Delete,
+} from '@nestjs/common';
 import { SubjectsService } from './subjects.service';
 import {
   CreateSubjectCategoryDto,
@@ -73,6 +82,24 @@ export class SubjectsController {
     @Body() createSubjectCategoryDto: CreateSubjectCategoryDto,
   ) {
     return this.subjectsService.createSubjectCategory(createSubjectCategoryDto);
+  }
+
+  @Delete(':id')
+  @ApiOperation({ summary: 'Delete a subject' })
+  @ApiResponse({ status: 200, description: 'Subject deleted successfully' })
+  @ApiResponse({ status: 404, description: 'Subject not found' })
+  deleteSubject(@Param('id') id: string) {
+    return this.subjectsService.deleteSubject(id);
+  }
+  @Delete('categories/delete/:id')
+  @ApiOperation({ summary: 'Delete a subject category' })
+  @ApiResponse({
+    status: 200,
+    description: 'Subject category deleted successfully',
+  })
+  @ApiResponse({ status: 404, description: 'Subject category not found' })
+  deleteSubjectCategory(@Param('id') id: string) {
+    return this.subjectsService.deleteSubjectCategory(id);
   }
   @Get('categories/all')
   @ApiOperation({ summary: 'Get all subject categories' })
