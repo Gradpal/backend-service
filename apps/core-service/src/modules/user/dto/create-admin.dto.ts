@@ -34,3 +34,16 @@ export class CreateAdminDTO {
 
   role: EUserRole = EUserRole.SUPER_ADMIN;
 }
+
+export class CreateNationalPortalAdminDTO {
+  @IsString()
+  @IsNotEmpty()
+  @IsEmail()
+  @ApiProperty()
+  email: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @ApiProperty()
+  countryId: string;
+}

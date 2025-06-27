@@ -5,6 +5,7 @@ import { BaseEntity } from '@app/common/database/base.entity';
 import { Portfolio } from '@core-service/modules/portfolio/entities/portfolio.entity';
 import { AcademicEmailVerificationDTO } from '../dto/create-user.dto';
 import { TimeSlot } from '@core-service/modules/portfolio/weekly-availability/entities/weeky-availability.entity';
+import { DeactivateUserDto } from '../dto/update-settings.dto';
 @Entity()
 export class User extends BaseEntity {
   @Column({ type: 'varchar', length: 100, nullable: true })
@@ -19,7 +20,7 @@ export class User extends BaseEntity {
   @Column()
   password: string;
 
-  @Column({ unique: true })
+  @Column({ unique: true, nullable: true })
   userName: string;
 
   @Column({ nullable: true })
@@ -60,4 +61,7 @@ export class User extends BaseEntity {
 
   @Column({ default: false })
   termsAndConditionsAccepted: boolean;
+
+  @Column({ type: 'json', nullable: true })
+  deactivation: DeactivateUserDto;
 }

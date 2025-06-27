@@ -44,6 +44,14 @@ export const _400 = {
     code: 'TIME_SLOT_NOT_AVAILABLE',
     message: 'The selected time slot is not available',
   },
+  USER_ALREADY_DEACTIVATED: {
+    code: 'USER_ALREADY_DEACTIVATED',
+    message: 'The user is already deactivated',
+  },
+  USER_ALREADY_ACTIVATED: {
+    code: 'USER_ALREADY_ACTIVATED',
+    message: 'The user is already activated',
+  },
   STRIPE_ACCOUNT_CREATION_FAILED: {
     code: 'STRIPE_ACCOUNT_CREATION_FAILED',
     message: 'Failed to create Stripe account',
