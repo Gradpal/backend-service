@@ -6,13 +6,18 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Subject } from './entities/subject.entity';
-import { CreateSubjectDto } from './dtos/create-subject.dto';
+import {
+  CreateSubjectCategoryDto,
+  CreateSubjectDto,
+} from './dtos/create-subject.dto';
 import { UpdatePortfolioSubjectsDto } from './dtos/update-portfolio-subjects.dto';
 import { Portfolio } from '../portfolio/entities/portfolio.entity';
 import { User } from '../user/entities/user.entity';
 import { SubjectTierService } from './subject-tier/subject-tier.service';
 import { ExceptionHandler } from '@app/common/exceptions/exceptions.handler';
-import { _404 } from '@app/common/constants/errors-constants';
+import { _404, _409 } from '@app/common/constants/errors-constants';
+import { SubjectCategory } from './entities/subject-category.entity';
+import { createPaginatedResponse } from '@app/common/helpers/pagination.helper';
 @Injectable()
 export class SubjectsService {
   constructor(
@@ -20,31 +25,87 @@ export class SubjectsService {
     private readonly subjectRepository: Repository<Subject>,
     @InjectRepository(Portfolio)
     private readonly portfolioRepository: Repository<Portfolio>,
+    @InjectRepository(SubjectCategory)
+    private readonly subjectCategoryRepository: Repository<SubjectCategory>,
     private readonly subjectTierService: SubjectTierService,
     private readonly exceptionHandler: ExceptionHandler,
   ) {}
 
   async createSubject(subject: CreateSubjectDto) {
-    const existingSubject = await this.subjectRepository.findOne({
-      where: { name: subject.name },
-    });
+    const [existingSubject, subjectCategory] = await Promise.all([
+      this.subjectRepository.findOne({
+        where: { name: subject.name },
+      }),
+      this.subjectCategoryRepository.findOne({
+        where: { id: subject.categoryId },
+      }),
+    ]);
     if (existingSubject) {
-      throw new ConflictException('Subject already exists');
+      this.exceptionHandler.throwConflict(_409.SUBJECT_ALREADY_EXISTS);
     }
-    const newSubject = this.subjectRepository.create(subject);
+    const newSubject = this.subjectRepository.create({
+      ...subject,
+      category: subjectCategory,
+    });
     return this.subjectRepository.save(newSubject);
   }
 
   async getSubjects() {
-    return await this.subjectRepository.find({});
+    return await this.subjectRepository.find({
+      relations: ['category'],
+    });
   }
 
   async getSubjectById(id: string) {
-    const subject = await this.subjectRepository.findOne({ where: { id } });
-    if (!subject) {
-      throw new NotFoundException('Subject not found');
-    }
+    const subject = await this.subjectRepository.findOne({
+      where: { id },
+      relations: ['category'],
+    });
+    if (!subject) this.exceptionHandler.throwNotFound(_404.SUBJECT_NOT_FOUND);
     return subject;
+  }
+
+  async getSubjectCategories(
+    searchKey?: string,
+    page?: number,
+    limit?: number,
+  ) {
+    const queryBuilder = this.subjectCategoryRepository
+      .createQueryBuilder('subjectCategory')
+      .leftJoinAndSelect('subjectCategory.subjects', 'subjects');
+    if (searchKey) {
+      queryBuilder.where('subjectCategory.name ILIKE :searchKey', {
+        searchKey: `%${searchKey}%`,
+      });
+    }
+    if (page && limit) {
+      queryBuilder.skip((page - 1) * limit).take(limit);
+    }
+    const [subjectCategories, total] = await queryBuilder.getManyAndCount();
+
+    return createPaginatedResponse(subjectCategories, total, page, limit);
+  }
+
+  async createSubjectCategory(subjectCategory: CreateSubjectCategoryDto) {
+    const existingSubjectCategory =
+      await this.subjectCategoryRepository.findOne({
+        where: { name: subjectCategory.name },
+      });
+    if (existingSubjectCategory) {
+      this.exceptionHandler.throwConflict(_409.SUBJECT_CATEGORY_ALREADY_EXISTS);
+    }
+    const newSubjectCategory =
+      this.subjectCategoryRepository.create(subjectCategory);
+    return this.subjectCategoryRepository.save(newSubjectCategory);
+  }
+  async getSubjectCategoryById(id: string) {
+    const subjectCategory = await this.subjectCategoryRepository.findOne({
+      where: { id: id },
+    });
+    if (!subjectCategory) {
+      this.exceptionHandler.throwNotFound(_404.SUBJECT_CATEGORY_NOT_FOUND);
+    }
+    return subjectCategory;
   }
 
   async findOne(id: string) {
@@ -53,6 +114,24 @@ export class SubjectsService {
       this.exceptionHandler.throwNotFound(_404.SUBJECT_NOT_FOUND);
     }
     return subject;
+  }
+
+  async updateSubjectCategory(
+    id: string,
+    updateSubjectCategoryDto: CreateSubjectCategoryDto,
+  ) {
+    const subjectCategory = await this.getSubjectCategoryById(id);
+    subjectCategory.name = updateSubjectCategoryDto.name;
+    subjectCategory.description = updateSubjectCategoryDto.description;
+    return this.subjectCategoryRepository.save(subjectCategory);
+  }
+  async updateSubject(id: string, updateSubjectDto: CreateSubjectDto) {
+    const subject = await this.getSubjectById(id);
+    subject.name = updateSubjectDto.name;
+    subject.category = await this.getSubjectCategoryById(
+      updateSubjectDto.categoryId,
+    );
+    return this.subjectRepository.save(subject);
   }
 
   async updatePortfolioSubjects(
