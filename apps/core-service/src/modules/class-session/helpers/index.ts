@@ -6,10 +6,8 @@ export function timeStringToDate(timeString) {
 }
 
 export function timeStringToNextDate(timeString) {
-  console.log('timeString---->', timeString);
   const [dayStr, hourStr, minuteStr] = timeString.split(':');
   const targetDay = dayStr.trim();
-  console.log('targetDay---->', targetDay);
   const hours = parseInt(hourStr, 10);
   const minutes = parseInt(minuteStr, 10);
 
