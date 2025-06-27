@@ -294,6 +294,7 @@ export class SessionPackageService {
       )
       .leftJoinAndSelect('SessionPackage.classSessions', 'classSessions')
       .leftJoinAndSelect('SessionPackage.tutor', 'tutor')
+      .leftJoinAndSelect('SessionPackage.student', 'student')
       .leftJoinAndSelect('tutor.portfolio', 'tutorPortfolio')
       .leftJoinAndSelect('classSessions.timeSlot', 'timeSlot')
       .leftJoinAndSelect('timeSlot.daySchedule', 'daySchedule')
