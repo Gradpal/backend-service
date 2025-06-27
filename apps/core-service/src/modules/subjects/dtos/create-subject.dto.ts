@@ -1,5 +1,4 @@
-import { IsEnum, IsNotEmpty, IsString } from 'class-validator';
-import { ESubjectCategory } from '../enums/ESubjectCategory.enum';
+import { IsNotEmpty, IsString } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 export class CreateSubjectDto {
   @IsString()
@@ -7,8 +6,20 @@ export class CreateSubjectDto {
   @ApiProperty({ type: String })
   name: string;
 
-  @IsEnum(ESubjectCategory)
+  @IsString()
   @IsNotEmpty()
-  @ApiProperty({ enum: ESubjectCategory })
-  category: ESubjectCategory;
+  @ApiProperty({ type: String })
+  categoryId: string;
+}
+
+export class CreateSubjectCategoryDto {
+  @IsString()
+  @IsNotEmpty()
+  @ApiProperty({ type: String })
+  name: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @ApiProperty({ type: String })
+  description: string;
 }

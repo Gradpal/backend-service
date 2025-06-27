@@ -11,10 +11,17 @@ import { Portfolio } from '../portfolio/entities/portfolio.entity';
 import { PortfolioModule } from '../portfolio/portfolio.module';
 import { ExceptionHandler } from '@app/common/exceptions/exceptions.handler';
 import { ClassSessionModule } from '../class-session/class-session.module';
+import { SubjectCategory } from './entities/subject-category.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Subject, SubjectTier, User, Portfolio]),
+    TypeOrmModule.forFeature([
+      Subject,
+      SubjectTier,
+      User,
+      Portfolio,
+      SubjectCategory,
+    ]),
     forwardRef(() => PortfolioModule),
     forwardRef(() => ClassSessionModule),
   ],

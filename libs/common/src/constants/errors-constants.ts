@@ -214,6 +214,10 @@ export const _404 = {
     code: 'SUBJECT_TIER_NOT_FOUND',
     message: 'The requested subject tier was not found',
   },
+  SUBJECT_CATEGORY_NOT_FOUND: {
+    code: 'SUBJECT_CATEGORY_NOT_FOUND',
+    message: 'The requested subject category was not found',
+  },
   DAY_SCHEDULE_NOT_FOUND: {
     code: 'DAY_SCHEDULE_NOT_FOUND',
     message: 'The requested day schedule was not found',
@@ -284,6 +288,14 @@ export const _409 = {
   NATIONAL_PORTAL_ALREADY_EXISTS: {
     code: 'NATIONAL_PORTAL_ALREADY_EXISTS',
     message: 'National portal already exists',
+  },
+  SUBJECT_ALREADY_EXISTS: {
+    code: 'SUBJECT_ALREADY_EXISTS',
+    message: 'Subject already exists',
+  },
+  SUBJECT_CATEGORY_ALREADY_EXISTS: {
+    code: 'SUBJECT_CATEGORY_ALREADY_EXISTS',
+    message: 'Subject category already exists',
   },
 };
 
