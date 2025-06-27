@@ -294,6 +294,7 @@ export class SessionPackageService {
       )
       .leftJoinAndSelect('SessionPackage.classSessions', 'classSessions')
       .leftJoinAndSelect('SessionPackage.tutor', 'tutor')
+      .leftJoinAndSelect('SessionPackage.student', 'student')
       .leftJoinAndSelect('tutor.portfolio', 'tutorPortfolio')
       .leftJoinAndSelect('classSessions.timeSlot', 'timeSlot')
       .leftJoinAndSelect('timeSlot.daySchedule', 'daySchedule')
@@ -330,6 +331,12 @@ export class SessionPackageService {
       'tutor.firstName',
       'tutor.lastName',
       'tutor.profilePicture',
+      'tutor.email',
+      'student.id',
+      'student.firstName',
+      'student.lastName',
+      'student.profilePicture',
+      'student.email',
       'tutor.role',
       'tutorPortfolio.id',
       'tutorPortfolio.university',
