@@ -297,6 +297,10 @@ export const _409 = {
     code: 'SUBJECT_CATEGORY_ALREADY_EXISTS',
     message: 'Subject category already exists',
   },
+  UNIVERSITY_ALREADY_EXISTS: {
+    code: 'UNIVERSITY_ALREADY_EXISTS',
+    message: 'University already exists',
+  },
 };
 
 // internal server error
