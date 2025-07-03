@@ -51,7 +51,7 @@ services:
     command: redis-server --requirepass "${REDIS_PASSWORD}"
 
   minio:
-    image: minio/minio
+    image: mirror.gcr.io/minio/minio
     command: server /data --console-address ":9001"
     env_file:
       - database.env
