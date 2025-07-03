@@ -38,6 +38,7 @@ import {
 } from './dto/update-settings.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { CreateNationalPortalAdminDTO } from './dto/create-admin.dto';
+import { TestFileUploadDto } from './dto/test-file-upload.dto';
 
 @Controller('user')
 @ApiTags('user')
@@ -171,5 +172,19 @@ export class UserController {
   @PreAuthorize(EUserRole.SUPER_ADMIN)
   activateUser(@Param('userId') userId: string) {
     return this.userService.activateUser(userId);
+  }
+
+  @Post('/test/upload-file')
+  @UseInterceptors(FileInterceptor('file'))
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({ type: TestFileUploadDto })
+  @Public()
+  testUploadFile(
+    @UploadedFile() file: Express.Multer.File,
+    @Body() body: TestFileUploadDto,
+  ) {
+    console.log('Body:', body);
+    console.log('File:', file);
+    return this.userService.testUploadFile(file);
   }
 }

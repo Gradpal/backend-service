@@ -333,4 +333,8 @@ export class UserService {
     ]);
     return updatedUser;
   }
+
+  async testUploadFile(file: Express.Multer.File) {
+    return this.minioService.uploadFile(file);
+  }
 }
