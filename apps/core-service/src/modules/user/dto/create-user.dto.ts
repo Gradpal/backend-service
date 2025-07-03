@@ -57,11 +57,6 @@ export class CreateUserDTO {
   @ApiProperty({ type: 'string', format: 'binary', required: false })
   @IsOptional()
   profilePicture?: Express.Multer.File;
-
-  @IsBoolean()
-  @ApiProperty({ default: false })
-  @IsOptional()
-  termsAndConditionsAccepted: boolean;
 }
 
 export class AcademicEmailVerificationDTO {

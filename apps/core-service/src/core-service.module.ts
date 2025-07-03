@@ -24,6 +24,7 @@ import { SessionPackageModule } from './modules/session-package/session-package.
 import { FinanceModule } from './modules/finance/finance.module';
 import { PortalModule } from './portal/portal.module';
 import { UniversityModule } from './university/university.module';
+import { AppModule } from './modules/app/app.module';
 
 @Module({
   imports: [
@@ -58,6 +59,7 @@ import { UniversityModule } from './university/university.module';
     FinanceModule,
     PortalModule,
     UniversityModule,
+    AppModule,
   ],
   providers: [
     {
