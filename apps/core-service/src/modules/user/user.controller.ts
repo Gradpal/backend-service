@@ -175,16 +175,25 @@ export class UserController {
   }
 
   @Post('/test/upload-file')
-  @UseInterceptors(FileInterceptor('file'))
+  @UseInterceptors(FileInterceptor('picture'))
   @ApiConsumes('multipart/form-data')
-  @ApiBody({ type: TestFileUploadDto })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        name: { type: 'string', example: 'My File Name' },
+        picture: { type: 'string', format: 'binary' },
+      },
+      required: ['name', 'picture'],
+    },
+  })
   @Public()
   testUploadFile(
-    @UploadedFile() file: Express.Multer.File,
+    @UploadedFile() picture: Express.Multer.File,
     @Body() body: TestFileUploadDto,
   ) {
     console.log('Body:', body);
-    console.log('File:', file);
-    return this.userService.testUploadFile(file);
+    console.log('File:', picture);
+    return this.userService.testUploadFile(picture);
   }
 }
