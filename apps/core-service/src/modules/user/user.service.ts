@@ -409,6 +409,7 @@ export class UserService {
         firstName: true,
         lastName: true,
         email: true,
+        credits: true,
         role: true,
         portfolio: {
           id: true,

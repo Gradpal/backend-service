@@ -11,6 +11,8 @@ import { UpdateBulkPricingRuleDto } from './dtos/update-pricing-rules.dto';
 import { FinanceHistory } from './entities/finance-history.entity';
 import { User } from '../user/entities/user.entity';
 import { EFinanceHistoryAction } from './enums/finance-history-action.enum';
+import { BuyCreditsDto } from './dtos/buy-credits.dto';
+import { UserService } from '../user/user.service';
 
 @Injectable()
 export class FinanceService {
@@ -21,6 +23,7 @@ export class FinanceService {
     private readonly pricingRuleRepository: Repository<PricingRule>,
     @InjectRepository(FinanceHistory)
     private readonly financeHistoryRepository: Repository<FinanceHistory>,
+    private readonly userService: UserService,
     private exceptionHandler: ExceptionHandler,
   ) {}
 
@@ -327,5 +330,11 @@ export class FinanceService {
         updatedAt: 'DESC',
       },
     });
+  }
+
+  async buyCreditsForStudent(studentId: string, buyCreditsDto: BuyCreditsDto) {
+    const student = await this.userService.findOne(studentId);
+    student.credits += buyCreditsDto.credits;
+    return await this.userService.saveUser(student);
   }
 }
