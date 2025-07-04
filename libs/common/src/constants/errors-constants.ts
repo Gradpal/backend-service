@@ -248,6 +248,12 @@ export const _404 = {
     code: 'COMPLAINT_NOT_FOUND',
     message: 'The requested complaint was not found',
   },
+
+  // legal documents
+  LEGAL_DOCUMENT_NOT_FOUND: {
+    code: 'LEGAL_DOCUMENT_NOT_FOUND',
+    message: 'The requested legal document was not found',
+  },
 };
 
 // conflict
