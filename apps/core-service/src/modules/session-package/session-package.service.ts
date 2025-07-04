@@ -30,6 +30,7 @@ import {
 import { createPaginatedResponse } from '@app/common/helpers/pagination.helper';
 import { AcceptPackageSessionDto } from '../finance/dtos/accept-package-session.dto';
 import { PackageStatus } from './enums/paclage-status.enum';
+import { PackageOffering } from './entities/package-offering.entity';
 
 @Injectable()
 export class SessionPackageService {
@@ -40,6 +41,8 @@ export class SessionPackageService {
     private readonly packageTypeRepository: Repository<PackageType>,
     @InjectRepository(ClassSession)
     private readonly classSessionRepository: Repository<ClassSession>,
+    @InjectRepository(PackageOffering)
+    private readonly packageOfferingRepository: Repository<PackageOffering>,
     @Inject(forwardRef(() => UserService))
     private readonly userService: UserService,
     private readonly exceptionHandler: ExceptionHandler,
@@ -55,13 +58,18 @@ export class SessionPackageService {
     return this.sessionPackageRepository;
   }
 
+  getPackageOfferingRepository() {
+    return this.packageOfferingRepository;
+  }
+
   async create(
     student: User,
     createClassSessionPackageDto: CreateClassSessionPackageDto,
   ) {
-    const packageType = await this.findOnePackageType(
-      createClassSessionPackageDto.packageTypeId,
-    );
+    const packageOffering = await this.getPackageOfferingRepository().findOne({
+      where: { id: createClassSessionPackageDto.packageTypeId },
+      relations: ['packageType'],
+    });
 
     const sessions = [];
 
@@ -83,7 +91,7 @@ export class SessionPackageService {
     const createdAt = new Date();
     const updatedAt = createdAt;
     let sessionPackage = this.sessionPackageRepository.create({
-      sessionPackageType: packageType,
+      sessionPackageType: packageOffering,
       tutor: student,
       student: student,
     });
@@ -102,7 +110,7 @@ export class SessionPackageService {
       const price =
         (subjectTier.credits *
           (createClassSessionPackageDto.sessionLength / 60) *
-          packageType.discount) /
+          packageOffering.discount) /
         100;
 
       let session = this.classSessionRepository.create({

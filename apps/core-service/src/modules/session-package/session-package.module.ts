@@ -12,10 +12,16 @@ import { UserModule } from '../user/user.module';
 import { SubjectsModule } from '../subjects/subjects.module';
 import { CoreServiceConfigModule } from '@core-service/configs/core-service-config.module';
 import { PortfolioModule } from '../portfolio/portfolio.module';
+import { PackageOffering } from './entities/package-offering.entity';
 @Module({
   imports: [
     ClassSessionModule,
-    TypeOrmModule.forFeature([SessionPackage, PackageType, ClassSession]),
+    TypeOrmModule.forFeature([
+      SessionPackage,
+      PackageType,
+      ClassSession,
+      PackageOffering,
+    ]),
     MinioClientModule,
     BrainModule,
     forwardRef(() => UserModule),
