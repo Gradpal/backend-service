@@ -1,0 +1,25 @@
+{{> header title="RP E-Portfolio - Project Supervisor Update: Supervisor Reactivation"}}
+
+        <main style="font-size: 16px; line-height: 1.7;">
+            <p style="margin-bottom: 24px; font-weight: 500;">Dear Parent,</p>
+
+            <p style="margin-bottom: 32px; color: #374151;">
+This is to inform you that {{studentName}}, who is a student from {{nationalPortal}} has had invited you to join their account, monitor their progress and provide guidance as their parent.
+            </p>
+
+            <p style="margin-bottom: 32px; color: #374151;">
+                Please click the button below to accept the invitation and join their account.
+            </p>
+
+            {{> button url=invitationUrl text="Accept Invitation" style="background-color: #2F6A4D; color: #ffffff; padding: 12px 25px; border-radius: 5px; text-align: center; font-weight: bold; text-decoration: none;"}}
+
+            <p style="margin-bottom: 32px; color: #374151;">
+                        If you have any questions about this change, please contact <span style="font-weight: bold;">{{nationalPortalAdminContact}}</span>
+            </p>
+
+        {{> footer NationalPortal=NationalPortal}}
+
+        </main>
+    </div>
+</body>
+</html>

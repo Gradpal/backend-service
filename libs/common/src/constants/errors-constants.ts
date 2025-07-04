@@ -159,6 +159,10 @@ export const _403 = {
     code: 'SUBJECT_TIER_NOT_BELONG_TO_PORTFOLIO',
     message: 'The subject tier does not belong to the portfolio',
   },
+  PARENT_INVITATION_EXPIRED: {
+    code: 'PARENT_INVITATION_EXPIRED',
+    message: 'The parent invitation has expired',
+  },
 };
 
 // not found

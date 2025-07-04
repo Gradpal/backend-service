@@ -39,6 +39,7 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express';
 import { CreateNationalPortalAdminDTO } from './dto/create-admin.dto';
 import { TestFileUploadDto } from './dto/test-file-upload.dto';
+import { AcceptInvitationDto } from './dto/accept-invitation.dto';
 
 @Controller('user')
 @ApiTags('user')
@@ -173,6 +174,42 @@ export class UserController {
   activateUser(@Param('userId') userId: string) {
     return this.userService.activateUser(userId);
   }
+  // Parent Controllers
+
+  @Post('/invite-parent/:parentEmail')
+  @ApiParam({ name: 'parentEmail', required: true })
+  @AuthUser()
+  inviteParent(@Param('parentEmail') parentEmail: string, @Req() req) {
+    const student = req.user as User;
+    return this.userService.inviteParentByEmail(parentEmail, student);
+  }
+
+  @Post('/accept-parent-invitation/:parentEmail')
+  @Public()
+  @ApiParam({ name: 'parentEmail', required: true })
+  @ApiBody({ type: AcceptInvitationDto })
+  acceptParentInvitation(
+    @Param('parentEmail') parentEmail: string,
+    @Body() acceptInvitationDto: AcceptInvitationDto,
+  ) {
+    return this.userService.acceptParentInvitation(
+      parentEmail,
+      acceptInvitationDto,
+    );
+  }
+
+  @Get('/children/logged-in-parent')
+  @AuthUser()
+  @ApiResponse({
+    status: 200,
+    description: 'Get children by logged in parent',
+    type: [User],
+  })
+  getChildrenByLoggedInParent(@Req() req) {
+    const parent = req.user as User;
+    return this.userService.getChildren(parent);
+  }
+  ///////////////////////  ///////////////////////  ///////////////////////  ///////////////////////
   @Post('/create-random-dummy-users')
   @Public()
   createRandomDummyUsers() {

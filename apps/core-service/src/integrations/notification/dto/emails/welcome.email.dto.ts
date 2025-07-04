@@ -1,4 +1,4 @@
-import { IsNumber } from 'class-validator';
+import { IsNumber, IsString } from 'class-validator';
 import { VerificationEmailDto } from './verification.email.dto';
 
 export class WelcomeEmailDto extends VerificationEmailDto {
@@ -7,4 +7,18 @@ export class WelcomeEmailDto extends VerificationEmailDto {
 
   @IsNumber()
   otpValidityDuration?: number;
+}
+
+export class ParentInvitationEmailDto {
+  @IsString()
+  studentName?: string;
+
+  @IsString()
+  nationalPortal?: string;
+
+  @IsString()
+  nationalPortalAdminContact?: string;
+
+  @IsString()
+  invitationUrl?: string;
 }
