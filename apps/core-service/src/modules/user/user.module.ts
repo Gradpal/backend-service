@@ -6,6 +6,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { MinioClientModule } from '../minio-client/minio-client.module';
 import { BrainModule } from '@app/common/brain/brain.module';
 import { Booking } from '../booking/entities/booking.entity';
+import { PortfolioModule } from '../portfolio/portfolio.module';
 import { PortalModule } from '@core-service/portal/portal.module';
 
 @Module({
@@ -13,7 +14,9 @@ import { PortalModule } from '@core-service/portal/portal.module';
     TypeOrmModule.forFeature([User, Booking]),
     BrainModule,
     MinioClientModule,
-    forwardRef(() => PortalModule),
+    PortalModule,
+    // forwardRef(() => PortalModule),
+    forwardRef(() => PortfolioModule),
   ],
   controllers: [UserController],
   providers: [UserService],
