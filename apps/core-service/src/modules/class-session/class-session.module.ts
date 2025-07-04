@@ -15,6 +15,7 @@ import { MinioClientService } from '../minio-client/minio-client.service';
 @Module({
   imports: [
     TypeOrmModule.forFeature([ClassSession, Complaint]),
+    forwardRef(() => UserModule),
     forwardRef(() => PortfolioModule),
     forwardRef(() => SubjectsModule),
     forwardRef(() => UserModule),

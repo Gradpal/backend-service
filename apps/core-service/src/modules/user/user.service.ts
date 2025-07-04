@@ -32,6 +32,7 @@ import { USER_BY_EMAIL_CACHE } from '@core-service/common/constants/brain.consta
 import { EmailTemplates } from '@core-service/configs/email-template-configs/email-templates.config';
 import { Booking } from '../booking/entities/booking.entity';
 import { PortalService } from '@core-service/portal/portal.service';
+import { PortfolioService } from '../portfolio/portfolio.service';
 
 @Injectable()
 export class UserService {
@@ -40,6 +41,8 @@ export class UserService {
     private readonly userRepository: Repository<User>,
     @InjectRepository(Booking)
     private readonly bookingRepository: Repository<Booking>,
+    @Inject(forwardRef(() => PortfolioService))
+    private readonly portfolioService: PortfolioService,
     private readonly notificationProcessor: NotificationPreProcessor,
     private readonly exceptionHandler: ExceptionHandler,
     private readonly brainService: BrainService,
@@ -334,7 +337,96 @@ export class UserService {
     return updatedUser;
   }
 
-  async testUploadFile(file: Express.Multer.File) {
-    return this.minioService.uploadFile(file);
+  async createRandomDummyUsers() {
+    const dummyUsers = [
+      {
+        email: 'student@gradpal.io',
+        role: EUserRole.STUDENT,
+        firstName: 'Student',
+        lastName: '1',
+        userName: 'student1',
+        password: await hashPassword('VAVAvalens2003@!'),
+        profilePicture: '',
+        referalCode: generateAlphaNumericCode(10),
+        termsAndConditionsAccepted: false,
+        phoneNumber: '+23481333633903',
+      },
+      {
+        email: 'tutor@gradpal.io',
+        role: EUserRole.TUTOR,
+        firstName: 'Tutor',
+        lastName: '1',
+        userName: 'student2',
+        password: await hashPassword('VAVAvalens2003@!'),
+        profilePicture: '',
+        referalCode: generateAlphaNumericCode(10),
+        termsAndConditionsAccepted: false,
+        phoneNumber: '+2348133353933',
+      },
+      {
+        email: 'admin@gradpal.io',
+        role: EUserRole.SUPER_ADMIN,
+        firstName: 'Admin',
+        lastName: '1',
+        userName: 'student3',
+        password: await hashPassword('VAVAvalens2003@!'),
+        profilePicture: '',
+        referalCode: generateAlphaNumericCode(10),
+        termsAndConditionsAccepted: false,
+        phoneNumber: '+2348133343313',
+      },
+      {
+        email: 'nationalportaladmin@gradpal.io',
+        role: EUserRole.NATIONAL_PORTAL_ADMIN,
+        firstName: 'National Portal Admin',
+        password: await hashPassword('VAVAvalens2003@!'),
+        lastName: '1',
+        userName: 'national-portal-admin',
+        phoneNumber: '+2348133323333',
+      },
+      {
+        email: 'parent@gradpal.io',
+        role: EUserRole.PARENT,
+        firstName: 'Parent',
+        lastName: '1',
+        userName: 'parent1',
+        password: await hashPassword('VAVAvalens2003@!'),
+        profilePicture: '',
+        referalCode: generateAlphaNumericCode(10),
+        termsAndConditionsAccepted: false,
+        phoneNumber: '+2348133333333',
+      },
+    ];
+    const users = await Promise.all(
+      dummyUsers.map(async (user) => {
+        if (await this.existByEmail(user.email)) {
+          return;
+        }
+        let userEntity = this.userRepository.create(user);
+        userEntity = await this.userRepository.save(userEntity);
+
+        if (user.role == EUserRole.STUDENT || user.role == EUserRole.TUTOR) {
+          let portfolio = await this.portfolioService
+            .getPortfolioRepository()
+            .create({
+              user: userEntity,
+              subjects: [],
+              subjectTiers: [],
+              academicSubjects: [],
+              academicTranscripts: [],
+              degreeCertificates: [],
+              sessionType: [],
+              sessionPackageTypes: [],
+              sessionLengths: [],
+              hourlyRate: 0,
+              totalStudents: 0,
+            });
+          portfolio = await this.portfolioService.save(portfolio);
+          userEntity.portfolio = portfolio;
+          await this.userRepository.save(userEntity);
+        }
+      }),
+    );
+    return users;
   }
 }

@@ -55,6 +55,7 @@ export class PortfolioService {
     private readonly timeSlotRepository: Repository<TimeSlot>,
     @InjectRepository(Booking)
     private readonly bookingRepository: Repository<Booking>,
+    @Inject(forwardRef(() => UserService))
     private readonly userService: UserService,
     private readonly exceptionHandler: ExceptionHandler,
     private readonly minioService: MinioClientService,

@@ -14,7 +14,6 @@ import {
   ESessionStatus,
   ESessionAcceptanceStatus,
 } from './enums/session-status.enum';
-import { MoreThanOrEqual } from 'typeorm';
 import { User } from '../user/entities/user.entity';
 import { SubjectTierService } from '../subjects/subject-tier/subject-tier.service';
 import { MinioClientService } from '../minio-client/minio-client.service';
@@ -24,18 +23,14 @@ import { EUserRole } from '../user/enums/user-role.enum';
 import { CancelLessonDto } from './dto/cancel-lesson.dto';
 import { RequestSessionExtensionDto } from './dto/request-extion.dto';
 import { WeeklyAvailabilityService } from '../portfolio/weekly-availability/weekly-availability';
-import { normalizeArray } from '@core-service/common/helpers/all.helpers';
-import { generateUUID } from '@app/common/helpers/shared.helpers';
 import { SessionTimelineType } from './enums/session-timeline-type.enum';
 import { createPaginatedResponse } from '@app/common/helpers/pagination.helper';
 import { CoreServiceConfigService } from '@core-service/configs/core-service-config.service';
 import { BrainService } from '@app/common/brain/brain.service';
-import { MEETING_CACHE } from '@core-service/common/constants/brain.constants';
 import { SessionReviewDto } from './dto/session-review.dto';
 import { PortfolioService } from '../portfolio/portfolio.service';
 import { TimeSlot } from '../portfolio/weekly-availability/entities/weeky-availability.entity';
-import { timeStringToDate, timeStringToNextDate } from './helpers';
-import { SessionPackageService } from '../session-package/session-package.service';
+import { timeStringToNextDate } from './helpers';
 import { CreateClassSessionPackageDto } from './dto/create-class-session.dto';
 
 @Injectable()
@@ -43,6 +38,7 @@ export class ClassSessionService {
   constructor(
     @InjectRepository(ClassSession)
     private readonly classSessionRepository: Repository<ClassSession>,
+    @Inject(forwardRef(() => UserService))
     private readonly userService: UserService,
     private readonly subjectTierService: SubjectTierService,
     private readonly minioService: MinioClientService,

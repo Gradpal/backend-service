@@ -28,7 +28,7 @@ import { SessionPackageModule } from '../session-package/session-package.module'
       DaySchedule,
       TimeSlot,
     ]),
-    UserModule,
+    forwardRef(() => UserModule),
     MinioClientModule,
     forwardRef(() => SessionPackageModule),
     forwardRef(() => SubjectsModule),

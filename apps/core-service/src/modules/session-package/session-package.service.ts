@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, Not, Repository } from 'typeorm';
 import { SessionPackage } from './entities/session-package.entity';
@@ -40,7 +40,7 @@ export class SessionPackageService {
     private readonly packageTypeRepository: Repository<PackageType>,
     @InjectRepository(ClassSession)
     private readonly classSessionRepository: Repository<ClassSession>,
-    private readonly classSessionService: ClassSessionService,
+    @Inject(forwardRef(() => UserService))
     private readonly userService: UserService,
     private readonly exceptionHandler: ExceptionHandler,
     private readonly subjectTierService: SubjectTierService,
