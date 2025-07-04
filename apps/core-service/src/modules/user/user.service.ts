@@ -5,7 +5,7 @@ import { Repository } from 'typeorm';
 import { CreateUserDTO } from './dto/create-user.dto';
 import * as bcrypt from 'bcryptjs';
 import { ExceptionHandler } from '@app/common/exceptions/exceptions.handler';
-import { _400, _404, _409 } from '@app/common/constants/errors-constants';
+import { _400, _403, _404, _409 } from '@app/common/constants/errors-constants';
 import { NotificationPreProcessor } from '@core-service/integrations/notification/notification.preprocessor';
 import { EUserStatus } from './enums/user-status.enum';
 import { EUserRole } from './enums/user-role.enum';
@@ -28,11 +28,15 @@ import {
   DeactivateUserDto,
   UpdateSettingsDto,
 } from './dto/update-settings.dto';
-import { USER_BY_EMAIL_CACHE } from '@core-service/common/constants/brain.constants';
+import {
+  USER_BY_EMAIL_CACHE,
+  USER_INVITATION_CACHE,
+} from '@core-service/common/constants/brain.constants';
 import { EmailTemplates } from '@core-service/configs/email-template-configs/email-templates.config';
 import { Booking } from '../booking/entities/booking.entity';
 import { PortalService } from '@core-service/portal/portal.service';
 import { PortfolioService } from '../portfolio/portfolio.service';
+import { AcceptInvitationDto } from './dto/accept-invitation.dto';
 
 @Injectable()
 export class UserService {
@@ -336,7 +340,85 @@ export class UserService {
     ]);
     return updatedUser;
   }
+  // Parent Invitation
 
+  async inviteParentByEmail(email: string, student: User) {
+    const key = `${USER_INVITATION_CACHE.name}:${email}`;
+    const invitationId = generateAlphaNumericCode(10);
+    await this.brainService.memorize(
+      key,
+      invitationId,
+      USER_INVITATION_CACHE.ttl,
+    );
+    await this.notificationProcessor.sendTemplateEmail(
+      EmailTemplates.PARENT_INVITATION,
+      [email],
+      {
+        studentName: `${student.firstName} ${student.lastName}`,
+        nationalPortal: 'Rwanda',
+        nationalPortalAdminContact: 'support@gradpal.io',
+        invitationUrl: `${this.configService.clientUrl}user/onboarding/verify-email/?studentId=${student.id}&otp=${invitationId}&email=${email}`,
+      },
+    );
+  }
+
+  async acceptParentInvitation(
+    email: string,
+    acceptInvitationDto: AcceptInvitationDto,
+  ) {
+    const key = `${USER_INVITATION_CACHE.name}:${email}`;
+    const [cachedInvitationId, student] = await Promise.all([
+      this.brainService.remindMe<string>(key),
+      this.findOne(acceptInvitationDto.studentId),
+    ]);
+    if (!student) {
+      this.exceptionHandler.throwNotFound(_404.USER_NOT_FOUND);
+    }
+    if (!cachedInvitationId) {
+      this.exceptionHandler.throwNotFound(_403.PARENT_INVITATION_EXPIRED);
+    }
+    if (cachedInvitationId !== acceptInvitationDto.invitationId) {
+      this.exceptionHandler.throwNotFound(_403.PARENT_INVITATION_EXPIRED);
+    }
+    let parent = this.userRepository.create({
+      email: acceptInvitationDto.email,
+      role: EUserRole.PARENT,
+      userName: acceptInvitationDto.email,
+      firstName: acceptInvitationDto.firstName,
+      lastName: acceptInvitationDto.lastName,
+      password: await hashPassword(acceptInvitationDto.password),
+    });
+    parent = await this.userRepository.save(parent);
+    student.parent = parent;
+    await Promise.all([
+      this.userRepository.save(student),
+      this.brainService.forget(key),
+    ]);
+    return parent;
+  }
+
+  async getChildren(parent: User) {
+    return await this.userRepository.find({
+      where: {
+        parent: {
+          id: parent.id,
+        },
+      },
+      select: {
+        id: true,
+        firstName: true,
+        lastName: true,
+        email: true,
+        role: true,
+        portfolio: {
+          id: true,
+        },
+      },
+      relations: ['portfolio'],
+    });
+  }
+
+  ///////////////////////  ///////////////////////  ///////////////////////  ///////////////////////
   async createRandomDummyUsers() {
     const dummyUsers = [
       {

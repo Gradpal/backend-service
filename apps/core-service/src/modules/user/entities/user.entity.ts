@@ -1,4 +1,11 @@
-import { Entity, Column, OneToOne, JoinColumn, OneToMany } from 'typeorm';
+import {
+  Entity,
+  Column,
+  OneToOne,
+  JoinColumn,
+  OneToMany,
+  ManyToOne,
+} from 'typeorm';
 import { EUserRole } from '../enums/user-role.enum';
 import { EUserStatus } from '../enums/user-status.enum';
 import { BaseEntity } from '@app/common/database/base.entity';
@@ -64,4 +71,8 @@ export class User extends BaseEntity {
 
   @Column({ type: 'json', nullable: true })
   deactivation: DeactivateUserDto;
+
+  @ManyToOne(() => User, { nullable: true })
+  @JoinColumn({ name: 'parent_id' })
+  parent: User;
 }

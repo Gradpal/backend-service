@@ -1,4 +1,4 @@
-import { ONE_MINUTE } from '@app/common/constants/all.constants';
+import { ONE_HOUR, ONE_MINUTE } from '@app/common/constants/all.constants';
 
 export const USER_BY_EMAIL_CACHE = {
   name: 'USER_BY_EMAIL_CACHE',
@@ -17,4 +17,9 @@ export const MEETING_CACHE = {
 export const FAILED_LOGIN_ATTEMPT = {
   name: 'FAILED_LOGIN_ATTEMPT',
   ttl: 5 * ONE_MINUTE,
+};
+
+export const USER_INVITATION_CACHE = {
+  name: 'USER_INVITATION_CACHE',
+  ttl: 2 * 24 * ONE_HOUR, // 2 days
 };
