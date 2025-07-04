@@ -12,6 +12,8 @@ import { MailerModule } from '@nestjs-modules/mailer';
 import { ConfigModule } from '@nestjs/config';
 import { createMailerConfig } from './configs/mailer.config';
 import { SlackModule } from './modules/slack/slack.module';
+import { ChatModule } from './modules/chat/chat.module';
+import { DB_ROOT_NAMES } from './common/constants/typeorm-config.constant';
 
 @Module({
   imports: [
@@ -20,6 +22,13 @@ import { SlackModule } from './modules/slack/slack.module';
       inject: [NotificationConfigService],
       useFactory: async (appConfigService: NotificationConfigService) =>
         appConfigService.getPostgresInfo(),
+    }),
+    TypeOrmModule.forRootAsync({
+      imports: [NotificationConfigModule],
+      inject: [NotificationConfigService],
+      name: DB_ROOT_NAMES.CHAT,
+      useFactory: async (appConfigService: NotificationConfigService) =>
+        appConfigService.getChatPostgresInfo(),
     }),
     MailerModule.forRootAsync({
       imports: [ConfigModule],
@@ -34,6 +43,7 @@ import { SlackModule } from './modules/slack/slack.module';
     PlatformHandlerModule,
     NotificationModule,
     SlackModule,
+    ChatModule,
   ],
   controllers: [],
   providers: [],

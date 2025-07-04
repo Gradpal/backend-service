@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { AppEnvironment, EnvironmentVariables } from './dto/env-variables.dto';
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
+import { DB_ROOT_NAMES } from '../common/constants/typeorm-config.constant';
 
 @Injectable()
 export class NotificationConfigService {
@@ -33,6 +34,10 @@ export class NotificationConfigService {
 
   get dbName(): string {
     return this.configService.getOrThrow('DB_NAME');
+  }
+
+  get chatDbName(): string {
+    return this.configService.getOrThrow('CHAT_DB_NAME');
   }
 
   get rabbitmqUri(): string {
@@ -67,6 +72,25 @@ export class NotificationConfigService {
       username: this.dbUser,
       password: this.dbPass,
       database: this.dbName,
+      migrations: ['dist/apps/notification-service/db/migrations/**/*.js'],
+      entities: ['dist/apps/notification-service/**/*.entity.js'],
+      synchronize: this.environment !== AppEnvironment.Production,
+      migrationsRun: this.environment === AppEnvironment.Production,
+      dropSchema: false,
+      cache: false,
+      logging: false,
+    };
+  }
+
+  getChatPostgresInfo(): TypeOrmModuleOptions {
+    return {
+      name: DB_ROOT_NAMES.CHAT,
+      type: 'postgres',
+      host: this.dbHost,
+      port: this.dbPort,
+      username: this.dbUser,
+      password: this.dbPass,
+      database: this.chatDbName,
       migrations: ['dist/apps/notification-service/db/migrations/**/*.js'],
       entities: ['dist/apps/notification-service/**/*.entity.js'],
       synchronize: this.environment !== AppEnvironment.Production,

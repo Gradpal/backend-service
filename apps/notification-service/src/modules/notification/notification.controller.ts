@@ -1,12 +1,4 @@
-import {
-  Controller,
-  Get,
-  Body,
-  Param,
-  Patch,
-  Delete,
-  Query,
-} from '@nestjs/common';
+import { Controller, Get, Param, Delete, Query } from '@nestjs/common';
 import { NotificationService } from './notification.service';
 import { ENotificationStatus } from '@app/common/enums/notification-status.enum';
 import { ApiQuery } from '@nestjs/swagger';

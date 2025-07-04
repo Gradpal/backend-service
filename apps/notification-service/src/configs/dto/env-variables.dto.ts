@@ -50,4 +50,7 @@ export class EnvironmentVariables {
 
   @Expose()
   JWT_EXPIRES_IN: string;
+
+  @Expose()
+  CHAT_DB_NAME: string;
 }
