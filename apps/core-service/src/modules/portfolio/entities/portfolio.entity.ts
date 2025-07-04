@@ -18,6 +18,7 @@ import { Subject } from '@core-service/modules/subjects/entities/subject.entity'
 import { SavedTutorDto } from '../dto/dashboard-response.dto';
 import { EVerificationStatus } from '../../user/enums/verification-status.enum';
 import { PackageType } from '@core-service/modules/session-package/entities/package-type.entity';
+import { PackageOffering } from '@core-service/modules/session-package/entities/package-offering.entity';
 
 @Entity('portfolio')
 export class Portfolio extends BaseEntity {
@@ -196,15 +197,15 @@ export class Portfolio extends BaseEntity {
 
   @ManyToMany(() => PackageType)
   @JoinTable({
-    name: 'portfolio_package_types',
+    name: 'portfolio_package_offerings',
     joinColumn: {
       name: 'portfolio_id',
       referencedColumnName: 'id',
     },
     inverseJoinColumn: {
-      name: 'session_package_id',
+      name: 'package_offering_id',
       referencedColumnName: 'id',
     },
   })
-  sessionPackageTypes: PackageType[];
+  sessionPackageOfferings: PackageOffering[];
 }

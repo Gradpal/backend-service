@@ -1,12 +1,29 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsArray, IsString } from 'class-validator';
+import { IsArray, IsNumber, IsString, ValidateNested } from 'class-validator';
+import { Type } from 'class-transformer';
 
+export class SessionTypeOfferingDto {
+  @IsString()
+  @ApiProperty({
+    description: 'The ID of the session package type',
+    type: String,
+  })
+  sessionPackageTypeId: string;
+
+  @IsNumber()
+  @ApiProperty({
+    description: 'The discount to add',
+    type: Number,
+  })
+  discount: number;
+}
 export class AddSessionTypeOfferingDto {
   @IsArray()
-  @IsString({ each: true })
+  @ValidateNested({ each: true })
+  @Type(() => SessionTypeOfferingDto)
   @ApiProperty({
-    description: 'The IDs of the session package types to add',
-    type: [String],
+    description: 'The SessionTypeOfferings to add',
+    type: [SessionTypeOfferingDto],
   })
-  sessionPackageTypeIds: string[];
+  sessionTypeOfferings: SessionTypeOfferingDto[];
 }

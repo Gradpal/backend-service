@@ -42,6 +42,7 @@ import { SubjectTierService } from '../subjects/subject-tier/subject-tier.servic
 import { ETierCategory } from '../subjects/subject-tier/enums/tier-category.enum';
 import { AddSessionTypeOfferingDto } from './dto/add-session-type-offering.dto';
 import { SessionPackageService } from '../session-package/session-package.service';
+import { PackageOffering } from '../session-package/entities/package-offering.entity';
 @Injectable()
 export class PortfolioService {
   constructor(
@@ -118,7 +119,7 @@ export class PortfolioService {
         'subjectTiers',
         'subjects',
         'subjectTiers.subjects',
-        'sessionPackageTypes',
+        'sessionPackageOfferings',
         'user',
         'subjectsOfInterest',
       ],
@@ -832,27 +833,33 @@ export class PortfolioService {
     addSessionTypeOfferingDto: AddSessionTypeOfferingDto,
   ) {
     const portfolio = await this.findOne(portfolioId);
-    const sessionPackageTypes = portfolio.sessionPackageTypes || [];
-    for (const sessionPackageTypeId of addSessionTypeOfferingDto.sessionPackageTypeIds) {
+    const sessionPackageOfferings = portfolio.sessionPackageOfferings || [];
+    for (const sessionTypeOffering of addSessionTypeOfferingDto.sessionTypeOfferings) {
       const sessionPackageType =
         await this.sessionPackageService.findOnePackageType(
-          sessionPackageTypeId,
+          sessionTypeOffering.sessionPackageTypeId,
         );
-      sessionPackageTypes.push(sessionPackageType);
+      const sessionPackageOffering = this.sessionPackageService
+        .getPackageOfferingRepository()
+        .create({
+          packageType: sessionPackageType,
+          discount: sessionTypeOffering.discount,
+          portfolio: portfolio,
+        });
+      sessionPackageOfferings.push(sessionPackageOffering);
     }
-    portfolio.sessionPackageTypes = sessionPackageTypes;
+    portfolio.sessionPackageOfferings = sessionPackageOfferings;
     return await this.portfolioRepository.save(portfolio);
   }
 
   async removeSessionPackageOffering(
     portfolioId: string,
-    sessionPackageTypeId: string,
+    sessionPackageOfferingId: string,
   ) {
     const portfolio = await this.findOne(portfolioId);
-    const sessionPackageTypes = portfolio.sessionPackageTypes || [];
-    portfolio.sessionPackageTypes = sessionPackageTypes.filter(
-      (sessionPackageType) => sessionPackageType.id !== sessionPackageTypeId,
-    );
+    await this.sessionPackageService
+      .getPackageOfferingRepository()
+      .delete(sessionPackageOfferingId);
     return await this.portfolioRepository.save(portfolio);
   }
 

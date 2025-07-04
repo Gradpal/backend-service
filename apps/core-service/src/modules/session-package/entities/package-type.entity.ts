@@ -8,7 +8,4 @@ export class PackageType extends BaseEntity {
 
   @Column({ type: 'text' })
   description: string;
-
-  @Column({ type: 'int', default: 100 })
-  discount: number;
 }
