@@ -32,9 +32,13 @@ import {
 } from '@core-service/common/constants/all.constants';
 import { CancelLessonDto } from './dto/cancel-lesson.dto';
 import { RequestSessionExtensionDto } from './dto/request-extion.dto';
-import { AuthUser } from '@core-service/decorators/auth.decorator';
+import {
+  AuthUser,
+  PreAuthorize,
+} from '@core-service/decorators/auth.decorator';
 import { SessionReviewDto } from './dto/session-review.dto';
 import { Public } from '@app/common/decorators/public.decorator';
+import { EUserRole } from '../user/enums/user-role.enum';
 
 @ApiTags('Class Sessions')
 @Controller('class-session')
@@ -110,6 +114,20 @@ export class ClassSessionController {
     return this.classSessionService.findByStudent(studentId);
   }
 
+  @Get('child/:childId')
+  @ApiOperation({ summary: 'Get all class sessions for a child' })
+  @ApiParam({ name: 'childId', description: 'Child ID' })
+  @ApiResponse({ status: 200, type: [ClassSession] })
+  @AuthUser()
+  @ApiResponse({
+    status: 200,
+    description: 'Get all class sessions for a child',
+    type: [ClassSession],
+  })
+  @PreAuthorize(EUserRole.PARENT)
+  findByChild(@Param('childId') childId: string, @Req() req) {
+    return this.classSessionService.findByChild(childId, req.user as User);
+  }
   @Patch(':id/status')
   @ApiOperation({ summary: 'Update class session status' })
   @ApiParam({ name: 'id', description: 'Class session ID' })

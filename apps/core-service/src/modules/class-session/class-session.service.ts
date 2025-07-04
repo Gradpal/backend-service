@@ -323,12 +323,61 @@ export class ClassSessionService {
       where: { sessionPackage: { student: { id: studentId } } },
       relations: [
         'sessionPackage',
+        'timeSlot',
+        'timeSlot.daySchedule',
+        'timeSlot.daySchedule.weeklyAvailability',
         'sessionPackage.tutor',
         'sessionPackage.student',
         'sessionPackage.tutor.portfolio',
         'sessionPackage.student.portfolio',
         'subject',
       ],
+    });
+  }
+
+  async findByChild(studentId: string, parent: User): Promise<ClassSession[]> {
+    return this.classSessionRepository.find({
+      where: {
+        sessionPackage: {
+          student: {
+            id: studentId,
+            parent: {
+              id: parent.id,
+            },
+          },
+        },
+      },
+      relations: [
+        'sessionPackage',
+        'timeSlot',
+        'timeSlot.daySchedule',
+        'timeSlot.daySchedule.weeklyAvailability',
+        'sessionPackage.tutor',
+        'sessionPackage.student',
+        'subject',
+      ],
+      select: {
+        id: true,
+        status: true,
+        subject: {
+          name: true,
+        },
+        timeSlot: {
+          startTime: true,
+          endTime: true,
+          owner: {
+            firstName: true,
+            lastName: true,
+            profilePicture: true,
+          },
+          daySchedule: {
+            day: true,
+            weeklyAvailability: {
+              timezone: true,
+            },
+          },
+        },
+      },
     });
   }
 
