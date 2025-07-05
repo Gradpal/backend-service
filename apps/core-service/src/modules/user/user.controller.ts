@@ -215,4 +215,23 @@ export class UserController {
   createRandomDummyUsers() {
     return this.userService.createRandomDummyUsers();
   }
+
+  @Post('/test/upload-file')
+  @UseInterceptors(FileInterceptor('picture'))
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        name: { type: 'string', example: 'My File Name' },
+        picture: { type: 'string', format: 'binary' },
+      },
+      required: ['name', 'picture'],
+    },
+  })
+  @Public()
+  testUploadFile(@UploadedFile() picture: Express.Multer.File) {
+    console.log('File:', picture);
+    return this.userService.testUploadFile(picture);
+  }
 }
