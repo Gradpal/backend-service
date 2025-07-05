@@ -1,10 +1,9 @@
 import { Module } from '@nestjs/common';
-import { EmailNotifierModule } from './modules/email-notifier/email-notifier.module';
 import { NotificationConfigModule } from './configs/notification-config.module';
 import { ExceptionModule } from '@app/common/exceptions/exceptions.module';
 import { LoggerModule } from '@app/common/logger/logger.module';
 import { HealthModule } from '@app/common/health/health.module';
-import { PlatformHandlerModule } from './modules/platform-notifier/platform-notifier.module';
+import { PlatformHandlerModule } from './modules/notification/platform-notifier/platform-notifier.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { NotificationConfigService } from './configs/notification-config.service';
 import { NotificationModule } from './modules/notification/notification.module';
@@ -15,6 +14,8 @@ import { SlackModule } from './modules/slack/slack.module';
 import { ChatModule } from './modules/chat/chat.module';
 import { DB_ROOT_NAMES } from './common/constants/typeorm-config.constant';
 import { CoreServiceIntegrationModule } from './integrations/core-service/integrations.microservice.module';
+import { EmailNotifierModule } from './modules/notification/email-notifier/email-notifier.module';
+import { PlatformChattingModule } from './modules/chat/platform-chatting/platform-chatting.module';
 
 @Module({
   imports: [
@@ -46,6 +47,7 @@ import { CoreServiceIntegrationModule } from './integrations/core-service/integr
     SlackModule,
     ChatModule,
     CoreServiceIntegrationModule,
+    PlatformChattingModule,
   ],
   controllers: [],
   providers: [],

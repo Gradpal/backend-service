@@ -1,8 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ExceptionHandler } from '@app/common/exceptions/exceptions.handler';
-import { SlackService } from '../slack/slack.service';
 import { NotificationConfigService } from '@notification-service/configs/notification-config.service';
 import { MailerService } from '@nestjs-modules/mailer';
+import { SlackService } from '@notification-service/modules/slack/slack.service';
 
 @Injectable()
 export class EmailNotifierService {

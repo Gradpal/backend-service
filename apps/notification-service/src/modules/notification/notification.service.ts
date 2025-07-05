@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateNotificationRegistryDto } from './dto/create-notification-registry.dto';
@@ -45,7 +45,7 @@ export class NotificationService {
   }
 
   async markAsRead(id: string) {
-    const notification = await this.findById(id); 
+    const notification = await this.findById(id);
     notification.notificationStatus = ENotificationStatus.READ;
     return await this.notificationRegistryRepository.save(notification);
   }

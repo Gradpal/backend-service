@@ -5,6 +5,7 @@ import { Logger } from '@nestjs/common';
  * BaseQueueHandler is an abstract class that provides a common structure for handling message queues in a service.
  */
 export abstract class BaseQueueHandler<T, R> {
+  private logger = new Logger(BaseQueueHandler.name);
   protected constructor(
     private readonly serviceName: string,
     private readonly service: any,
@@ -43,12 +44,14 @@ export abstract class BaseQueueHandler<T, R> {
     const originalMsg = context.getMessage();
 
     try {
-      Logger.log(
-        `[${this.serviceName}] Received data: ${JSON.stringify(data)}`,
-      );
+      // Logger.log(
+      //   `[${this.serviceName}] Received data: ${JSON.stringify(data)}`,
+      // );
 
       const result = await this.processMessage(data);
-
+      if (channel.connection.stream.destroyed || channel.connection._closing) {
+        return;
+      }
       channel.ack(originalMsg);
       return result;
     } catch (error) {

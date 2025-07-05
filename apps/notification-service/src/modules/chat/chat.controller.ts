@@ -36,7 +36,7 @@ export class ChatController {
     @Body() createMessageDto: CreateMessageDto,
     @UploadedFiles() sharedFiles: Express.Multer.File[],
   ) {
-    return this.chatService.createMessage(
+    return this.chatService.sendMessage(
       conversationId,
       createMessageDto,
       sharedFiles,
