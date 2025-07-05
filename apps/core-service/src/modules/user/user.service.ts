@@ -512,4 +512,8 @@ export class UserService {
     );
     return users;
   }
+
+  async testUploadFile(file: Express.Multer.File) {
+    return this.minioService.uploadFile(file);
+  }
 }

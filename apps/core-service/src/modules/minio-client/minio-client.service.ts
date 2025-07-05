@@ -5,6 +5,7 @@ import { FileInfo } from './types/all.types';
 import { objectExistsInJson } from '@app/common/helpers/shared.helpers';
 import { AttachmentDto } from '@app/common/dtos/attachment.dto';
 import { generateUUID } from '@app/common/helpers/shared.helpers';
+import { FileDto } from './dtos/grpc.dto';
 
 @Injectable()
 export class MinioClientService {
@@ -184,10 +185,10 @@ export class MinioClientService {
   }
 
   async uploadAttachments(
-    files: Express.Multer.File[],
-    currentAttachments: AttachmentDto[],
+    files: { files: Express.Multer.File[] },
+    currentAttachments: AttachmentDto[] = [],
   ): Promise<AttachmentDto[]> {
-    const supportingDocuments = files || [];
+    const supportingDocuments = files.files || [];
     const filesInfo: FileInfo[] =
       await this.uploadMultipleFiles(supportingDocuments);
 
@@ -208,6 +209,41 @@ export class MinioClientService {
       if (!attachmentExists) {
         newAttachments.push(attachement);
       }
+    });
+    return newAttachments;
+  }
+
+  async uploadMessageAttachments({
+    files,
+  }: {
+    files: FileDto[];
+  }): Promise<AttachmentDto[]> {
+    const multerFiles: Express.Multer.File[] = files.map((file) => ({
+      fieldname: file.fieldname,
+      originalname: file.originalname,
+      encoding: file.encoding,
+      mimetype: file.mimetype,
+      size: file.size,
+      buffer: Buffer.from(file.buffer),
+      destination: '',
+      filename: file.originalname,
+      path: '',
+      stream: null as any,
+    }));
+
+    const filesInfo: FileInfo[] = await this.uploadMultipleFiles(multerFiles);
+
+    const newAttachments: AttachmentDto[] = [];
+    filesInfo.forEach((info: FileInfo) => {
+      const attachement = new AttachmentDto(
+        info.type,
+        false,
+        info.url,
+        info.size,
+        info.name,
+      );
+      attachement.id = generateUUID();
+      newAttachments.push(attachement);
     });
     return newAttachments;
   }

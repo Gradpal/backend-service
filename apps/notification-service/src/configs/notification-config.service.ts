@@ -40,6 +40,12 @@ export class NotificationConfigService {
     return this.configService.getOrThrow('CHAT_DB_NAME');
   }
 
+  get grpcUrl(): string {
+    return this.configService.getOrThrow('GRPC_URL');
+  }
+  get coreGrpcUrl(): string {
+    return this.configService.getOrThrow('CORE_GRPC_URL');
+  }
   get rabbitmqUri(): string {
     return this.configService.getOrThrow('RABBITMQ_URI');
   }

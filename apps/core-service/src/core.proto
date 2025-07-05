@@ -1,0 +1,35 @@
+syntax = "proto3";
+
+package core;
+
+service MinioClientService {
+  rpc uploadFile (File) returns (FileAttachmentResponse) {}
+  rpc uploadAttachments (FilesList) returns (FileAttachmentResponsesList) {}
+  rpc uploadMessageAttachments (FilesList) returns (FileAttachmentResponsesList) {}
+}
+
+
+message File {
+  string fieldname = 1;
+  string originalname = 2;
+  string encoding = 3;
+  string mimetype = 4;
+  int64 size = 5;
+  bytes buffer = 6;
+}
+
+message FilesList {
+    repeated File files = 1;
+}
+
+message FileAttachmentResponse {
+    string url = 1;
+    string name = 2;
+    string size = 3;
+    string type = 4;
+}
+
+message FileAttachmentResponsesList {
+    repeated FileAttachmentResponse result = 1; 
+}
+

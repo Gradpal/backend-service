@@ -14,6 +14,7 @@ import { createMailerConfig } from './configs/mailer.config';
 import { SlackModule } from './modules/slack/slack.module';
 import { ChatModule } from './modules/chat/chat.module';
 import { DB_ROOT_NAMES } from './common/constants/typeorm-config.constant';
+import { CoreServiceIntegrationModule } from './integrations/core-service/integrations.microservice.module';
 
 @Module({
   imports: [
@@ -44,6 +45,7 @@ import { DB_ROOT_NAMES } from './common/constants/typeorm-config.constant';
     NotificationModule,
     SlackModule,
     ChatModule,
+    CoreServiceIntegrationModule,
   ],
   controllers: [],
   providers: [],

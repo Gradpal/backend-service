@@ -364,7 +364,7 @@ export class ComplaintsService {
     //   this.exceptionHandler.throwBadRequest(_400.COMPLAINT_NOT_PENDING);
     // }
     const evidenceAttachments = await this.minioService.uploadAttachments(
-      evidenceFiles,
+      { files: evidenceFiles },
       [],
     );
     const complaintReviewDecision: SessionComplaintReviwDecisionDto = {

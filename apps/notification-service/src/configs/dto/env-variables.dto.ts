@@ -53,4 +53,10 @@ export class EnvironmentVariables {
 
   @Expose()
   CHAT_DB_NAME: string;
+
+  @Expose()
+  GRPC_URL: string;
+
+  @Expose()
+  CORE_GRPC_URL: string;
 }

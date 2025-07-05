@@ -331,14 +331,14 @@ export class PortfolioService {
     }
     if (academicTranscripts) {
       const academicTranscriptsUrls = await this.minioService.uploadAttachments(
-        academicTranscripts,
+        { files: academicTranscripts },
         portfolio.academicTranscripts,
       );
       portfolio.academicTranscripts = academicTranscriptsUrls;
     }
     if (degreeCertificates) {
       const degreeCertificatesUrls = await this.minioService.uploadAttachments(
-        degreeCertificates,
+        { files: degreeCertificates },
         portfolio.degreeCertificates,
       );
       portfolio.degreeCertificates = degreeCertificatesUrls;
