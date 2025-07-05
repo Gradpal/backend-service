@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { PlatformNotifierService } from './platform-notifier.service';
-import { NotificationService } from '../notification/notification.service'; // Adjust the import path
+import { NotificationService } from '../notification.service'; // Adjust the import path
 import { WebSocketGatewayHandler } from '@notification-service/websocket/gateway.socket';
 
 describe('PlatformNotifierService', () => {

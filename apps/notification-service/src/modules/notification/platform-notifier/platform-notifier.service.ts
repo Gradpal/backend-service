@@ -1,12 +1,12 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { WebSocketGatewayHandler } from '../../websocket/gateway.socket';
+import { WebSocketGatewayHandler } from '../../../websocket/gateway.socket';
 import {
   PlatformQueuePayload,
   Recipient,
 } from '@app/common/interfaces/shared-queues/platform-queue-payload.interface';
-import { CreateNotificationRegistryDto } from '../notification/dto/create-notification-registry.dto';
+import { CreateNotificationRegistryDto } from '../dto/create-notification-registry.dto';
 import { ENotificationType } from '@app/common/enums/notification-type.enum';
-import { NotificationService } from '../notification/notification.service';
+import { NotificationService } from '../notification.service';
 import { ENotificationStatus } from '@app/common/enums/notification-status.enum';
 
 @Injectable()
