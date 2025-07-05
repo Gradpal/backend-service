@@ -4,7 +4,8 @@ package core;
 
 service MinioClientService {
   rpc uploadFile (File) returns (FileAttachmentResponse) {}
-  rpc uploadAttachments (FilesList) return (FileAttachmentResponsesList) {}
+  rpc uploadAttachments (FilesList) returns (FileAttachmentResponsesList) {}
+  rpc uploadMessageAttachments (FilesList) returns (FileAttachmentResponsesList) {}
 }
 
 
@@ -29,6 +30,6 @@ message FileAttachmentResponse {
 }
 
 message FileAttachmentResponsesList {
-    repeated FileAttachmentResponses result = 1; 
+    repeated FileAttachmentResponse result = 1; 
 }
 

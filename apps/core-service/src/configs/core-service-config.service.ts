@@ -66,6 +66,7 @@ export class CoreServiceConfigService {
   get GrpcPort(): number {
     return this.configService.getOrThrow('GRPC_PORT');
   }
+
   get minioPort(): string {
     return this.configService.getOrThrow('MINIO_PORT');
   }

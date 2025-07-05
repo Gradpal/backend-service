@@ -32,10 +32,10 @@ export class MinioClientController {
     GrpcServices.MINIO_CLIENT_SERVICE,
     MinioGrpcMethods.UPLOAD_ATTACHMENTS,
   )
-  async uploadAttachments(files: FileDto[]): Promise<{
+  async uploadAttachments(filesList: { files: FileDto[] }): Promise<{
     result: FileAttachmentResponse[];
   }> {
-    const multerFiles: Express.Multer.File[] = files.map((file) => ({
+    const multerFiles: Express.Multer.File[] = filesList.files.map((file) => ({
       fieldname: file.fieldname,
       originalname: file.originalname,
       encoding: file.encoding,
@@ -48,10 +48,43 @@ export class MinioClientController {
       stream: null as any,
     }));
 
-    const result =
-      await this.minioClientService.uploadMultipleFiles(multerFiles);
-    return {
-      result: result,
-    };
+    const result = await this.minioClientService.uploadAttachments({
+      files: multerFiles,
+    });
+
+    // Convert AttachmentDto[] to FileAttachmentResponse[]
+    const fileResponses: FileAttachmentResponse[] = result.map(
+      (attachment) => ({
+        url: attachment.path,
+        name: attachment.name,
+        size: attachment.size,
+        type: attachment.type,
+      }),
+    );
+
+    return { result: fileResponses };
+  }
+  @GrpcMethod(
+    GrpcServices.MINIO_CLIENT_SERVICE,
+    MinioGrpcMethods.UPLOAD_MESSAGE_ATTACHMENTS,
+  )
+  async uploadMessageAttachments(filesList: { files: FileDto[] }): Promise<{
+    result: FileAttachmentResponse[];
+  }> {
+    const result = await this.minioClientService.uploadMessageAttachments({
+      files: filesList.files,
+    });
+
+    // Convert AttachmentDto[] to FileAttachmentResponse[]
+    const fileResponses: FileAttachmentResponse[] = result.map(
+      (attachment) => ({
+        url: attachment.path,
+        name: attachment.name,
+        size: attachment.size,
+        type: attachment.type,
+      }),
+    );
+
+    return { result: fileResponses };
   }
 }
