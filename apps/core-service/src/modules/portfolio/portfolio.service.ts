@@ -707,16 +707,15 @@ export class PortfolioService {
       .leftJoinAndSelect('portfolio.user', 'user')
       .leftJoinAndSelect('user.timeSlots', 'timeSlots')
       .leftJoinAndSelect('timeSlots.daySchedule', 'daySchedule')
-      .leftJoinAndSelect('portfolio.sessionPackageTypes', 'sessionPackageTypes')
-
+      .leftJoinAndSelect(
+        'portfolio.sessionPackageOfferings',
+        'sessionPackageOfferings',
+      )
+      // .leftJoinAndSelect('sessionPackageOfferings.packageType', 'packageType')
       .leftJoinAndSelect('daySchedule.weeklyAvailability', 'weeklyAvailability')
       .leftJoinAndSelect('portfolio.subjectTiers', 'subjectTier')
       .leftJoinAndSelect('subjectTier.subjects', 'subjects')
       .where('user.role = :role', { role: EUserRole.TUTOR });
-    // .andWhere('user.timeSlots IS NOT NULL');
-    //
-    // .andWhere('portfolio.sessionPackageTypes IS NOT NULL')
-    // .andWhere('portfolio.sessionLengths IS NOT NULL');
 
     if (name) {
       query.andWhere(
