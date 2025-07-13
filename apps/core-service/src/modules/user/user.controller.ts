@@ -40,6 +40,12 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { CreateNationalPortalAdminDTO } from './dto/create-admin.dto';
 import { TestFileUploadDto } from './dto/test-file-upload.dto';
 import { AcceptInvitationDto } from './dto/accept-invitation.dto';
+import { GrpcMethod } from '@nestjs/microservices';
+import {
+  GrpcServices,
+  UserGrpcMethods,
+} from '@core-service/common/constants/grpc.constants';
+import { LoadChatUserByIdRequest } from './dto/grpc/load-chat-user-by-id.dto';
 
 @Controller('user')
 @ApiTags('user')
@@ -233,5 +239,11 @@ export class UserController {
   testUploadFile(@UploadedFile() picture: Express.Multer.File) {
     console.log('File:', picture);
     return this.userService.testUploadFile(picture);
+  }
+
+  // GRPC CONTROLLERS
+  @GrpcMethod(GrpcServices.USER_SERVICE, UserGrpcMethods.LOAD_CHART_USER_BY_ID)
+  loadChartUserById(payload: LoadChatUserByIdRequest) {
+    return this.userService.loadChartUserById(payload);
   }
 }

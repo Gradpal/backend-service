@@ -44,10 +44,6 @@ export abstract class BaseQueueHandler<T, R> {
     const originalMsg = context.getMessage();
 
     try {
-      // Logger.log(
-      //   `[${this.serviceName}] Received data: ${JSON.stringify(data)}`,
-      // );
-
       const result = await this.processMessage(data);
       if (channel.connection.stream.destroyed || channel.connection._closing) {
         return;

@@ -21,4 +21,15 @@ export class CreateMessageDto {
     required: false,
   })
   sharedFiles: Express.Multer.File[];
+
+  @IsOptional()
+  @ApiProperty({
+    description: 'The URLs of the message',
+    type: 'array',
+    items: {
+      type: 'string',
+    },
+    required: false,
+  })
+  urls: string[];
 }

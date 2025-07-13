@@ -7,38 +7,44 @@ import {
   Patch,
   Post,
   Query,
+  Req,
   UploadedFiles,
   UseInterceptors,
 } from '@nestjs/common';
 import { ChatService } from './chat.service';
-import { CreateConversationDto } from './dtos/create-conversation.dto';
 import { CreateMessageDto } from './dtos/create-message.dto';
-import { ApiBody, ApiConsumes, ApiQuery } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiConsumes,
+  ApiQuery,
+  ApiTags,
+} from '@nestjs/swagger';
 import { FilesInterceptor } from '@nestjs/platform-express';
+import { AuthUser } from '@notification-service/common/decorators/auth-checker.decorator';
+import { MessageOwnerDto } from './dtos/message-owner.dto';
 
 @Controller('chat')
+@ApiTags('Chat')
+@ApiBearerAuth()
 export class ChatController {
   constructor(private readonly chatService: ChatService) {}
 
-  @Post('conversations')
-  async createConversation(
-    @Body() createConversationDto: CreateConversationDto,
-  ) {
-    return this.chatService.createConversation(createConversationDto);
-  }
-
-  @Post('messages/:conversationId')
+  @Post('messages/:receiverId')
   @UseInterceptors(FilesInterceptor('sharedFiles', 2))
   @ApiConsumes('multipart/form-data')
   @ApiBody({ type: CreateMessageDto })
+  @AuthUser()
   async createMessage(
-    @Param('conversationId') conversationId: string,
+    @Param('receiverId') receiverId: string,
     @Body() createMessageDto: CreateMessageDto,
     @UploadedFiles() sharedFiles: Express.Multer.File[],
+    @Req() request,
   ) {
     return this.chatService.sendMessage(
-      conversationId,
       createMessageDto,
+      receiverId,
+      request.user as MessageOwnerDto,
       sharedFiles,
     );
   }
@@ -76,16 +82,6 @@ export class ChatController {
     return this.chatService.deleteConversation(conversationId);
   }
 
-  @Patch('conversations/:conversationId')
-  async updateConversation(
-    @Param('conversationId') conversationId: string,
-    @Body() updateConversationDto: CreateConversationDto,
-  ) {
-    return this.chatService.updateConversation(
-      conversationId,
-      updateConversationDto,
-    );
-  }
   @Patch('messages/:messageId/read')
   async markMessageAsRead(@Param('messageId') messageId: string) {
     return this.chatService.markMessageAsRead(messageId);

@@ -33,3 +33,24 @@ message FileAttachmentResponsesList {
     repeated FileAttachmentResponse result = 1; 
 }
 
+service UserService {
+  rpc loadChartUserById (LoadChartUserByIdRequest) returns (LoadChartUserByIdResponse) {}
+}
+
+message LoadChartUserByIdRequest {
+  string id = 1;
+}
+message LoadChartUserByIdResponse {
+  string id = 1;
+  string firstName = 2;
+  string lastName = 3;
+  string role = 4;
+  string profilePicture = 5;
+}
+message LoadChartUserByIdResponseList {
+  repeated LoadChartUserByIdResponse result = 1;
+}
+
+
+
+
