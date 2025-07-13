@@ -3,6 +3,7 @@ import { Column, Entity, ManyToOne } from 'typeorm';
 import { EMessageStatus } from '../enums/message-status.enum';
 import { Conversation } from './conversation.entity';
 import { AttachmentDto } from '@app/common/dtos/attachment.dto';
+import { MessageOwnerDto } from '../dtos/message-owner.dto';
 
 @Entity()
 export class Message extends BaseEntity {
@@ -19,8 +20,8 @@ export class Message extends BaseEntity {
   })
   status: EMessageStatus;
 
-  @Column({ type: 'varchar', nullable: true })
-  ownerId: string;
+  @Column({ type: 'jsonb', nullable: true })
+  owner: MessageOwnerDto;
 
   @ManyToOne(() => Conversation)
   conversation: Conversation;

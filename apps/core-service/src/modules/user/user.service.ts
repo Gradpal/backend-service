@@ -37,6 +37,7 @@ import { Booking } from '../booking/entities/booking.entity';
 import { PortalService } from '@core-service/portal/portal.service';
 import { PortfolioService } from '../portfolio/portfolio.service';
 import { AcceptInvitationDto } from './dto/accept-invitation.dto';
+import { LoadChatUserByIdRequest } from './dto/grpc/load-chat-user-by-id.dto';
 
 @Injectable()
 export class UserService {
@@ -515,5 +516,20 @@ export class UserService {
 
   async testUploadFile(file: Express.Multer.File) {
     return this.minioService.uploadFile(file);
+  }
+
+  async loadChartUserById({ id }: LoadChatUserByIdRequest) {
+    const user = await this.userRepository.findOne({
+      where: { id },
+      select: {
+        id: true,
+        firstName: true,
+        lastName: true,
+        role: true,
+        profilePicture: true,
+        status: true,
+      },
+    });
+    return { result: user ? [user] : [] };
   }
 }

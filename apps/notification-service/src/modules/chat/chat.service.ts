@@ -1,11 +1,15 @@
-import { Inject, Injectable, Logger } from '@nestjs/common';
+import {
+  Inject,
+  Injectable,
+  InternalServerErrorException,
+  Logger,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Conversation } from './entities/conversation.entity';
 import { Message } from './entities/message.entity';
 import { EMessageStatus } from './enums/message-status.enum';
 import { EConversationStatus } from './enums/conversation-status.enum';
-import { CreateConversationDto } from './dtos/create-conversation.dto';
 import { CreateMessageDto } from './dtos/create-message.dto';
 import { DB_ROOT_NAMES } from '../../common/constants/typeorm-config.constant';
 import { CORE_GRPC_PACKAGE } from '@app/common/constants/services-constants';
@@ -18,10 +22,13 @@ import {
   QUEUE_HANDLERS,
 } from '@app/common/constants/rabbitmq-constants';
 import { ExceptionHandler } from '@app/common/exceptions/exceptions.handler';
+import { UserService } from '@core-service/modules/user/user.service';
+import { MessageOwnerDto } from './dtos/message-owner.dto';
 
 @Injectable()
 export class ChatService {
   private minioClientService: MinioClientService;
+  private coreUserService: UserService;
   constructor(
     @InjectRepository(Conversation, DB_ROOT_NAMES.CHAT)
     private readonly conversationRepository: Repository<Conversation>,
@@ -34,48 +41,50 @@ export class ChatService {
     this.minioClientService = this.client.getService<MinioClientService>(
       GrpcServices.MINIO_CLIENT_SERVICE,
     );
-  }
-
-  async createConversation(createConversationDto: CreateConversationDto) {
-    const conversation = this.conversationRepository.create(
-      createConversationDto,
+    this.coreUserService = this.client.getService<UserService>(
+      GrpcServices.USER_SERVICE,
     );
-    return this.conversationRepository.save(conversation);
   }
 
   async sendMessage(
-    conversationId: string,
     createMessageDto: CreateMessageDto,
+    receiverId: string,
+    messageOwner: MessageOwnerDto,
     files: Express.Multer.File[],
   ) {
     try {
-      // Get conversation to determine recipients
-      const conversation = await this.getConversation(conversationId);
+      const [receiverObservable, senderObservable] = await Promise.all([
+        this.coreUserService.loadChartUserById({
+          id: receiverId,
+        }),
+        this.coreUserService.loadChartUserById({
+          id: messageOwner.id,
+        }),
+      ]);
 
-      let senderId: string;
-      let receiverId: string;
-      let recipients: { userId: string }[];
+      let conversation = await this.getConversationBySenderAndReceiver(
+        messageOwner.id,
+        receiverId,
+      );
 
+      const receiver = await lastValueFrom(
+        receiverObservable as unknown as Observable<any>,
+      );
+      const sender = await lastValueFrom(
+        senderObservable as unknown as Observable<any>,
+      );
       if (!conversation) {
-        // Logger.warn(
-        //   `Conversation ${conversationId} not found, using fallback values for testing`,
-        // );
-        // For testing purposes, use fallback values
-        senderId = '123';
-        receiverId = '456';
-        recipients = [{ userId: senderId }, { userId: receiverId }];
-      } else {
-        // Logger.log(`Found conversation: ${JSON.stringify(conversation)}`);
-        senderId = conversation.senderId;
-        receiverId = conversation.receiverId;
-        recipients = [
-          { userId: conversation.senderId },
-          { userId: conversation.receiverId },
-        ];
+        conversation = this.conversationRepository.create({
+          sender: sender,
+          receiver,
+          status: EConversationStatus.ACTIVE,
+        });
+        await this.conversationRepository.save(conversation);
       }
 
-      // Convert files to a serializable format for RabbitMQ
-      const serializedFiles = files.map((file) => ({
+      const recipients = [conversation.sender.id, conversation.receiver.id];
+
+      const serializedFiles = (files || []).map((file) => ({
         fieldname: file.fieldname,
         originalname: file.originalname,
         encoding: file.encoding,
@@ -85,42 +94,42 @@ export class ChatService {
       }));
 
       const payload = {
-        conversationId,
+        conversationId: conversation.id,
         createMessageDto,
-        receiverUserId: receiverId,
-        senderUserId: senderId,
+        receiver: conversation.receiver,
+        sender: conversation.sender,
         files: serializedFiles,
         recipients,
       };
-
-      // Logger.log(
-      //   `Emitting message with payload: ${JSON.stringify(payload, null, 2)}`,
-      // );
-
       return this.messageClient.emit(PATTERNS.SEND_MESSAGE, payload);
     } catch (error) {
-      Logger.error('Error sending platform message:', error);
-      this.exceptionHandler.throwInternalServerError(error);
+      Logger.error(
+        '❌ Error sending platform message:',
+        error?.message,
+        error?.stack,
+      );
+      throw new InternalServerErrorException('Failed to send message');
+
+      // Logger.error('Error sending platform message:', error);
+      // this.exceptionHandler.throwInternalServerError(error);
     }
   }
 
   async createMessage(
-    conversationId: string,
+    sender: MessageOwnerDto,
+    receiver: MessageOwnerDto,
     createMessageDto: CreateMessageDto,
     files: Express.Multer.File[],
   ) {
     try {
-      Logger.log(`Creating message for conversation: ${conversationId}`);
-
-      let conversation = await this.getConversation(conversationId);
+      let conversation = await this.getConversationBySenderAndReceiver(
+        sender.id,
+        receiver.id,
+      );
       if (!conversation) {
-        Logger.warn(
-          `Conversation ${conversationId} not found, creating a dummy conversation for testing`,
-        );
-        // Create a dummy conversation for testing
         conversation = this.conversationRepository.create({
-          senderId: '123',
-          receiverId: '456',
+          sender,
+          receiver,
           status: EConversationStatus.ACTIVE,
         });
         await this.conversationRepository.save(conversation);
@@ -146,9 +155,15 @@ export class ChatService {
         ...createMessageDto,
         conversation,
         sharedFiles,
+        owner: sender,
       });
 
       const savedMessage = await this.messageRepository.save(message);
+      conversation.latestMessages = [
+        ...(conversation.latestMessages || []),
+        savedMessage,
+      ];
+      await this.conversationRepository.save(conversation);
       Logger.log(`Message created successfully with ID: ${savedMessage.id}`);
 
       return savedMessage;
@@ -164,7 +179,7 @@ export class ChatService {
 
   async getConversations(userId: string) {
     return this.conversationRepository.find({
-      where: [{ senderId: userId }, { receiverId: userId }],
+      where: [{ sender: { id: userId } }, { receiver: { id: userId } }],
     });
   }
 
@@ -179,21 +194,22 @@ export class ChatService {
       where: { id: conversationId },
     });
   }
+  async getConversationBySenderAndReceiver(
+    senderId: string,
+    receiverId: string,
+  ) {
+    return this.conversationRepository.findOne({
+      where: {
+        sender: { id: senderId },
+        receiver: { id: receiverId },
+      },
+    });
+  }
 
   async getMessage(messageId: string) {
     return this.messageRepository.findOne({
       where: { id: messageId },
     });
-  }
-
-  async updateConversation(
-    conversationId: string,
-    updateConversationDto: CreateConversationDto,
-  ) {
-    return this.conversationRepository.update(
-      conversationId,
-      updateConversationDto,
-    );
   }
 
   async deleteConversation(conversationId: string) {
