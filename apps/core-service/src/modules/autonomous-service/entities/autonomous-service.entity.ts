@@ -5,7 +5,7 @@ import { User } from '@core-service/modules/user/entities/user.entity';
 import { EAutonomousServiceStatus } from '../enums/autonomous-service-status.enum';
 import { AttachmentDto } from '@app/common/dtos/attachment.dto';
 
-@Entity()
+@Entity({ name: 'autonomous_service' })
 export class AutonomousService extends BaseEntity {
   @Column()
   projectTitle: string;

@@ -9,6 +9,8 @@ import { User } from '../user/entities/user.entity';
 import { ExceptionHandler } from '@app/common/exceptions/exceptions.handler';
 import { _409 } from '@app/common/constants/errors-constants';
 import { normalizeArray } from '@core-service/common/helpers/all.helpers';
+import { createPaginatedResponse } from '@app/common/helpers/pagination.helper';
+import { PaginatedResponse } from '@app/common/dtos/pagination.response';
 
 @Injectable()
 export class AutonomousServiceService {
@@ -52,9 +54,49 @@ export class AutonomousServiceService {
     return await this.autonomousServiceRepository.save(autonomousService);
   }
 
+  async getAllServices(
+    searchKeyword: string,
+    limit: number,
+    page: number,
+  ): Promise<PaginatedResponse<AutonomousService>> {
+    const query = this.autonomousServiceRepository
+      .createQueryBuilder('autonomousService')
+      .leftJoinAndSelect('autonomousService.subject', 'subject')
+      .leftJoinAndSelect('autonomousService.owner', 'owner');
+    if (searchKeyword) {
+      query.where('autonomousService.projectTitle ILIKE :searchKeyword', {
+        searchKeyword: `%${searchKeyword}%`,
+      });
+    }
+    query.orderBy('autonomousService.createdAt', 'DESC');
+    query.skip((page - 1) * limit);
+    query.take(limit);
+    query.select([
+      'autonomousService.id',
+      'autonomousService.projectTitle',
+      'autonomousService.description',
+      'autonomousService.status',
+      'autonomousService.isOwnerAnonymous',
+      'autonomousService.contractFinalizationDate',
+      'autonomousService.finalSubmissionDate',
+      'autonomousService.preferredOutputFormats',
+      'autonomousService.attachments',
+      'autonomousService.createdAt',
+      'subject.id',
+      'subject.name',
+      'owner.id',
+      'owner.firstName',
+      'owner.lastName',
+      'owner.email',
+    ]);
+    const [services, total] = await query.getManyAndCount();
+    return createPaginatedResponse(services, total, page, limit);
+  }
+
   async getAutonomousServiceById(id: string): Promise<AutonomousService> {
     return await this.autonomousServiceRepository.findOne({
       where: { id },
+      relations: ['subject', 'owner'],
     });
   }
 
