@@ -1,6 +1,8 @@
 export enum EAutonomousServiceStatus {
   PENDING = 'PENDING',
   IN_PROGRESS = 'IN_PROGRESS',
+  DRAFT = 'DRAFT',
   COMPLETED = 'COMPLETED',
   CANCELLED = 'CANCELLED',
+  BIDS_SUBMITTED = 'BIDS_SUBMITTED',
 }

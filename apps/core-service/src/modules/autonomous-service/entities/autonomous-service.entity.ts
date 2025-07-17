@@ -6,6 +6,7 @@ import { EAutonomousServiceStatus } from '../enums/autonomous-service-status.enu
 import { AttachmentDto } from '@app/common/dtos/attachment.dto';
 import { Bid } from './bid.entity';
 import { SessionReviewDto } from '@core-service/modules/class-session/dto/session-review.dto';
+import { Invitation } from './invitation.entity';
 
 @Entity({ name: 'autonomous_service' })
 export class AutonomousService extends BaseEntity {
@@ -18,7 +19,7 @@ export class AutonomousService extends BaseEntity {
   @Column({
     type: 'enum',
     enum: EAutonomousServiceStatus,
-    default: EAutonomousServiceStatus.PENDING,
+    default: EAutonomousServiceStatus.DRAFT,
   })
   status: EAutonomousServiceStatus;
 
@@ -51,13 +52,12 @@ export class AutonomousService extends BaseEntity {
   @JoinColumn({ name: 'student_id' })
   student: User;
 
-  @ManyToOne(() => User, { nullable: true })
-  @JoinColumn({ name: 'tutor_id' })
-  tutor: User;
-
   @OneToMany(() => Bid, (bid) => bid.autonomousService)
   bids: Bid[];
 
   @Column({ type: 'json', nullable: true })
   review: SessionReviewDto;
+
+  @OneToMany(() => Invitation, (invitation) => invitation.autonomousService)
+  invitations: Invitation[];
 }

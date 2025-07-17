@@ -6,12 +6,15 @@ import { AutonomousService } from './entities/autonomous-service.entity';
 import { MinioClientModule } from '../minio-client/minio-client.module';
 import { SubjectsModule } from '../subjects/subjects.module';
 import { Bid } from './entities/bid.entity';
+import { UserModule } from '../user/user.module';
+import { Invitation } from './entities/invitation.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([AutonomousService, Bid]),
+    TypeOrmModule.forFeature([AutonomousService, Bid, Invitation]),
     MinioClientModule,
     SubjectsModule,
+    UserModule,
   ],
   exports: [AutonomousServiceService],
   providers: [AutonomousServiceService],
