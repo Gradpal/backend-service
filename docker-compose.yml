@@ -1,16 +1,4 @@
 services:
-  caddy:
-    image: caddy:2-alpine
-    restart: unless-stopped
-    ports:
-      - "80:80"
-      - "443:443"
-      - "2019:2019"
-    volumes:
-      - ./Caddyfile:/etc/caddy/Caddyfile:ro
-      - caddy_data:/data
-      - caddy_config:/config
-
   core-service:
     build:
       context: .
@@ -20,7 +8,7 @@ services:
       - ./apps/core-service/.env
     environment:
       - DB_HOST=postgres #  this is useful since localhost is not accessible from the container
-      - DB_PORT=5432  # Use PostgreSQL's default internal port
+      - DB_PORT=5432 # Use PostgreSQL's default internal port
       - REDIS_URL=redis://:dXf9TMBjMLxUCfz6HG57@redis:6379/1
       - RABBITMQ_URI=amqp://rabbitmq:5672
     volumes:
@@ -28,7 +16,7 @@ services:
       - .:/usr/src/app
     ports:
       - '4010:4010'
-      - "50055:50055"
+      - '50055:50055'
 
   notification-service:
     build:
@@ -39,7 +27,7 @@ services:
       - ./apps/notification-service/.env
     environment:
       - DB_HOST=notification-db #  this is useful since localhost is not accessible from the container
-      - DB_PORT=5432  # Use PostgreSQL's default internal port
+      - DB_PORT=5432 # Use PostgreSQL's default internal port
       - RABBITMQ_URI=amqp://rabbitmq:5672
 
     volumes:
