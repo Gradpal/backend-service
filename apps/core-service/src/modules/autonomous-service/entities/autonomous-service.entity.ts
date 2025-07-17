@@ -1,9 +1,11 @@
 import { BaseEntity } from '@app/common/database/base.entity';
 import { Subject } from '@core-service/modules/subjects/entities/subject.entity';
-import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
 import { User } from '@core-service/modules/user/entities/user.entity';
 import { EAutonomousServiceStatus } from '../enums/autonomous-service-status.enum';
 import { AttachmentDto } from '@app/common/dtos/attachment.dto';
+import { Bid } from './bid.entity';
+import { SessionReviewDto } from '@core-service/modules/class-session/dto/session-review.dto';
 
 @Entity({ name: 'autonomous_service' })
 export class AutonomousService extends BaseEntity {
@@ -46,6 +48,16 @@ export class AutonomousService extends BaseEntity {
   attachments: AttachmentDto[];
 
   @ManyToOne(() => User)
-  @JoinColumn({ name: 'owner_id' })
-  owner: User;
+  @JoinColumn({ name: 'student_id' })
+  student: User;
+
+  @ManyToOne(() => User, { nullable: true })
+  @JoinColumn({ name: 'tutor_id' })
+  tutor: User;
+
+  @OneToMany(() => Bid, (bid) => bid.autonomousService)
+  bids: Bid[];
+
+  @Column({ type: 'json', nullable: true })
+  review: SessionReviewDto;
 }

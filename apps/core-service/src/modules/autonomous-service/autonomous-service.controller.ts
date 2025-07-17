@@ -3,6 +3,7 @@ import {
   Controller,
   Get,
   Param,
+  Patch,
   Post,
   Query,
   Req,
@@ -25,6 +26,8 @@ import { CreateAutonomousServiceDto } from './dtos/create-autonomous-service.dto
 import { AuthUser } from '@core-service/decorators/auth.decorator';
 import { User } from '../user/entities/user.entity';
 import { FilesInterceptor } from '@nestjs/platform-express';
+import { SubmitBidDto } from './dtos/submit-bid.dto';
+import { SessionReviewDto } from '../class-session/dto/session-review.dto';
 
 @Controller('autonomous-service')
 @ApiTags('Autonomous Service')
@@ -124,5 +127,82 @@ export class AutonomousServiceController {
   @ApiParam({ name: 'id', description: 'Autonomous service ID' })
   async getAutonomousServiceById(@Param('id') id: string) {
     return this.autonomousServiceService.getAutonomousServiceById(id);
+  }
+
+  @Post(':serviceId/bid')
+  @AuthUser()
+  @ApiOperation({ summary: 'Submit a bid for an autonomous service' })
+  @ApiResponse({
+    status: 201,
+    description: 'The bid has been successfully submitted.',
+  })
+  @ApiParam({ name: 'serviceId', description: 'Autonomous service ID' })
+  @ApiBody({ type: SubmitBidDto })
+  async submitBid(
+    @Param('serviceId') serviceId: string,
+    @Body() submitBidDto: SubmitBidDto,
+  ) {
+    return this.autonomousServiceService.submitBid(submitBidDto, serviceId);
+  }
+
+  @Post('bid/:bidId/counter-bid')
+  @AuthUser()
+  @ApiOperation({ summary: 'Submit a counter bid for an autonomous service' })
+  @ApiResponse({
+    status: 201,
+    description: 'The counter bid has been successfully submitted.',
+  })
+  @ApiParam({ name: 'bidId', description: 'Bid ID' })
+  @ApiBody({ type: SubmitBidDto })
+  async submitCounterBid(
+    @Param('bidId') bidId: string,
+    @Body() submitCounterBidDto: SubmitBidDto,
+    @Req() req,
+  ) {
+    return this.autonomousServiceService.submitCounterBid(
+      submitCounterBidDto,
+      bidId,
+      req.user as User,
+    );
+  }
+
+  @Patch('bid/:bidId/accept')
+  @AuthUser()
+  @ApiOperation({ summary: 'Accept a bid for an autonomous service' })
+  @ApiResponse({
+    status: 200,
+    description: 'The bid has been successfully accepted.',
+  })
+  @ApiParam({ name: 'bidId', description: 'Bid ID' })
+  async acceptBid(@Param('bidId') bidId: string) {
+    return this.autonomousServiceService.acceptOrRejectBid(bidId, 'accept');
+  }
+
+  @Patch('bid/:bidId/reject')
+  @AuthUser()
+  @ApiOperation({ summary: 'Reject a bid for an autonomous service' })
+  @ApiResponse({
+    status: 200,
+    description: 'The bid has been successfully rejected.',
+  })
+  @ApiParam({ name: 'bidId', description: 'Bid ID' })
+  async rejectBid(@Param('bidId') bidId: string) {
+    return this.autonomousServiceService.acceptOrRejectBid(bidId, 'reject');
+  }
+
+  @Patch(':serviceId/review')
+  @AuthUser()
+  @ApiOperation({ summary: 'Review an autonomous service' })
+  @ApiResponse({
+    status: 200,
+    description: 'The service has been successfully reviewed.',
+  })
+  @ApiParam({ name: 'serviceId', description: 'Autonomous service ID' })
+  @ApiBody({ type: SessionReviewDto })
+  async reviewService(
+    @Param('serviceId') serviceId: string,
+    @Body() review: SessionReviewDto,
+  ) {
+    return this.autonomousServiceService.reviewBid(serviceId, review);
   }
 }
