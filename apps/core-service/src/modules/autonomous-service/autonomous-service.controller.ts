@@ -29,6 +29,8 @@ import { FilesInterceptor } from '@nestjs/platform-express';
 import { SubmitBidDto } from './dtos/submit-bid.dto';
 import { SessionReviewDto } from '../class-session/dto/session-review.dto';
 import { EAutonomousServiceStatus } from './enums/autonomous-service-status.enum';
+import { CreateInvitationDto } from './dtos/create-invitation.dto';
+import { EInvitationStatus } from './enums/invitation-status.enum';
 
 @Controller('autonomous-service')
 @ApiTags('Autonomous Service')
@@ -98,11 +100,13 @@ export class AutonomousServiceController {
     name: 'limit',
     required: false,
     type: Number,
+    example: 10,
     description: 'Limit',
   })
   @ApiQuery({
     name: 'page',
     required: false,
+    example: 1,
     type: Number,
     description: 'Page',
   })
@@ -112,17 +116,20 @@ export class AutonomousServiceController {
     type: String,
     description: 'Status',
   })
+  @AuthUser()
   async getAllServices(
     @Query('searchKeyword') searchKeyword: string,
     @Query('limit') limit: number = 10,
     @Query('page') page: number = 1,
     @Query('status') status: EAutonomousServiceStatus,
+    @Req() req,
   ) {
     return this.autonomousServiceService.getAllServices(
       searchKeyword,
       status,
       limit,
       page,
+      req.user as User,
     );
   }
 
@@ -213,5 +220,51 @@ export class AutonomousServiceController {
     @Body() review: SessionReviewDto,
   ) {
     return this.autonomousServiceService.reviewBid(serviceId, review);
+  }
+
+  @Post('/tutors/:tutorId/invite')
+  @AuthUser()
+  @ApiOperation({ summary: 'Invite a tutor for an autonomous service' })
+  @ApiResponse({
+    status: 201,
+    description: 'The invitation has been successfully sent.',
+  })
+  @ApiParam({ name: 'tutorId', description: 'Tutor ID' })
+  @ApiBody({ type: CreateInvitationDto })
+  async inviteTutor(
+    @Param('tutorId') tutorId: string,
+    @Body() createInvitationDto: CreateInvitationDto,
+  ) {
+    return this.autonomousServiceService.inviteTutor(
+      createInvitationDto,
+      tutorId,
+    );
+  }
+
+  @Get('/invitations/all')
+  @AuthUser()
+  @ApiOperation({ summary: 'Get all invitations' })
+  @ApiResponse({
+    status: 200,
+    description: 'The invitations have been successfully retrieved.',
+  })
+  @ApiQuery({
+    name: 'serviceId',
+    required: false,
+    type: String,
+    description: 'Service ID',
+  })
+  @ApiQuery({
+    name: 'status',
+    required: false,
+    type: String,
+    description: 'Status',
+  })
+  @AuthUser()
+  async getInvitations(
+    @Query('serviceId') serviceId: string,
+    @Query('status') status: EInvitationStatus,
+  ) {
+    return this.autonomousServiceService.getInvitations(serviceId, status);
   }
 }
