@@ -311,6 +311,10 @@ export const _409 = {
     code: 'UNIVERSITY_ALREADY_EXISTS',
     message: 'University already exists',
   },
+  AUTONOMOUS_SERVICE_ALREADY_EXISTS: {
+    code: 'AUTONOMOUS_SERVICE_ALREADY_EXISTS',
+    message: 'Autonomous service already exists',
+  },
 };
 
 // internal server error
