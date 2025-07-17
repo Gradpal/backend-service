@@ -70,7 +70,9 @@ export class AutonomousServiceService {
     const query = this.autonomousServiceRepository
       .createQueryBuilder('autonomousService')
       .leftJoinAndSelect('autonomousService.subject', 'subject')
-      .leftJoinAndSelect('autonomousService.owner', 'owner');
+      .leftJoinAndSelect('autonomousService.student', 'student')
+      .leftJoinAndSelect('autonomousService.bids', 'bids')
+      .leftJoinAndSelect('autonomousService.tutor', 'tutor');
     if (searchKeyword) {
       query.where('autonomousService.projectTitle ILIKE :searchKeyword', {
         searchKeyword: `%${searchKeyword}%`,
@@ -92,10 +94,10 @@ export class AutonomousServiceService {
       'autonomousService.createdAt',
       'subject.id',
       'subject.name',
-      'owner.id',
-      'owner.firstName',
-      'owner.lastName',
-      'owner.email',
+      'student.id',
+      'student.firstName',
+      'student.lastName',
+      'student.email',
     ]);
     const [services, total] = await query.getManyAndCount();
     return createPaginatedResponse(services, total, page, limit);
@@ -104,7 +106,7 @@ export class AutonomousServiceService {
   async getAutonomousServiceById(id: string): Promise<AutonomousService> {
     const service = await this.autonomousServiceRepository.findOne({
       where: { id },
-      relations: ['subject', 'owner'],
+      relations: ['subject', 'student', 'bids', 'tutor'],
     });
     if (!service) {
       this.exceptionHander.throwNotFound(_404.AUTONOMOUS_SERVICE_NOT_FOUND);
