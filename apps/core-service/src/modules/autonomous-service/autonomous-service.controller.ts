@@ -1,7 +1,10 @@
 import {
   Body,
   Controller,
+  Get,
+  Param,
   Post,
+  Query,
   Req,
   UploadedFiles,
   UseInterceptors,
@@ -15,6 +18,8 @@ import {
   ApiTags,
   ApiConsumes,
   ApiProduces,
+  ApiQuery,
+  ApiParam,
 } from '@nestjs/swagger';
 import { CreateAutonomousServiceDto } from './dtos/create-autonomous-service.dto';
 import { AuthUser } from '@core-service/decorators/auth.decorator';
@@ -70,5 +75,54 @@ export class AutonomousServiceController {
       req.user as User,
       files,
     );
+  }
+
+  @Get()
+  @AuthUser()
+  @ApiOperation({ summary: 'Get all autonomous services' })
+  @ApiResponse({
+    status: 200,
+    description: 'The autonomous services have been successfully retrieved.',
+  })
+  @ApiQuery({
+    name: 'searchKeyword',
+    required: false,
+    type: String,
+    description: 'Search keyword',
+  })
+  @ApiQuery({
+    name: 'limit',
+    required: false,
+    type: Number,
+    description: 'Limit',
+  })
+  @ApiQuery({
+    name: 'page',
+    required: false,
+    type: Number,
+    description: 'Page',
+  })
+  async getAllServices(
+    @Query('searchKeyword') searchKeyword: string,
+    @Query('limit') limit: number,
+    @Query('page') page: number,
+  ) {
+    return this.autonomousServiceService.getAllServices(
+      searchKeyword,
+      limit,
+      page,
+    );
+  }
+
+  @Get(':id')
+  @AuthUser()
+  @ApiOperation({ summary: 'Get an autonomous service by ID' })
+  @ApiResponse({
+    status: 200,
+    description: 'The autonomous service has been successfully retrieved.',
+  })
+  @ApiParam({ name: 'id', description: 'Autonomous service ID' })
+  async getAutonomousServiceById(@Param('id') id: string) {
+    return this.autonomousServiceService.getAutonomousServiceById(id);
   }
 }
