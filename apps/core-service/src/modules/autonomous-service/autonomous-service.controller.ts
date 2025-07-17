@@ -28,6 +28,7 @@ import { User } from '../user/entities/user.entity';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { SubmitBidDto } from './dtos/submit-bid.dto';
 import { SessionReviewDto } from '../class-session/dto/session-review.dto';
+import { EAutonomousServiceStatus } from './enums/autonomous-service-status.enum';
 
 @Controller('autonomous-service')
 @ApiTags('Autonomous Service')
@@ -105,13 +106,21 @@ export class AutonomousServiceController {
     type: Number,
     description: 'Page',
   })
+  @ApiQuery({
+    name: 'status',
+    required: false,
+    type: String,
+    description: 'Status',
+  })
   async getAllServices(
     @Query('searchKeyword') searchKeyword: string,
-    @Query('limit') limit: number,
-    @Query('page') page: number,
+    @Query('limit') limit: number = 10,
+    @Query('page') page: number = 1,
+    @Query('status') status: EAutonomousServiceStatus,
   ) {
     return this.autonomousServiceService.getAllServices(
       searchKeyword,
+      status,
       limit,
       page,
     );

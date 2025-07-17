@@ -64,6 +64,7 @@ export class AutonomousServiceService {
 
   async getAllServices(
     searchKeyword: string,
+    status: EAutonomousServiceStatus,
     limit: number,
     page: number,
   ): Promise<PaginatedResponse<AutonomousService>> {
@@ -77,6 +78,9 @@ export class AutonomousServiceService {
       query.where('autonomousService.projectTitle ILIKE :searchKeyword', {
         searchKeyword: `%${searchKeyword}%`,
       });
+    }
+    if (status) {
+      query.where('autonomousService.status = :status', { status: status });
     }
     query.orderBy('autonomousService.createdAt', 'DESC');
     query.skip((page - 1) * limit);
