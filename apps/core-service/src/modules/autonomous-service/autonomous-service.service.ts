@@ -7,16 +7,24 @@ import { MinioClientService } from '@core-service/modules/minio-client/minio-cli
 import { SubjectsService } from '../subjects/subjects.service';
 import { User } from '../user/entities/user.entity';
 import { ExceptionHandler } from '@app/common/exceptions/exceptions.handler';
-import { _409 } from '@app/common/constants/errors-constants';
+import { _404, _409 } from '@app/common/constants/errors-constants';
 import { normalizeArray } from '@core-service/common/helpers/all.helpers';
 import { createPaginatedResponse } from '@app/common/helpers/pagination.helper';
 import { PaginatedResponse } from '@app/common/dtos/pagination.response';
+import { SubmitBidDto } from './dtos/submit-bid.dto';
+import { Bid } from './entities/bid.entity';
+import { EUserRole } from '../user/enums/user-role.enum';
+import { EBidStatus } from './enums/bid-status.enum';
+import { EAutonomousServiceStatus } from './enums/autonomous-service-status.enum';
+import { SessionReviewDto } from '../class-session/dto/session-review.dto';
 
 @Injectable()
 export class AutonomousServiceService {
   constructor(
     @InjectRepository(AutonomousService)
     private autonomousServiceRepository: Repository<AutonomousService>,
+    @InjectRepository(Bid)
+    private bidRepository: Repository<Bid>,
     private readonly minioClientService: MinioClientService,
     private readonly subjectService: SubjectsService,
     private readonly exceptionHander: ExceptionHandler,
@@ -45,7 +53,7 @@ export class AutonomousServiceService {
     const autonomousService = this.autonomousServiceRepository.create({
       ...createAutonomousServiceDto,
       subject,
-      owner: loggedInUser,
+      student: loggedInUser,
     });
     if (files.length > 0) {
       autonomousService.attachments =
@@ -94,10 +102,14 @@ export class AutonomousServiceService {
   }
 
   async getAutonomousServiceById(id: string): Promise<AutonomousService> {
-    return await this.autonomousServiceRepository.findOne({
+    const service = await this.autonomousServiceRepository.findOne({
       where: { id },
       relations: ['subject', 'owner'],
     });
+    if (!service) {
+      this.exceptionHander.throwNotFound(_404.AUTONOMOUS_SERVICE_NOT_FOUND);
+    }
+    return service;
   }
 
   async existsByTitle(title: string): Promise<boolean> {
@@ -105,5 +117,65 @@ export class AutonomousServiceService {
       where: { projectTitle: title },
     });
     return !!autonomousService;
+  }
+
+  // bid
+
+  async getBidById(bidId: string): Promise<Bid> {
+    const bid = await this.bidRepository.findOne({
+      where: { id: bidId },
+      relations: ['autonomousService'],
+    });
+    if (!bid) {
+      this.exceptionHander.throwNotFound(_404.BID_NOT_FOUND);
+    }
+    return bid;
+  }
+
+  async submitBid(submitBidDto: SubmitBidDto, serviceId: string) {
+    const autonomousService = await this.getAutonomousServiceById(serviceId);
+    const bid = this.bidRepository.create({
+      bidAmount: submitBidDto.bidAmount,
+      description: submitBidDto.description,
+      autonomousService,
+    });
+    return await this.bidRepository.save(bid);
+  }
+
+  async submitCounterBid(
+    submitCounterBidDto: SubmitBidDto,
+    bidId: string,
+    loggedInUser: User,
+  ) {
+    const bid = await this.getBidById(bidId);
+    if (loggedInUser.role === EUserRole.TUTOR) {
+      bid.teacherCounterbidAmount = submitCounterBidDto.bidAmount;
+    } else {
+      bid.studentCounterbidAmount = submitCounterBidDto.bidAmount;
+    }
+    return await this.bidRepository.save(bid);
+  }
+
+  async acceptOrRejectBid(bidId: string, action: 'accept' | 'reject') {
+    const bid = await this.getBidById(bidId);
+    if (action === 'accept') {
+      bid.status = EBidStatus.ACCEPTED;
+      bid.autonomousService.status = EAutonomousServiceStatus.IN_PROGRESS;
+    } else {
+      bid.status = EBidStatus.REJECTED;
+    }
+    const [updatedBid, updatedService] = await Promise.all([
+      this.bidRepository.save(bid),
+      this.autonomousServiceRepository.save(bid.autonomousService),
+    ]);
+    return {
+      bid: updatedBid,
+      service: updatedService,
+    };
+  }
+  async reviewBid(serviceId: string, review: SessionReviewDto) {
+    const service = await this.getAutonomousServiceById(serviceId);
+    service.review = review;
+    return await this.autonomousServiceRepository.save(service);
   }
 }

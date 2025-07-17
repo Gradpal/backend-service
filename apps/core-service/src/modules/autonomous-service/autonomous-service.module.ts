@@ -5,10 +5,11 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AutonomousService } from './entities/autonomous-service.entity';
 import { MinioClientModule } from '../minio-client/minio-client.module';
 import { SubjectsModule } from '../subjects/subjects.module';
+import { Bid } from './entities/bid.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([AutonomousService]),
+    TypeOrmModule.forFeature([AutonomousService, Bid]),
     MinioClientModule,
     SubjectsModule,
   ],

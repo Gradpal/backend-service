@@ -258,6 +258,16 @@ export const _404 = {
     code: 'LEGAL_DOCUMENT_NOT_FOUND',
     message: 'The requested legal document was not found',
   },
+
+  // autonomous service
+  AUTONOMOUS_SERVICE_NOT_FOUND: {
+    code: 'AUTONOMOUS_SERVICE_NOT_FOUND',
+    message: 'The requested autonomous service was not found',
+  },
+  BID_NOT_FOUND: {
+    code: 'BID_NOT_FOUND',
+    message: 'The requested bid was not found',
+  },
 };
 
 // conflict
