@@ -57,7 +57,7 @@ export class AutonomousServiceService {
     });
     if (files.length > 0) {
       autonomousService.attachments =
-        await this.minioClientService.uploadAttachments(files, []);
+        await this.minioClientService.uploadAttachments({ files }, []);
     }
     return await this.autonomousServiceRepository.save(autonomousService);
   }
