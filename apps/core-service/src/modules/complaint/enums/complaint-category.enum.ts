@@ -1,0 +1,4 @@
+export enum ComplaintCategory {
+  CLASS_SESSION = 'CLASS_SESSION',
+  AUTONOMOUS_SERVICE = 'AUTONOMOUS_SERVICE',
+}

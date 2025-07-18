@@ -15,18 +15,13 @@ import {
   ESessionAcceptanceStatus,
 } from './enums/session-status.enum';
 import { User } from '../user/entities/user.entity';
-import { SubjectTierService } from '../subjects/subject-tier/subject-tier.service';
-import { MinioClientService } from '../minio-client/minio-client.service';
 import { _400, _403, _404 } from '@app/common/constants/errors-constants';
 import { ExceptionHandler } from '@app/common/exceptions/exceptions.handler';
 import { EUserRole } from '../user/enums/user-role.enum';
 import { CancelLessonDto } from './dto/cancel-lesson.dto';
 import { RequestSessionExtensionDto } from './dto/request-extion.dto';
-import { WeeklyAvailabilityService } from '../portfolio/weekly-availability/weekly-availability';
 import { SessionTimelineType } from './enums/session-timeline-type.enum';
 import { createPaginatedResponse } from '@app/common/helpers/pagination.helper';
-import { CoreServiceConfigService } from '@core-service/configs/core-service-config.service';
-import { BrainService } from '@app/common/brain/brain.service';
 import { SessionReviewDto } from './dto/session-review.dto';
 import { PortfolioService } from '../portfolio/portfolio.service';
 import { TimeSlot } from '../portfolio/weekly-availability/entities/weeky-availability.entity';
@@ -40,12 +35,7 @@ export class ClassSessionService {
     private readonly classSessionRepository: Repository<ClassSession>,
     @Inject(forwardRef(() => UserService))
     private readonly userService: UserService,
-    private readonly subjectTierService: SubjectTierService,
-    private readonly minioService: MinioClientService,
     private readonly exceptionHandler: ExceptionHandler,
-    private readonly weeklyAvailabilityService: WeeklyAvailabilityService,
-    private readonly configService: CoreServiceConfigService,
-    private readonly brainService: BrainService,
     @Inject(forwardRef(() => PortfolioService))
     private readonly portfolioService: PortfolioService,
   ) {}

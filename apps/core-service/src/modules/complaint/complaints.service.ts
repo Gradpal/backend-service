@@ -1,19 +1,22 @@
 import { Injectable } from '@nestjs/common';
-import { Complaint } from './entities/complaints.entity';
-import { In, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
-import { CreateComplaintDto } from './dto/create-complaint.dto';
+import { CreateComplaintDto } from './dtos/create-complaint.dto';
 import { MinioClientService } from '../minio-client/minio-client.service';
-import { ClassSessionService } from './class-session.service';
+import { ClassSessionService } from '../class-session/class-session.service';
 import { _400, _404, _409 } from '@app/common/constants/errors-constants';
 import { ExceptionHandler } from '@app/common/exceptions/exceptions.handler';
 import { ComplaintIssueType, ComplaintPriority } from './enums/complaints.enum';
-import { ClassSession } from './entities/class-session.entity';
+import { ClassSession } from '../class-session/entities/class-session.entity';
 import { User } from '../user/entities/user.entity';
 import { EComplaintStatus } from './enums/complaint-status.enum';
-import { SessionComplaintReviwDecisionDto } from './dto/complaint-review.dto';
+import { SessionComplaintReviwDecisionDto } from './dtos/complaint-review.dto';
 import { EComplaintReviewDecision } from './enums/complaint-review.enum';
 import { createPaginatedResponse } from '@app/common/helpers/pagination.helper';
+import { Complaint } from './entities/complaints.entity';
+import { ComplaintCategory } from './enums/complaint-category.enum';
+import { AutonomousServiceService } from '../autonomous-service/autonomous-service.service';
+import { AutonomousService } from '../autonomous-service/entities/autonomous-service.entity';
 @Injectable()
 export class ComplaintsService {
   constructor(
@@ -22,15 +25,25 @@ export class ComplaintsService {
     private readonly minioService: MinioClientService,
     private readonly classSessionService: ClassSessionService,
     private readonly exceptionHandler: ExceptionHandler,
+    private readonly autonomousServiceService: AutonomousServiceService,
   ) {}
 
   async createComplaint(
     createComplaintDto: CreateComplaintDto,
-    evidenceFile: Express.Multer.File,
+    evidenceFiles: Express.Multer.File[],
   ) {
-    const session = await this.classSessionService.findOne(
-      createComplaintDto.sessionId,
-    );
+    let session: ClassSession;
+    let service: AutonomousService;
+
+    if (createComplaintDto.category === ComplaintCategory.CLASS_SESSION) {
+      session = await this.classSessionService.findOne(
+        createComplaintDto.sessionId,
+      );
+    } else {
+      service = await this.autonomousServiceService.getAutonomousServiceById(
+        createComplaintDto.serviceId,
+      );
+    }
     const complaintExists =
       await this.existsByDescriptionAndSessionAndIssueTypeAndPriority(
         createComplaintDto.description,
@@ -40,18 +53,22 @@ export class ComplaintsService {
     if (complaintExists) {
       this.exceptionHandler.throwBadRequest(_409.COMPLAINT_ALREADY_EXISTS);
     }
-    const complaint: Complaint =
-      this.complaintRepository.create(createComplaintDto);
-    complaint.session = session;
+    const complaint: Complaint = this.complaintRepository.create({
+      ...createComplaintDto,
+      session,
+      autonomousService: service,
+    });
+    if (evidenceFiles) {
+      const evidenceAttachments = await this.minioService.uploadAttachments(
+        { files: evidenceFiles },
+        [],
+      );
+      complaint.evidenceFiles = evidenceAttachments;
+    }
 
     if (this.issueTypeExistsInIssueTypeEnum(createComplaintDto.issueType)) {
       complaint.priority = ComplaintPriority.HIGH;
     }
-
-    // complaint.evidenceFiles = await this.minioService.uploadAttachments(
-    //   [evidenceFile],
-    //   complaint.evidenceFiles || [],
-    // );
     return this.complaintRepository.save(complaint);
   }
 
@@ -117,6 +134,19 @@ export class ComplaintsService {
         issueType: true,
         adminNotes: true,
         createdAt: true,
+        category: true,
+        session: {
+          id: true,
+          subject: {
+            id: true,
+            name: true,
+          },
+        },
+        autonomousService: {
+          id: true,
+          projectTitle: true,
+          description: true,
+        },
         evidenceFiles: {
           path: true,
           type: true,
@@ -208,6 +238,11 @@ export class ComplaintsService {
     queryBuilder.leftJoinAndSelect('session.sessionPackage', 'sessionPackage');
     queryBuilder.leftJoinAndSelect('sessionPackage.tutor', 'tutor');
     queryBuilder.leftJoinAndSelect('sessionPackage.student', 'student');
+    queryBuilder.leftJoinAndSelect(
+      'complaint.autonomousService',
+      'autonomousService',
+    );
+
     queryBuilder.select([
       'complaint.id',
       'complaint.description',
@@ -228,6 +263,8 @@ export class ComplaintsService {
       'student.lastName',
       'student.profilePicture',
       'student.email',
+      'autonomousService.projectTitle',
+      'autonomousService.description',
     ]);
 
     if (status) {

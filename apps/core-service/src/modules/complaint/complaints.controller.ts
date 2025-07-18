@@ -15,7 +15,7 @@ import {
   AuthUser,
   PreAuthorize,
 } from '@core-service/decorators/auth.decorator';
-import { CreateComplaintDto } from './dto/create-complaint.dto';
+import { CreateComplaintDto } from './dtos/create-complaint.dto';
 import {
   ApiConsumes,
   ApiBody,
@@ -28,7 +28,7 @@ import {
 import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import { EComplaintStatus } from './enums/complaint-status.enum';
 import { EUserRole } from '../user/enums/user-role.enum';
-import { SessionComplaintReviwDecisionDto } from './dto/complaint-review.dto';
+import { SessionComplaintReviwDecisionDto } from './dtos/complaint-review.dto';
 
 @Controller('complaints')
 @ApiTags('Complaints')
@@ -39,14 +39,14 @@ export class ComplaintsController {
   @Post()
   @ApiConsumes('multipart/form-data')
   @ApiBody({ type: CreateComplaintDto })
-  @UseInterceptors(FileInterceptor('evidenceFile'))
+  @UseInterceptors(FilesInterceptor('supportingDocuments', 3))
   createComplaint(
     @Body() createComplaintDto: CreateComplaintDto,
-    @UploadedFile() evidenceFile: Express.Multer.File,
+    @UploadedFiles() supportingDocuments: Express.Multer.File[],
   ) {
     return this.complaintsService.createComplaint(
       createComplaintDto,
-      evidenceFile,
+      supportingDocuments,
     );
   }
   @AuthUser()
