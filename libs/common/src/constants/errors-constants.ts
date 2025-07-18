@@ -268,6 +268,10 @@ export const _404 = {
     code: 'BID_NOT_FOUND',
     message: 'The requested bid was not found',
   },
+  INVITATION_NOT_FOUND: {
+    code: 'INVITATION_NOT_FOUND',
+    message: 'The requested invitation was not found',
+  },
 };
 
 // conflict

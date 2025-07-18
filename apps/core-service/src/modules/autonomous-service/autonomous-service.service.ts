@@ -121,7 +121,21 @@ export class AutonomousServiceService {
       'student.id',
       'student.firstName',
       'student.lastName',
-      'student.email',
+      'student.profilePicture',
+      'bids.id',
+      'bids.bidAmount',
+      'bids.description',
+      'bids.status',
+      'bids.createdAt',
+      'bids.updatedAt',
+      'invitations.id',
+      'invitations.status',
+      'invitations.createdAt',
+      'invitations.updatedAt',
+      'tutor.id',
+      'tutor.firstName',
+      'tutor.lastName',
+      'tutor.profilePicture',
     ]);
     const [services, total] = await query.getManyAndCount();
     return createPaginatedResponse(services, total, page, limit);
@@ -130,7 +144,68 @@ export class AutonomousServiceService {
   async getAutonomousServiceById(id: string): Promise<AutonomousService> {
     const service = await this.autonomousServiceRepository.findOne({
       where: { id },
-      relations: ['subject', 'student', 'bids'],
+      relations: [
+        'subject',
+        'student',
+        'bids',
+        'invitations',
+        'invitations.tutor',
+      ],
+      select: {
+        id: true,
+        projectTitle: true,
+        description: true,
+        status: true,
+        isOwnerAnonymous: true,
+        contractFinalizationDate: true,
+        finalSubmissionDate: true,
+        preferredOutputFormats: true,
+        attachments: true,
+        createdAt: true,
+        updatedAt: true,
+        subject: {
+          id: true,
+          name: true,
+        },
+        student: {
+          id: true,
+          firstName: true,
+          lastName: true,
+          profilePicture: true,
+        },
+        bids: {
+          id: true,
+          bidAmount: true,
+          teacherCounterbidAmount: true,
+          studentCounterbidAmount: true,
+          description: true,
+          status: true,
+          createdAt: true,
+          updatedAt: true,
+          invitation: {
+            id: true,
+            status: true,
+            tutor: {
+              id: true,
+              firstName: true,
+              lastName: true,
+              profilePicture: true,
+            },
+          },
+        },
+        invitations: {
+          id: true,
+          status: true,
+          createdAt: true,
+          updatedAt: true,
+          tutor: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            profilePicture: true,
+          },
+        },
+      },
     });
     if (!service) {
       this.exceptionHander.throwNotFound(_404.AUTONOMOUS_SERVICE_NOT_FOUND);
@@ -158,12 +233,20 @@ export class AutonomousServiceService {
     return bid;
   }
 
-  async submitBid(submitBidDto: SubmitBidDto, serviceId: string) {
-    const autonomousService = await this.getAutonomousServiceById(serviceId);
+  async submitBid(
+    submitBidDto: SubmitBidDto,
+    serviceId: string,
+    loggedInUser: User,
+  ) {
+    const [autonomousService, invitation] = await Promise.all([
+      this.getAutonomousServiceById(serviceId),
+      this.getInvitationByTutorAndService(loggedInUser.id, serviceId),
+    ]);
     const bid = this.bidRepository.create({
       bidAmount: submitBidDto.bidAmount,
       description: submitBidDto.description,
       autonomousService,
+      invitation,
     });
     autonomousService.status = EAutonomousServiceStatus.BIDS_SUBMITTED;
     const [updatedBid, updatedService] = await Promise.all([
@@ -245,5 +328,32 @@ export class AutonomousServiceService {
     }
     const invitations = await query.getMany();
     return invitations;
+  }
+
+  async getInvitationByTutorAndService(tutorId: string, serviceId: string) {
+    const invitation = await this.invitationRepository.findOne({
+      where: { tutor: { id: tutorId }, autonomousService: { id: serviceId } },
+    });
+    if (!invitation) {
+      this.exceptionHander.throwNotFound(_404.INVITATION_NOT_FOUND);
+    }
+    return invitation;
+  }
+
+  async getInvitationById(invitationId: string) {
+    const invitation = await this.invitationRepository.findOne({
+      where: { id: invitationId },
+      relations: ['autonomousService', 'tutor'],
+    });
+    if (!invitation) {
+      this.exceptionHander.throwNotFound(_404.INVITATION_NOT_FOUND);
+    }
+    return invitation;
+  }
+
+  async sendInvitation(invitationId: string) {
+    const invitation = await this.getInvitationById(invitationId);
+    invitation.status = EInvitationStatus.PENDING;
+    return await this.invitationRepository.save(invitation);
   }
 }

@@ -154,11 +154,17 @@ export class AutonomousServiceController {
   })
   @ApiParam({ name: 'serviceId', description: 'Autonomous service ID' })
   @ApiBody({ type: SubmitBidDto })
+  @AuthUser()
   async submitBid(
     @Param('serviceId') serviceId: string,
     @Body() submitBidDto: SubmitBidDto,
+    @Req() req,
   ) {
-    return this.autonomousServiceService.submitBid(submitBidDto, serviceId);
+    return this.autonomousServiceService.submitBid(
+      submitBidDto,
+      serviceId,
+      req.user as User,
+    );
   }
 
   @Post('bid/:bidId/counter-bid')

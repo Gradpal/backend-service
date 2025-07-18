@@ -1,7 +1,8 @@
 import { BaseEntity } from '@app/common/database/base.entity';
-import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, OneToOne } from 'typeorm';
 import { AutonomousService } from './autonomous-service.entity';
 import { EBidStatus } from '../enums/bid-status.enum';
+import { Invitation } from './invitation.entity';
 
 @Entity({ name: 'bid' })
 export class Bid extends BaseEntity {
@@ -31,4 +32,8 @@ export class Bid extends BaseEntity {
     default: EBidStatus.PENDING,
   })
   status: EBidStatus;
+
+  @OneToOne(() => Invitation, { nullable: true })
+  @JoinColumn({ name: 'invitation_id' })
+  invitation: Invitation;
 }
