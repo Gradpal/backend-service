@@ -7,6 +7,7 @@ import {
   IsString,
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
+import { ComplaintCategory } from '../enums/complaint-category.enum';
 
 export class CreateComplaintDto {
   @IsEnum(ComplaintIssueType)
@@ -24,12 +25,27 @@ export class CreateComplaintDto {
   })
   description: string;
 
+  @IsEnum(ComplaintCategory)
+  @IsNotEmpty()
+  @ApiProperty({
+    description: 'The category of the complaint',
+    enum: ComplaintCategory,
+  })
+  category: ComplaintCategory;
+
   @IsString()
   @IsNotEmpty()
   @ApiProperty({
     description: 'The session id of the complaint',
   })
   sessionId: string;
+
+  @IsOptional()
+  @ApiProperty({
+    description: 'The service id of the complaint',
+    required: false,
+  })
+  serviceId: string;
 
   @IsNotEmpty()
   @ApiProperty({
@@ -39,10 +55,13 @@ export class CreateComplaintDto {
 
   @IsOptional()
   @ApiProperty({
-    type: 'string',
-    format: 'binary',
-    description: 'The evidence file of the complaint',
+    description: 'Supporting documents - If any',
+    type: 'array',
+    items: {
+      type: 'string',
+      format: 'binary',
+    },
     required: false,
   })
-  evidenceFile: Express.Multer.File;
+  supportingDocuments?: Express.Multer.File[];
 }
