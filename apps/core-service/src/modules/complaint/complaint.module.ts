@@ -9,6 +9,7 @@ import { ExceptionHandler } from '@app/common/exceptions/exceptions.handler';
 import { MinioClientService } from '../minio-client/minio-client.service';
 import { ClassSessionModule } from '../class-session/class-session.module';
 import { AutonomousServiceModule } from '../autonomous-service/autonomous-service.module';
+import { ComplaintsController } from './complaints.controller';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { AutonomousServiceModule } from '../autonomous-service/autonomous-servic
     forwardRef(() => UserModule),
   ],
   providers: [ComplaintsService, ExceptionHandler, MinioClientService],
+  controllers: [ComplaintsController],
   exports: [ComplaintsService],
 })
 export class ComplaintModule {}

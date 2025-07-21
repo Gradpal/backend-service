@@ -25,7 +25,7 @@ import {
   ApiQuery,
   ApiParam,
 } from '@nestjs/swagger';
-import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
+import { FilesInterceptor } from '@nestjs/platform-express';
 import { EComplaintStatus } from './enums/complaint-status.enum';
 import { EUserRole } from '../user/enums/user-role.enum';
 import { SessionComplaintReviwDecisionDto } from './dtos/complaint-review.dto';
