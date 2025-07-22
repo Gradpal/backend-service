@@ -146,7 +146,6 @@ export class AutonomousServiceController {
   }
 
   @Post(':serviceId/bid')
-  @AuthUser()
   @ApiOperation({ summary: 'Submit a bid for an autonomous service' })
   @ApiResponse({
     status: 201,
