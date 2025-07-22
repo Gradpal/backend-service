@@ -91,6 +91,9 @@ export class AutonomousServiceService {
       },
     });
     const serviceIds = autonomousServces.map((service) => service.id);
+    if (serviceIds.length <= 0) {
+      return createPaginatedResponse([], 0, page, limit);
+    }
 
     const query = this.autonomousServiceRepository
       .createQueryBuilder('autonomousService')
@@ -98,6 +101,7 @@ export class AutonomousServiceService {
       .leftJoinAndSelect('autonomousService.student', 'student')
       .leftJoinAndSelect('autonomousService.bids', 'bids')
       .leftJoinAndSelect('autonomousService.invitations', 'invitations')
+      .leftJoinAndSelect('invitations.tutor', 'tutor')
       .where('autonomousService.id IN (:...serviceIds)', { serviceIds });
 
     if (searchKeyword) {
