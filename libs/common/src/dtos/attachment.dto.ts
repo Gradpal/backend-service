@@ -17,6 +17,7 @@ export class AttachmentDto {
   @IsOptional()
   @ApiProperty()
   path: string;
+
   @IsOptional()
   @ApiProperty()
   name: string;

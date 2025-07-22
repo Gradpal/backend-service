@@ -76,24 +76,30 @@ export class AutonomousServiceService {
     page: number,
     loggedInUser: User,
   ): Promise<PaginatedResponse<AutonomousService>> {
+    const autonomousServces = await this.autonomousServiceRepository.find({
+      where: {
+        status: status,
+        invitations: {
+          tutor: {
+            id: loggedInUser.id,
+          },
+        },
+      },
+      relations: ['invitations'],
+      select: {
+        id: true,
+      },
+    });
+    const serviceIds = autonomousServces.map((service) => service.id);
+
     const query = this.autonomousServiceRepository
       .createQueryBuilder('autonomousService')
       .leftJoinAndSelect('autonomousService.subject', 'subject')
       .leftJoinAndSelect('autonomousService.student', 'student')
       .leftJoinAndSelect('autonomousService.bids', 'bids')
       .leftJoinAndSelect('autonomousService.invitations', 'invitations')
-      .leftJoinAndSelect('invitations.tutor', 'tutor');
+      .where('autonomousService.id IN (:...serviceIds)', { serviceIds });
 
-    if (loggedInUser.role === EUserRole.STUDENT) {
-      query.where('student.id = :studentId', {
-        studentId: loggedInUser.id,
-      });
-    }
-    if (loggedInUser.role === EUserRole.TUTOR) {
-      query.where('tutor.id = :tutorId', {
-        tutorId: loggedInUser.id,
-      });
-    }
     if (searchKeyword) {
       query.where('autonomousService.projectTitle ILIKE :searchKeyword', {
         searchKeyword: `%${searchKeyword}%`,
@@ -333,9 +339,12 @@ export class AutonomousServiceService {
   async getInvitationByTutorAndService(tutorId: string, serviceId: string) {
     const invitation = await this.invitationRepository.findOne({
       where: { tutor: { id: tutorId }, autonomousService: { id: serviceId } },
+      relations: ['autonomousService', 'tutor'],
     });
     if (!invitation) {
-      this.exceptionHander.throwNotFound(_404.INVITATION_NOT_FOUND);
+      this.exceptionHander.throwNotFound(
+        _404.YOU_ARE_NOT_INVITED_TO_JOIN_THIS_SERVICE,
+      );
     }
     return invitation;
   }
@@ -346,7 +355,9 @@ export class AutonomousServiceService {
       relations: ['autonomousService', 'tutor'],
     });
     if (!invitation) {
-      this.exceptionHander.throwNotFound(_404.INVITATION_NOT_FOUND);
+      this.exceptionHander.throwNotFound(
+        _404.YOU_ARE_NOT_INVITED_TO_JOIN_THIS_SERVICE,
+      );
     }
     return invitation;
   }
