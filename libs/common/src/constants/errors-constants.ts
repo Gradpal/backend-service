@@ -268,9 +268,9 @@ export const _404 = {
     code: 'BID_NOT_FOUND',
     message: 'The requested bid was not found',
   },
-  INVITATION_NOT_FOUND: {
-    code: 'INVITATION_NOT_FOUND',
-    message: 'The requested invitation was not found',
+  YOU_ARE_NOT_INVITED_TO_JOIN_THIS_SERVICE: {
+    code: 'YOU_ARE_NOT_INVITED_TO_JOIN_THIS_SERVICE',
+    message: 'You are not invited to join this service',
   },
 };
 
