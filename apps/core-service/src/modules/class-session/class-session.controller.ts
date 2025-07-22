@@ -15,6 +15,7 @@ import { ClassSessionService } from './class-session.service';
 import {
   ApiBearerAuth,
   ApiConsumes,
+  ApiExtraModels,
   ApiOperation,
   ApiParam,
   ApiQuery,
@@ -39,6 +40,8 @@ import {
 import { SessionReviewDto } from './dto/session-review.dto';
 import { Public } from '@app/common/decorators/public.decorator';
 import { EUserRole } from '../user/enums/user-role.enum';
+import { SessionDashboardDataDTO } from './dto/session-dashboard-data.dto';
+import { TimeRangeDTO } from '@core-service/common/dtos/all.dto';
 
 @ApiTags('Class Sessions')
 @Controller('class-session')
@@ -259,5 +262,36 @@ export class ClassSessionController {
       req.user as User,
       reviewSessionDto,
     );
+  }
+
+  @Get('/child/statistics/:childId')
+  @AuthUser()
+  @ApiOperation({ summary: 'Get sessions statistics for a child' })
+  @ApiParam({ name: 'childId', description: 'Child ID' })
+  @ApiExtraModels(TimeRangeDTO)
+  @ApiQuery({
+    name: 'startDate',
+    required: false,
+    type: String,
+    example: '2025-01-01',
+    description: 'Start date (YYYY-MM-DD)',
+  })
+  @ApiQuery({
+    name: 'endDate',
+    required: false,
+    type: String,
+    example: '2025-12-31',
+    description: 'End date (YYYY-MM-DD)',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Get  sessions statics for a child',
+    type: SessionDashboardDataDTO,
+  })
+  getStaticsChildSession(
+    @Param('childId') childId: string,
+    @Query() timeRange: TimeRangeDTO,
+  ) {
+    return this.classSessionService.getSessionDashboardData(childId, timeRange);
   }
 }
