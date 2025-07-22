@@ -1,4 +1,4 @@
-import { forwardRef, Inject, Injectable } from '@nestjs/common';
+import { forwardRef, HttpException, Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
@@ -237,12 +237,38 @@ export class UserService {
     user: User,
     updateSettingsDto: UpdateSettingsDto,
   ): Promise<User> {
-    if (await this.existByEmail(updateSettingsDto.email)) {
-      this.exceptionHandler.throwConflict(_409.USER_ALREADY_EXISTS);
+    try {
+      const {
+        email,
+        password,
+        timezone,
+        displayTimezoneFormat,
+        ...restFields
+      } = updateSettingsDto;
+
+      if (email && email !== user.email) {
+        const emailExists = await this.existByEmail(email);
+        if (emailExists) {
+          this.exceptionHandler.throwConflict(_409.USER_ALREADY_EXISTS);
+        }
+        user.email = email;
+      }
+
+      if (password) {
+        user.password = await hashPassword(password);
+      }
+
+      Object.entries(restFields).forEach(([key, value]) => {
+        if (value !== undefined && key in user) {
+          (user as User)[key] = value;
+        }
+      });
+
+      return await this.userRepository.save(user);
+    } catch (error) {
+      if (error instanceof HttpException) throw error;
+      throw new this.exceptionHandler.throwInternalServerError(error);
     }
-    user.email = updateSettingsDto.email;
-    user.password = await hashPassword(updateSettingsDto.password);
-    return await this.userRepository.save(user);
   }
 
   async delete(id: string) {
