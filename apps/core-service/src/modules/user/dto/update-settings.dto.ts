@@ -1,7 +1,8 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiPropertyOptional } from '@nestjs/swagger';
 import {
   IsEmail,
   IsNotEmpty,
+  IsOptional,
   IsString,
   IsStrongPassword,
 } from 'class-validator';
@@ -9,34 +10,61 @@ import {
 export class UpdateSettingsDto {
   @IsString()
   @IsNotEmpty()
-  @ApiProperty()
-  firstName: string;
+  @ApiPropertyOptional()
+  @IsOptional()
+  firstName?: string;
 
   @IsString()
   @IsNotEmpty()
-  @ApiProperty()
-  lastName: string;
+  @ApiPropertyOptional()
+  @IsOptional()
+  lastName?: string;
 
   @IsEmail()
   @IsNotEmpty()
-  @ApiProperty()
-  email: string;
+  @ApiPropertyOptional()
+  @IsOptional()
+  email?: string;
 
   @IsString()
   @IsNotEmpty()
-  @ApiProperty()
+  @ApiPropertyOptional()
   @IsStrongPassword()
-  password: string;
+  @IsOptional()
+  password?: string;
+
+  @IsString()
+  @ApiPropertyOptional()
+  @IsOptional()
+  referralCode?: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @ApiPropertyOptional()
+  @IsOptional()
+  countryOfResidence?: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @ApiPropertyOptional()
+  @IsOptional()
+  timezone?: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @ApiPropertyOptional()
+  @IsOptional()
+  displayTimezoneFormat?: string;
 }
 
 export class DeactivateUserDto {
   @IsString()
   @IsNotEmpty()
-  @ApiProperty()
+  @ApiPropertyOptional()
   reason: string;
 
   @IsString()
   @IsNotEmpty()
-  @ApiProperty()
+  @ApiPropertyOptional()
   message: string;
 }

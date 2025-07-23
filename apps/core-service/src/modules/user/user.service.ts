@@ -1,4 +1,4 @@
-import { forwardRef, Inject, Injectable } from '@nestjs/common';
+import { forwardRef, HttpException, Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
@@ -237,11 +237,25 @@ export class UserService {
     user: User,
     updateSettingsDto: UpdateSettingsDto,
   ): Promise<User> {
-    if (await this.existByEmail(updateSettingsDto.email)) {
+    const { email, password, timezone, displayTimezoneFormat, ...restFields } =
+      updateSettingsDto;
+
+    const emailExists = await this.existByEmail(email);
+    if (emailExists) {
       this.exceptionHandler.throwConflict(_409.USER_ALREADY_EXISTS);
     }
-    user.email = updateSettingsDto.email;
-    user.password = await hashPassword(updateSettingsDto.password);
+    user.email = email;
+
+    if (password) {
+      user.password = await hashPassword(password);
+    }
+
+    Object.entries(restFields).forEach(([key, value]) => {
+      if (value !== undefined && key in user) {
+        (user as User)[key] = value;
+      }
+    });
+
     return await this.userRepository.save(user);
   }
 
