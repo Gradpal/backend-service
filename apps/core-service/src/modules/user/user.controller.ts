@@ -133,9 +133,10 @@ export class UserController {
     return this.userService.update(id, updateUserDto);
   }
 
-  @Patch('settings')
+  @Patch('update/settings')
   @ApiOperation({ summary: 'Update user settings' })
   @ApiResponse({ status: 200, type: User })
+  @AuthUser()
   async updateSettings(
     @Req() req,
     @Body() updateSettingsDto: UpdateSettingsDto,
