@@ -246,4 +246,9 @@ export class UserController {
   loadChartUserById(payload: LoadChatUserByIdRequest) {
     return this.userService.loadChartUserById(payload);
   }
+
+  @Get('/children/:parentId')
+  getMyChildren(@Param('parentId') parentId: string) {
+    return this.userService.getMyChildren(parentId);
+  }
 }

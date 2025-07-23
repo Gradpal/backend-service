@@ -546,4 +546,45 @@ export class UserService {
     });
     return { result: user ? [user] : [] };
   }
+  async getMyChildren(parentId: string) {
+    return await this.userRepository.find({
+      where: {
+        parent: { id: parentId },
+      },
+      select: {
+        id: true,
+        firstName: true,
+        lastName: true,
+        email: true,
+        credits: true,
+        portfolio: {
+          id: true,
+          subjects: {
+            id: true,
+            name: true,
+          },
+          academicSubjects: true,
+          subjectTiers: {
+            id: true,
+          },
+          academicTranscripts: {
+            id: true,
+            type: true,
+            name: true,
+            path: true,
+            size: true,
+          },
+          degreeCertificates: {
+            id: true,
+            type: true,
+            name: true,
+            path: true,
+            size: true,
+          },
+          sessionType: true,
+          sessionPackageOfferings: true,
+        },
+      },
+    });
+  }
 }

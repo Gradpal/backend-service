@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { In, Repository } from 'typeorm';
+import { FindOptionsWhere, In, Repository } from 'typeorm';
 import { AutonomousService } from './entities/autonomous-service.entity';
 import { CreateAutonomousServiceDto } from './dtos/create-autonomous-service.dto';
 import { MinioClientService } from '@core-service/modules/minio-client/minio-client.service';
@@ -76,15 +76,23 @@ export class AutonomousServiceService {
     page: number,
     loggedInUser: User,
   ): Promise<PaginatedResponse<AutonomousService>> {
-    const autonomousServces = await this.autonomousServiceRepository.find({
-      where: {
-        status: status,
-        invitations: {
-          tutor: {
-            id: loggedInUser.id,
-          },
+    const whereClause: FindOptionsWhere<AutonomousService> = {
+      status: status,
+    };
+    if (loggedInUser.role === EUserRole.TUTOR) {
+      whereClause.invitations = {
+        tutor: {
+          id: loggedInUser.id,
         },
-      },
+      };
+    } else {
+      whereClause.student = {
+        id: loggedInUser.id,
+      };
+    }
+
+    const autonomousServces = await this.autonomousServiceRepository.find({
+      where: whereClause,
       relations: ['invitations'],
       select: {
         id: true,
