@@ -27,6 +27,7 @@ import { UniversityModule } from './university/university.module';
 import { AppModule } from './modules/app/app.module';
 import { AutonomousServiceModule } from './modules/autonomous-service/autonomous-service.module';
 import { ComplaintModule } from './modules/complaint/complaint.module';
+import { DashboardModule } from './modules/dashboard/dashboard.module';
 
 @Module({
   imports: [
@@ -64,6 +65,7 @@ import { ComplaintModule } from './modules/complaint/complaint.module';
     AppModule,
     AutonomousServiceModule,
     ComplaintModule,
+    DashboardModule,
   ],
   providers: [
     {

@@ -39,8 +39,8 @@ import {
 } from './dto/session-dashboard-data.dto';
 import * as dayjs from 'dayjs';
 import * as duration from 'dayjs/plugin/duration';
-import { TimeRangeDTO } from '@core-service/common/dtos/all.dto';
 dayjs.extend(duration);
+import { TimeRangeDTO } from '@core-service/common/dtos/all.dto';
 @Injectable()
 export class ClassSessionService {
   constructor(
@@ -496,110 +496,110 @@ export class ClassSessionService {
     studentId: string,
     timeRange?: TimeRangeDTO,
   ): Promise<SessionDashboardDataDTO> {
-    try {
-      const completedWhere: FindOptionsWhere<ClassSession> = {
-        status: ESessionStatus.COMPLETED,
-        sessionPackage: {
-          student: { id: studentId },
-        },
-      };
+    const completedWhere: FindOptionsWhere<ClassSession> = {
+      status: ESessionStatus.COMPLETED,
+      sessionPackage: {
+        student: { id: studentId },
+      },
+    };
 
-      if (timeRange?.startDate && timeRange?.endDate) {
-        completedWhere.createdAt = Between(
-          new Date(timeRange.startDate),
-          new Date(timeRange.endDate),
-        );
-      } else if (timeRange?.startDate) {
-        completedWhere.createdAt = MoreThanOrEqual(
-          new Date(timeRange.startDate),
-        );
-      } else if (timeRange?.endDate) {
-        completedWhere.createdAt = LessThanOrEqual(new Date(timeRange.endDate));
-      }
+    if (timeRange?.startDate && timeRange?.endDate) {
+      completedWhere.createdAt = Between(
+        new Date(timeRange.startDate),
+        new Date(timeRange.endDate),
+      );
+    } else if (timeRange?.startDate) {
+      completedWhere.createdAt = MoreThanOrEqual(new Date(timeRange.startDate));
+    } else if (timeRange?.endDate) {
+      completedWhere.createdAt = LessThanOrEqual(new Date(timeRange.endDate));
+    }
 
-      const [completedSessions, recentSessions] = await Promise.all([
-        this.classSessionRepository.find({
-          where: completedWhere,
-          relations: ['sessionPackage', 'sessionPackage.student'],
-        }),
-        this.classSessionRepository.find({
-          where: {
-            sessionPackage: {
-              student: {
-                id: studentId,
-              },
+    const [completedSessions, recentSessions] = await Promise.all([
+      this.classSessionRepository.find({
+        where: completedWhere,
+        relations: ['sessionPackage', 'sessionPackage.student'],
+      }),
+      this.classSessionRepository.find({
+        where: {
+          sessionPackage: {
+            student: {
+              id: studentId,
             },
           },
-          relations: ['sessionPackage', 'sessionPackage.student'],
-          order: {
-            createdAt: 'DESC',
-          },
-          take: 5,
-        }),
-      ]);
-      const recentDtos: SessionResponseDTO[] = recentSessions.map((session) => {
-        const { durationStr } = this.getDuration(
-          session.timeSlot?.startTime,
-          session.timeSlot?.endTime,
-        );
+        },
+        relations: ['sessionPackage', 'sessionPackage.student'],
+        order: {
+          createdAt: 'DESC',
+        },
+        take: 5,
+      }),
+    ]);
+    const recentDtos: SessionResponseDTO[] = recentSessions.map((session) => {
+      const { durationStr } = this.getDuration(
+        session.timeSlot?.startTime,
+        session.timeSlot?.endTime,
+      );
+      return {
+        id: session.id,
+        subjectName: session.subject?.name,
+        startTime: session.timeSlot?.startTime,
+        endTime: session.timeSlot?.endTime,
+        duration: durationStr,
+      };
+    });
+    const totalMinutes = completedSessions.reduce((sum, session) => {
+      if (!session.timeSlot?.startTime || !session.timeSlot?.endTime)
+        return sum;
+      const { minutes } = this.getDuration(
+        session.timeSlot.startTime,
+        session.timeSlot.endTime,
+      );
+      return sum + minutes;
+    }, 0);
+    const hours = Math.floor(totalMinutes / 60);
+    const minutes = totalMinutes % 60;
+    const totalHours = `${hours}h ${minutes}m`;
+
+    // get feedbacks
+    const feedbacks = completedSessions
+      .filter((session) => session.sessionReview)
+      .map((session) => {
+        const review = session.sessionReview;
         return {
-          id: session.id,
+          sessionId: session.id,
           subjectName: session.subject?.name,
-          startTime: session.timeSlot?.startTime,
-          endTime: session.timeSlot?.endTime,
-          duration: durationStr,
+          review: review.review,
+          rating: review.rating,
+          reviewedAt: session.updatedAt,
+          teacher: {
+            id: session.sessionPackage?.tutor?.id,
+            firstName: session.sessionPackage?.tutor?.firstName,
+            lastName: session.sessionPackage?.tutor?.lastName,
+          },
         };
       });
-      const totalMinutes = completedSessions.reduce((sum, session) => {
-        if (!session.timeSlot?.startTime || !session.timeSlot?.endTime)
-          return sum;
-        const { minutes } = this.getDuration(
-          session.timeSlot.startTime,
-          session.timeSlot.endTime,
-        );
-        return sum + minutes;
-      }, 0);
-      const hours = Math.floor(totalMinutes / 60);
-      const minutes = totalMinutes % 60;
-      const totalHours = `${hours}h ${minutes}m`;
-
-      // get feedbacks
-      const feedbacks = completedSessions
-        .filter((session) => session.sessionReview)
-        .map((session) => {
-          const review = session.sessionReview;
-          return {
-            sessionId: session.id,
-            subjectName: session.subject?.name,
-            review: review.review,
-            rating: review.rating,
-            reviewedAt: session.updatedAt,
-            teacher: {
-              id: session.sessionPackage?.tutor?.id,
-              firstName: session.sessionPackage?.tutor?.firstName,
-              lastName: session.sessionPackage?.tutor?.lastName,
-            },
-          };
-        });
-      return {
-        timeManagement: Math.floor(Math.random() * 101),
-        attendanceRate: Math.floor(Math.random() * 101),
-        feedbacks,
-        totalHours,
-        completedSessions: completedSessions.length,
-        recentSessions: recentDtos,
-      };
-    } catch (error) {
-      throw this.exceptionHandler.throwInternalServerError(error);
-    }
+    return {
+      timeManagement: Math.floor(Math.random() * 101),
+      attendanceRate: Math.floor(Math.random() * 101),
+      feedbacks,
+      totalHours,
+      completedSessions: completedSessions.length,
+      recentSessions: recentDtos,
+    };
   }
   getDuration = (
     start: string,
     end: string,
   ): { durationStr: string; minutes: number } => {
-    const s = dayjs(`2000-01-01T${start}`);
-    const e = dayjs(`2000-01-01T${end}`);
+    const s = dayjs(start);
+    const e = dayjs(end);
+
+    if (!s.isValid() || !e.isValid()) {
+      throw new Error('Invalid date format');
+    }
+
     const diff = dayjs.duration(e.diff(s));
+
     return {
       durationStr: `${diff.hours()}h ${diff.minutes()}m`,
       minutes: diff.asMinutes(),

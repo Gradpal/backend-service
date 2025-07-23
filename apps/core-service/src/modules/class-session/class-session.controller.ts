@@ -264,7 +264,7 @@ export class ClassSessionController {
     );
   }
 
-  @Get('/child/statistics/:childId')
+  @Get('/children/:childId/statistics')
   @AuthUser()
   @ApiOperation({ summary: 'Get sessions statistics for a child' })
   @ApiParam({ name: 'childId', description: 'Child ID' })

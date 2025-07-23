@@ -21,7 +21,7 @@ import { TimeRangeDTO } from '@core-service/common/dtos/all.dto';
 @UseGuards(AuthGuard)
 export class DashboardController {
   constructor(private readonly dashboardService: DashboardService) {}
-  @Get('/student/session/:studentId')
+  @Get('/students/:studentId/schedule')
   @ApiOperation({ summary: 'Get schedule for a student' })
   @ApiParam({ name: 'studentId', description: 'student ID' })
   @AuthUser()
@@ -34,7 +34,7 @@ export class DashboardController {
     return this.dashboardService.getStudentScheduleAndCredits(studentId);
   }
 
-  @Get('/student/achievements/:studentId')
+  @Get('/student/:studentId/achievements')
   @AuthUser()
   @ApiOperation({ summary: 'Get achievements for a student' })
   @ApiParam({ name: 'studentId', description: 'student ID' })

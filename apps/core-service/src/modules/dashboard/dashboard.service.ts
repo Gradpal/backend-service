@@ -1,13 +1,10 @@
-import { HttpException, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ClassSession } from '../class-session/entities/class-session.entity';
 import { Repository } from 'typeorm';
 import { ExceptionHandler } from '@app/common/exceptions/exceptions.handler';
 import { User } from '../user/entities/user.entity';
-import {
-  SessionScheduleDTO,
-  StudentScheduleAndCreditsResponseDTO,
-} from './dto/schedule-credits.dto';
+import { StudentScheduleAndCreditsResponseDTO } from './dto/schedule-credits.dto';
 import {
   AchievementSummaryResponseDTO,
   BadgeResponseDto,
@@ -27,125 +24,99 @@ export class DashboardService {
   async getStudentScheduleAndCredits(
     studentId: string,
   ): Promise<StudentScheduleAndCreditsResponseDTO> {
-    try {
-      const student = await this.userRepo.findOne({
-        where: {
-          id: studentId,
-        },
-      });
-      const credits = student.credits;
-      const schedules = await this.sessionRepo.find({
-        where: {
-          sessionPackage: {
-            student: {
-              id: student.id,
-            },
+    const student = await this.userRepo.findOne({
+      where: {
+        id: studentId,
+      },
+    });
+    const credits = student.credits;
+    const schedules = await this.sessionRepo.find({
+      where: {
+        sessionPackage: {
+          student: {
+            id: student.id,
           },
         },
-        relations: [
-          'sessionPackage',
-          'sessionPackage.student',
-          'sessionPackage.tutor',
-          'timeSlot',
-          'timeSlot.daySchedule',
-          'subject',
-        ],
-        select: {
-          id: true,
-          status: true,
-          subject: {
-            name: true,
+      },
+      relations: [
+        'sessionPackage',
+        'sessionPackage.student',
+        'sessionPackage.tutor',
+        'timeSlot',
+        'timeSlot.daySchedule',
+        'timeSlot.weeklyAvailability',
+        'timeSlot.owner',
+        'subject',
+      ],
+      select: {
+        id: true,
+        status: true,
+        subject: {
+          name: true,
+        },
+        timeSlot: {
+          startTime: true,
+          endTime: true,
+          owner: {
+            firstName: true,
+            lastName: true,
+            profilePicture: true,
           },
-          timeSlot: {
-            startTime: true,
-            endTime: true,
-            owner: {
-              firstName: true,
-              lastName: true,
-              profilePicture: true,
-            },
-            daySchedule: {
-              day: true,
-              weeklyAvailability: {
-                timezone: true,
-              },
+          daySchedule: {
+            day: true,
+            weeklyAvailability: {
+              timezone: true,
             },
           },
         },
-      });
-      const formattedSchedules: SessionScheduleDTO[] = schedules.map(
-        (session) => ({
-          id: session.id,
-          status: session.status,
-          subjectName: session.subject.name,
-          timeSlot: {
-            startTime: session.timeSlot.startTime,
-            endTime: session.timeSlot.endTime,
-            day: session.timeSlot.daySchedule.day,
-            timezone: session.timeSlot.daySchedule.weeklyAvailability.timezone,
-            tutor: {
-              firstName: session.timeSlot.owner.firstName,
-              lastName: session.timeSlot.owner.lastName,
-              profilePicture: session.timeSlot.owner.profilePicture,
-            },
-          },
-        }),
-      );
+      },
+    });
 
-      // constant streaks
-      const currentStreaks = '14 days';
-      const bestStreak = '25 days';
-      return {
-        currentStreaks,
-        bestStreak,
-        schedules: formattedSchedules,
-        credits,
-      };
-    } catch (error) {
-      if (error instanceof HttpException) throw error;
-      throw new this.exceptionHandler.throwInternalServerError(error);
-    }
+    // constant streaks
+    const currentStreaks = '14 days';
+    const bestStreak = '25 days';
+    return {
+      currentStreaks,
+      bestStreak,
+      schedules: schedules,
+      credits,
+    };
   }
   async getStudentAchievements(
     studentId: string,
     timeRange?: TimeRangeDTO,
   ): Promise<AchievementSummaryResponseDTO> {
-    try {
-      const { startDate, endDate } = timeRange || {};
+    const { startDate, endDate } = timeRange || {};
 
-      const filterByTime = (itemDate: string) => {
-        const date = new Date(itemDate);
-        if (startDate && new Date(startDate) > date) return false;
-        if (endDate && new Date(endDate) < date) return false;
-        return true;
-      };
+    const filterByTime = (itemDate: string) => {
+      const date = new Date(itemDate);
+      if (startDate && new Date(startDate) > date) return false;
+      if (endDate && new Date(endDate) < date) return false;
+      return true;
+    };
 
-      const certificates = this.certificates.filter(
-        (certificate) =>
-          certificate.studentId === studentId &&
-          filterByTime(certificate.issuedDate),
-      );
+    const certificates = this.certificates.filter(
+      (certificate) =>
+        certificate.studentId === studentId &&
+        filterByTime(certificate.issuedDate),
+    );
 
-      const badges = this.badges.filter(
-        (badge) =>
-          badge.studentId === studentId && filterByTime(badge.issuedDate),
-      );
+    const badges = this.badges.filter(
+      (badge) =>
+        badge.studentId === studentId && filterByTime(badge.issuedDate),
+    );
 
-      const points = 850;
-      const levelsUps = 12;
+    const points = 850;
+    const levelsUps = 12;
 
-      return {
-        badgesList: badges,
-        certificatesTotal: certificates.length,
-        badges: badges.length,
-        points,
-        levelsUps,
-        certificates,
-      };
-    } catch (error) {
-      if (error instanceof HttpException) throw error;
-      throw this.exceptionHandler.throwInternalServerError(error);
-    }
+    return {
+      badgesList: badges,
+      certificatesTotal: certificates.length,
+      badges: badges.length,
+      points,
+      levelsUps,
+      certificates,
+    };
   }
 
   //TODO: remove constant data when  some are added
