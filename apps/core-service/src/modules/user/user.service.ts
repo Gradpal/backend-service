@@ -546,10 +546,10 @@ export class UserService {
     });
     return { result: user ? [user] : [] };
   }
-  async getMyChildren(parent: User) {
+  async getMyChildren(parentId: string) {
     return await this.userRepository.find({
       where: {
-        parent: { id: parent.id },
+        parent: { id: parentId },
       },
       select: {
         id: true,
@@ -563,22 +563,24 @@ export class UserService {
             id: true,
             name: true,
           },
+          academicSubjects: true,
           subjectTiers: {
             id: true,
           },
-
-          // academicTranscripts: {
-          //   id: true,
-          //   type: true,
-          //   name: true,
-          //   file: true,
-          // },
-          // degreeCertificates: {
-          //   id: true,
-          //   type: true,
-          //   name: true,
-          //   file: true,
-          // },
+          academicTranscripts: {
+            id: true,
+            type: true,
+            name: true,
+            path: true,
+            size: true,
+          },
+          degreeCertificates: {
+            id: true,
+            type: true,
+            name: true,
+            path: true,
+            size: true,
+          },
           sessionType: true,
           sessionPackageOfferings: true,
         },
