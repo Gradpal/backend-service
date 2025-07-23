@@ -55,6 +55,7 @@ import { CreateEducationInstitutionRecordDto } from './dto/create-education-reco
 import { User } from '../user/entities/user.entity';
 import { AddSessionLengthDto } from './dto/create-portfolio.dto';
 import { AddSessionTypeOfferingDto } from './dto/add-session-type-offering.dto';
+import { UpdateSessionLengthDto } from './dto/Update-session-length.dto';
 @Controller('portfolio')
 @ApiBearerAuth()
 export class PortfolioController {
@@ -455,6 +456,24 @@ export class PortfolioController {
       req.user as User,
     );
   }
+
+  @Patch('/profile/session-length')
+  @AuthUser()
+  @UseGuards(AuthGuard)
+  @ApiOperation({ summary: 'Update  session Length' })
+  @ApiResponse({ status: 200, type: Portfolio })
+  async updateSessionLength(@Body() dto: UpdateSessionLengthDto, @Req() req) {
+    return this.portfolioService.updateSessionLength(dto, req.user as User);
+  }
+  @Get('/profile/calendar/get-linked-calendar')
+  @AuthUser()
+  @UseGuards(AuthGuard)
+  @ApiOperation({ summary: 'get  linked calendars' })
+  @ApiResponse({ status: 200, type: Portfolio })
+  async getLinkedCalendars(@Body() dto: UpdateSessionLengthDto, @Req() req) {
+    return this.portfolioService.getLinkedCalendars(dto, req.user as User);
+  }
+
   @Patch('/profile/academic-info')
   @ApiConsumes('multipart/form-data')
   @UseInterceptors(AnyFilesInterceptor())

@@ -5,7 +5,6 @@ import { SessionPackage } from './entities/session-package.entity';
 import { MEETING_CACHE } from '@core-service/common/constants/brain.constants';
 import { generateUUID } from '@app/common/helpers/shared.helpers';
 import { SessionTimelineType } from '../class-session/enums/session-timeline-type.enum';
-import { ClassSessionService } from '../class-session/class-session.service';
 import { User } from '../user/entities/user.entity';
 import { normalizeArray } from '@core-service/common/helpers/all.helpers';
 import { UserService } from '../user/user.service';
@@ -31,6 +30,7 @@ import { createPaginatedResponse } from '@app/common/helpers/pagination.helper';
 import { AcceptPackageSessionDto } from '../finance/dtos/accept-package-session.dto';
 import { PackageStatus } from './enums/paclage-status.enum';
 import { PackageOffering } from './entities/package-offering.entity';
+import { UpdatePackageDto } from './dto/update-session-package.dto';
 
 @Injectable()
 export class SessionPackageService {
@@ -526,5 +526,24 @@ export class SessionPackageService {
     await this.sessionPackageRepository.save(sessionPackage);
 
     return sessionPackage;
+  }
+  async updatePackageSession(id: string, dto: UpdatePackageDto) {
+    const sessionPackage = await this.packageOfferingRepository.findOne({
+      where: { id: id },
+      relations: ['packageType', 'portfolio'],
+    });
+    if (!sessionPackage) {
+      this.exceptionHandler.throwNotFound(_404.PACKAGE_OFFERING_NOT_FOUND);
+    }
+    if (dto.sessionCount) {
+      sessionPackage.packageType.maximumSessions = dto.sessionCount;
+    }
+    if (dto.discountPercentage) {
+      sessionPackage.discount = dto.discountPercentage;
+    }
+    if (dto.description) {
+      sessionPackage.packageType.description = dto.description;
+    }
+    return this.packageOfferingRepository.save(sessionPackage);
   }
 }

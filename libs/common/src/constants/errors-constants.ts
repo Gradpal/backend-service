@@ -234,6 +234,10 @@ export const _404 = {
     code: 'PACKAGE_TYPE_NOT_FOUND',
     message: 'The requested package type was not found',
   },
+  PACKAGE_OFFERING_NOT_FOUND: {
+    code: 'PACKAGE_OFFERING_NOT_FOUND',
+    message: 'The requested package offering was not found',
+  },
   PRICING_MODEL_NOT_FOUND: {
     code: 'PRICING_MODEL_NOT_FOUND',
     message: 'The requested pricing model was not found',

@@ -3,6 +3,7 @@ import {
   Controller,
   Get,
   Param,
+  Patch,
   Post,
   Query,
   Req,
@@ -30,6 +31,7 @@ import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { EUserRole } from '../user/enums/user-role.enum';
 import { ESessionStatus } from '../class-session/enums/session-status.enum';
 import { AcceptPackageSessionDto } from '../finance/dtos/accept-package-session.dto';
+import { UpdatePackageDto } from './dto/update-session-package.dto';
 
 @Controller('session-package')
 @ApiTags('Session Package')
@@ -151,5 +153,13 @@ export class SessionPackageController {
       acceptPackageSessionDto,
       packageId,
     );
+  }
+
+  @Patch('/update/package-session/:packageId')
+  updatePackageSession(
+    @Param('packageId') id: string,
+    @Body() dto: UpdatePackageDto,
+  ) {
+    return this.sessionPackageService.updatePackageSession(id, dto);
   }
 }
