@@ -240,13 +240,11 @@ export class UserService {
     const { email, password, timezone, displayTimezoneFormat, ...restFields } =
       updateSettingsDto;
 
-    if (email && email !== user.email) {
-      const emailExists = await this.existByEmail(email);
-      if (emailExists) {
-        this.exceptionHandler.throwConflict(_409.USER_ALREADY_EXISTS);
-      }
-      user.email = email;
+    const emailExists = await this.existByEmail(email);
+    if (emailExists) {
+      this.exceptionHandler.throwConflict(_409.USER_ALREADY_EXISTS);
     }
+    user.email = email;
 
     if (password) {
       user.password = await hashPassword(password);
