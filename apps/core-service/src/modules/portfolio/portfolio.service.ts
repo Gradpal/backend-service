@@ -16,6 +16,8 @@ import {
   UpdatePortfolioProfileDto,
   UpdateIntroductoryVideoDto,
   UpdateSubjectsOfInterestDto,
+  UpdatePersonalInfoDto,
+  UpdateAcademicDto,
 } from './dto/update-portfolio-profile.dto';
 import { UpdatePortfolioAvailabilityDto } from './dto/update-portfolio-availability.dto';
 import { _400, _404 } from '@app/common/constants/errors-constants';
@@ -875,6 +877,73 @@ export class PortfolioService {
       );
     }
     portfolio.sessionLengths = currentSessionLengths;
+    return await this.portfolioRepository.save(portfolio);
+  }
+
+  async updatePersonalInfo(
+    updatePersonalInfoDto: UpdatePersonalInfoDto,
+    user: User,
+  ) {
+    const portfolio = await this.findByUser(user);
+    if (!portfolio) {
+      this.exceptionHandler.throwNotFound(_404.PORTFOLIO_NOT_FOUND);
+    }
+    const updateFields = Object.entries(updatePersonalInfoDto).reduce(
+      (acc, [key, value]) => {
+        if (value !== undefined) {
+          acc[key] = value;
+        }
+        return acc;
+      },
+      {} as Partial<UpdatePersonalInfoDto>,
+    );
+
+    Object.assign(portfolio, updateFields);
+
+    return this.portfolioRepository.save(portfolio);
+  }
+  async updateAcademicInfo(
+    dto: UpdateAcademicDto,
+    user: User,
+    certificates: Express.Multer.File[],
+  ) {
+    const portfolio = await this.findByUser(user);
+    if (!portfolio) {
+      this.exceptionHandler.throwNotFound(_404.PORTFOLIO_NOT_FOUND);
+    }
+
+    const updatedInstitutions =
+      (await Promise.all(
+        dto.institutions?.map(async (institution, index) => {
+          const degreeCertificate = certificates.find(
+            (file) =>
+              file.fieldname === `institutions[${index}].degreeCertificate`,
+          );
+
+          const savedDegreeCertificateUrl = degreeCertificate
+            ? await this.minioService.getUploadedFilePath(degreeCertificate)
+            : null;
+
+          return {
+            name: institution.name,
+            degreeType: institution.degreeType,
+            yearStarted: institution.yearStarted,
+            yearEnded: institution.yearEnded,
+            degreeCertificate: savedDegreeCertificateUrl,
+          };
+        }),
+      )) || [];
+
+    portfolio.institutions = updatedInstitutions;
+
+    if (dto.personalStatement !== undefined) {
+      portfolio.personalStatement = dto.personalStatement;
+    }
+
+    if (dto.introductionVideo !== undefined) {
+      portfolio.introductoryVideo = dto.introductionVideo;
+    }
+
     return await this.portfolioRepository.save(portfolio);
   }
 }

@@ -26,6 +26,7 @@ import {
 } from '@nestjs/swagger';
 import { EUserRole } from '../user/enums/user-role.enum';
 import {
+  AnyFilesInterceptor,
   FileFieldsInterceptor,
   FileInterceptor,
 } from '@nestjs/platform-express';
@@ -34,6 +35,8 @@ import {
   UpdatePortfolioProfileDto,
   UpdateIntroductoryVideoDto,
   UpdateSubjectsOfInterestDto,
+  UpdatePersonalInfoDto,
+  UpdateAcademicDto,
 } from './dto/update-portfolio-profile.dto';
 import { AuthGuard } from '@core-service/guards/auth.guard';
 import { Portfolio } from './entities/portfolio.entity';
@@ -436,6 +439,79 @@ export class PortfolioController {
     return this.portfolioService.removeSessionPackageOffering(
       portfolioId,
       sessionPackageTypeId,
+    );
+  }
+  @Patch('/profile/personal-info')
+  @AuthUser()
+  @UseGuards(AuthGuard)
+  @ApiOperation({ summary: 'Update personal information' })
+  @ApiResponse({ status: 200, type: Portfolio })
+  async updatePersonalInfo(
+    @Body() updatePersonalInfoDto: UpdatePersonalInfoDto,
+    @Req() req,
+  ) {
+    return this.portfolioService.updatePersonalInfo(
+      updatePersonalInfoDto,
+      req.user as User,
+    );
+  }
+  @Patch('/profile/academic-info')
+  @ApiConsumes('multipart/form-data')
+  @UseInterceptors(AnyFilesInterceptor())
+  @AuthUser()
+  @UseGuards(AuthGuard)
+  @ApiOperation({ summary: 'Update academic information' })
+  @ApiResponse({ status: 200, type: Portfolio })
+  @ApiBody({
+    description:
+      'Update academic info with multiple institutions and file uploads',
+    schema: {
+      type: 'object',
+      properties: {
+        institutions: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              name: { type: 'string', example: 'Harvard University' },
+              degreeType: { type: 'string', example: 'Bachelor' },
+              yearStarted: { type: 'number', example: 2018 },
+              yearEnded: { type: 'number', example: 2022 },
+              academicTranscript: {
+                type: 'string',
+                format: 'binary',
+                nullable: true,
+              },
+              degreeCertificate: {
+                type: 'string',
+                format: 'binary',
+                nullable: true,
+              },
+            },
+          },
+        },
+        personalStatement: {
+          type: 'string',
+          nullable: true,
+          example: 'I am passionate about technology...',
+        },
+        introductionVideo: {
+          type: 'string',
+          nullable: true,
+          example: 'https://example.com/video.mp4',
+        },
+      },
+    },
+  })
+  async updateAcademicInfo(
+    @Body() dto: UpdateAcademicDto,
+    @Req() req,
+    @UploadedFiles() files: Express.Multer.File[],
+  ) {
+    return this.portfolioService.updateAcademicInfo(
+      dto,
+      req.user as User,
+      files,
     );
   }
 }
