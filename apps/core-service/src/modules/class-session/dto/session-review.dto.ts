@@ -46,4 +46,14 @@ export class SessionReviewDto {
     example: 5,
   })
   rating?: number;
+
+  @IsOptional()
+  reviewedBy?: {
+    id: string;
+    firstName: string;
+    lastName: string;
+  };
+
+  @IsOptional()
+  reviewedAt?: string;
 }

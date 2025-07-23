@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsOptional, MaxLength } from 'class-validator';
+import { ApiPropertyOptional } from '@nestjs/swagger';
+import { IsDateString, IsOptional, MaxLength } from 'class-validator';
 import { AttachmentDto } from '@app/common/dtos/attachment.dto';
 import { DESCRIPTION_MAX_LENGTH } from '../constants/all.constants';
 
@@ -43,4 +44,22 @@ export class BaseDto extends DtoAudit {
     required: false,
   })
   supportingDocuments?: Express.Multer.File[];
+}
+
+export class TimeRangeDTO {
+  @ApiPropertyOptional({
+    example: '2025-01-01',
+    description: 'Start date (YYYY-MM-DD)',
+  })
+  @IsOptional()
+  @IsDateString()
+  startDate?: string;
+
+  @ApiPropertyOptional({
+    example: '2025-12-31',
+    description: 'End date (YYYY-MM-DD)',
+  })
+  @IsOptional()
+  @IsDateString()
+  endDate?: string;
 }
