@@ -2,19 +2,37 @@ import {
   IsArray,
   IsBoolean,
   IsDecimal,
+  IsNumber,
   IsOptional,
   IsString,
 } from 'class-validator';
 import { Visibility } from '../dto/visibility.dto';
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
-class InstitutionUpdate {
+export class InstitutionUpdate {
+  @ApiProperty({ example: 'Harvard University' })
+  @IsString()
   name: string;
+
+  @ApiProperty({ example: 'Bachelor' })
+  @IsString()
   degreeType: string;
+
+  @ApiProperty({ example: 2018 })
+  @IsNumber()
   yearStarted: number;
+
+  @ApiProperty({ example: 2022 })
+  @IsNumber()
   yearEnded: number;
-  academicTranscript: Express.Multer.File;
-  degreeCertificate: Express.Multer.File;
+
+  @ApiPropertyOptional({ type: 'string', format: 'binary' })
+  @IsOptional()
+  academicTranscript?: Express.Multer.File;
+
+  @ApiPropertyOptional({ type: 'string', format: 'binary' })
+  @IsOptional()
+  degreeCertificate?: Express.Multer.File;
 }
 
 export class UpdatePortfolioProfileDto {
@@ -179,4 +197,53 @@ export class UpdateSubjectsOfInterestDto {
   @IsArray()
   @IsOptional()
   subjectsIds?: string[];
+}
+
+export class UpdatePersonalInfoDto {
+  @ApiProperty({ type: [String], required: false })
+  @IsOptional()
+  countriesOfCitizenship?: string[];
+
+  @ApiProperty({ type: Visibility<string[]>, required: false })
+  @IsOptional()
+  languages?: Visibility<string[]>;
+
+  @ApiProperty({ required: false })
+  @IsString()
+  @IsOptional()
+  countryOfResidence?: string;
+
+  @ApiProperty({ required: false })
+  @IsString()
+  @IsOptional()
+  time_zone?: string;
+
+  @ApiProperty({ required: false })
+  @IsString()
+  @IsOptional()
+  time_zone_display_format?: string;
+
+  @ApiProperty({ type: Visibility<string>, required: false })
+  @IsOptional()
+  religiousAffiliation?: Visibility<string>;
+
+  @ApiProperty({ type: Visibility<string>, required: false })
+  @IsOptional()
+  gender?: Visibility<string>;
+}
+
+export class UpdateAcademicDto {
+  @ApiProperty({ required: false, type: [InstitutionUpdate] })
+  @IsOptional()
+  institutions?: InstitutionUpdate[];
+
+  @ApiProperty({ required: false })
+  @IsString()
+  @IsOptional()
+  personalStatement?: string;
+
+  @ApiProperty({ required: false })
+  @IsString()
+  @IsOptional()
+  introductionVideo?: string;
 }
