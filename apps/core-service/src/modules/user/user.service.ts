@@ -237,38 +237,28 @@ export class UserService {
     user: User,
     updateSettingsDto: UpdateSettingsDto,
   ): Promise<User> {
-    try {
-      const {
-        email,
-        password,
-        timezone,
-        displayTimezoneFormat,
-        ...restFields
-      } = updateSettingsDto;
+    const { email, password, timezone, displayTimezoneFormat, ...restFields } =
+      updateSettingsDto;
 
-      if (email && email !== user.email) {
-        const emailExists = await this.existByEmail(email);
-        if (emailExists) {
-          this.exceptionHandler.throwConflict(_409.USER_ALREADY_EXISTS);
-        }
-        user.email = email;
+    if (email && email !== user.email) {
+      const emailExists = await this.existByEmail(email);
+      if (emailExists) {
+        this.exceptionHandler.throwConflict(_409.USER_ALREADY_EXISTS);
       }
-
-      if (password) {
-        user.password = await hashPassword(password);
-      }
-
-      Object.entries(restFields).forEach(([key, value]) => {
-        if (value !== undefined && key in user) {
-          (user as User)[key] = value;
-        }
-      });
-
-      return await this.userRepository.save(user);
-    } catch (error) {
-      if (error instanceof HttpException) throw error;
-      throw new this.exceptionHandler.throwInternalServerError(error);
+      user.email = email;
     }
+
+    if (password) {
+      user.password = await hashPassword(password);
+    }
+
+    Object.entries(restFields).forEach(([key, value]) => {
+      if (value !== undefined && key in user) {
+        (user as User)[key] = value;
+      }
+    });
+
+    return await this.userRepository.save(user);
   }
 
   async delete(id: string) {
