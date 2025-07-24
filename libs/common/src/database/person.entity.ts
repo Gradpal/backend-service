@@ -10,6 +10,4 @@ export abstract class Person extends BaseEntity {
 
   @Column({ type: 'text', nullable: true })
   location: string;
-
-
 }

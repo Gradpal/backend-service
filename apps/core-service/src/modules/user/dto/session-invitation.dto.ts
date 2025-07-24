@@ -21,4 +21,4 @@ export class SessionInvitationDto {
 
   @ApiProperty()
   status: 'pending' | 'accepted' | 'rejected';
-} 
+}

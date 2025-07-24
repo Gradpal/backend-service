@@ -13,22 +13,20 @@ describe('NotificationService', () => {
         NotificationService,
         {
           provide: getRepositoryToken(Notification),
-          useValue: {}
+          useValue: {},
         },
         {
           provide: NotificationService,
-          useValue: {}
+          useValue: {},
         },
         {
           provide: ExceptionHandler,
-          useValue: {}
-        }
+          useValue: {},
+        },
       ],
     }).compile();
 
-    service = module.get<NotificationService>(
-      NotificationService,
-    );
+    service = module.get<NotificationService>(NotificationService);
   });
 
   it('should be defined', () => {

@@ -57,4 +57,4 @@ export class WeeklyAvailabilityDto {
     available: boolean;
     slots: { start: string; end: string }[];
   };
-} 
+}

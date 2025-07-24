@@ -15,28 +15,23 @@ describe('NotificationController', () => {
         NotificationService,
         {
           provide: getRepositoryToken(Notification),
-          useValue: {}
+          useValue: {},
         },
         {
           provide: NotificationService,
-          useValue: {}
+          useValue: {},
         },
         {
           provide: ExceptionHandler,
-          useValue: {}
-        }
+          useValue: {},
+        },
       ],
     }).compile();
 
-    controller = module.get<NotificationController>(
-      NotificationController,
-    );
+    controller = module.get<NotificationController>(NotificationController);
   });
 
   it('should be defined', () => {
     expect(controller).toBeDefined();
   });
 });
-
-
-
