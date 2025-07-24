@@ -51,7 +51,6 @@ export class CalendarService {
     if (!portfolio) {
       throw new Error('Portfolio not found');
     }
-
     const { tokens } = await this.oauth2Client.getToken(credentials.code);
     portfolio.google_calendar_credentials = {
       access_token: tokens.access_token,

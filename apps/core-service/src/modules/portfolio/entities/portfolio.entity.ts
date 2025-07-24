@@ -148,6 +148,16 @@ export class Portfolio extends BaseEntity {
     refresh_token: string;
     expiry_date: number;
   };
+  @Column({ type: 'varchar', nullable: true })
+  googleCalendarAuthUrl: string;
+
+  @Column({ type: 'json', nullable: true })
+  googleCalendarSettings: {
+    sync_direction: string;
+    read_only_two_way: string;
+    auto_sync: boolean;
+    sync_interval: number;
+  };
 
   @Column({ type: 'boolean', default: false })
   google_calendar_linked: boolean;
@@ -157,6 +167,16 @@ export class Portfolio extends BaseEntity {
     access_token: string;
     refresh_token: string;
     expiry_date: number;
+  };
+  @Column({ type: 'varchar', nullable: true })
+  appleCalendarAuthUrl: string;
+
+  @Column({ type: 'json', nullable: true })
+  appleCalendarSettings: {
+    sync_direction: string;
+    read_only_two_way: string;
+    auto_sync: boolean;
+    sync_interval: number;
   };
 
   @Column({ type: 'boolean', default: false })

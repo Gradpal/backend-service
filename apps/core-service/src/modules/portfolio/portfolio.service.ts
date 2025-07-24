@@ -44,7 +44,7 @@ import { SubjectTierService } from '../subjects/subject-tier/subject-tier.servic
 import { ETierCategory } from '../subjects/subject-tier/enums/tier-category.enum';
 import { AddSessionTypeOfferingDto } from './dto/add-session-type-offering.dto';
 import { SessionPackageService } from '../session-package/session-package.service';
-import { PackageOffering } from '../session-package/entities/package-offering.entity';
+import { UpdateSessionLengthDto } from './dto/Update-session-length.dto';
 @Injectable()
 export class PortfolioService {
   constructor(
@@ -945,5 +945,34 @@ export class PortfolioService {
     }
 
     return await this.portfolioRepository.save(portfolio);
+  }
+  async updateSessionLength(dto: UpdateSessionLengthDto, user: User) {
+    const portfolio = await this.findByUser(user);
+    if (!portfolio) {
+      this.exceptionHandler.throwNotFound(_404.PORTFOLIO_NOT_FOUND);
+    }
+    const currentSessionLengths = portfolio.sessionLengths ?? [];
+
+    for (const length of dto.sessionLength) {
+      if (
+        typeof length === 'number' &&
+        !currentSessionLengths.includes(length)
+      ) {
+        currentSessionLengths.push(length);
+      }
+    }
+
+    portfolio.sessionLengths = currentSessionLengths;
+    return await this.portfolioRepository.save(portfolio);
+  }
+  async getLinkedCalendars(dto: UpdateSessionLengthDto, user: User) {
+    const portfolio = await this.findByUser(user);
+    if (!portfolio) {
+      this.exceptionHandler.throwNotFound(_404.PORTFOLIO_NOT_FOUND);
+    }
+    return {
+      googleCalenderLinked: portfolio.google_calendar_linked,
+      appleCalenderLinked: portfolio.apple_calendar_linked,
+    };
   }
 }
