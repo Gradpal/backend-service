@@ -136,7 +136,7 @@ export class PortfolioService {
     console.log('loggedin user', user);
     return this.portfolioRepository.findOne({
       where: { user: { id: user.id } },
-      relations: ['subjectTiers', 'sessionPackageTypes'],
+      relations: ['subjectTiers', 'sessionPackageOfferings'],
     });
   }
 
