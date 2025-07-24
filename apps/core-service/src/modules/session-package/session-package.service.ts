@@ -535,15 +535,12 @@ export class SessionPackageService {
     if (!sessionPackage) {
       this.exceptionHandler.throwNotFound(_404.PACKAGE_OFFERING_NOT_FOUND);
     }
-    if (dto.sessionCount) {
-      sessionPackage.packageType.maximumSessions = dto.sessionCount;
-    }
-    if (dto.discountPercentage) {
-      sessionPackage.discount = dto.discountPercentage;
-    }
-    if (dto.description) {
-      sessionPackage.packageType.description = dto.description;
-    }
+    sessionPackage.packageType.maximumSessions =
+      dto.sessionCount ?? sessionPackage.packageType.maximumSessions;
+    sessionPackage.discount = dto.discountPercentage ?? sessionPackage.discount;
+    sessionPackage.packageType.description =
+      dto.description ?? sessionPackage.packageType.description;
+
     return this.packageOfferingRepository.save(sessionPackage);
   }
 }
