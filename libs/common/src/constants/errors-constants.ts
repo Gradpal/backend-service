@@ -28,6 +28,10 @@ export const _400 = {
     code: 'INVALID_DATA_FOR_TEMPLATE',
     message: 'The provided data for the template is invalid',
   },
+  INVALID_DATA: {
+    code: 'INVALID_DATA',
+    message: 'The provided data is invalid',
+  },
   INVALID_USER_ID: {
     code: 'INVALID_USER_ID',
     message: 'The provided user id is invalid',
