@@ -91,19 +91,20 @@ export class UserService {
       { ...createUserDto, profilePicture: profilePicture },
       USER_BY_EMAIL_CACHE.ttl,
     );
+    return otp;
 
-    await this.notificationProcessor.sendTemplateEmail(
-      EmailTemplates.USER_ONBOARDING_VERIFICATION,
-      [createUserDto.email],
-      {
-        userName: createUserDto?.firstName
-          ? createUserDto?.firstName
-          : createUserDto?.email,
-        otp: otp,
-        otpValidityDuration: 12,
-        verificationUrl: `${this.configService.clientUrl}user/onboarding/verify-email/?otp=${otp}&email=${createUserDto.email}`,
-      },
-    );
+    // await this.notificationProcessor.sendTemplateEmail(
+    //   EmailTemplates.USER_ONBOARDING_VERIFICATION,
+    //   [createUserDto.email],
+    //   {
+    //     userName: createUserDto?.firstName
+    //       ? createUserDto?.firstName
+    //       : createUserDto?.email,
+    //     otp: otp,
+    //     otpValidityDuration: 12,
+    //     verificationUrl: `${this.configService.clientUrl}user/onboarding/verify-email/?otp=${otp}&email=${createUserDto.email}`,
+    //   },
+    // );
   }
 
   async getUserEntityFromDto(createUserDto: CreateUserDTO) {
