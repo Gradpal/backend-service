@@ -912,17 +912,10 @@ export class PortfolioService {
     if (!portfolio) {
       this.exceptionHandler.throwNotFound(_404.PORTFOLIO_NOT_FOUND);
     }
-    let institutions: InstitutionUpdate[] = [];
 
-    if (typeof dto.institutions === 'string') {
-      try {
-        institutions = JSON.parse(dto.institutions);
-      } catch (error) {
-        throw this.exceptionHandler.throwBadRequest(_400.INVALID_DATA);
-      }
-    } else if (Array.isArray(dto.institutions)) {
-      institutions = dto.institutions;
-    }
+    const institutions = Array.isArray(dto.institutions)
+      ? dto.institutions
+      : JSON.parse(dto.institutions || '[]');
 
     const updatedInstitutions =
       (await Promise.all(
