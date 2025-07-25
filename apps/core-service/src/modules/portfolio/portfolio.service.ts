@@ -18,7 +18,6 @@ import {
   UpdateSubjectsOfInterestDto,
   UpdatePersonalInfoDto,
   UpdateAcademicDto,
-  InstitutionUpdate,
 } from './dto/update-portfolio-profile.dto';
 import { UpdatePortfolioAvailabilityDto } from './dto/update-portfolio-availability.dto';
 import { _400, _404 } from '@app/common/constants/errors-constants';
@@ -912,21 +911,10 @@ export class PortfolioService {
     if (!portfolio) {
       this.exceptionHandler.throwNotFound(_404.PORTFOLIO_NOT_FOUND);
     }
-    let institutions: InstitutionUpdate[] = [];
-
-    if (typeof dto.institutions === 'string') {
-      try {
-        institutions = JSON.parse(dto.institutions);
-      } catch (error) {
-        throw this.exceptionHandler.throwBadRequest(_400.INVALID_DATA);
-      }
-    } else if (Array.isArray(dto.institutions)) {
-      institutions = dto.institutions;
-    }
 
     const updatedInstitutions =
       (await Promise.all(
-        institutions?.map(async (institution, index) => {
+        dto.institutions?.map(async (institution, index) => {
           const degreeCertificate = certificates.find(
             (file) =>
               file.fieldname === `institutions[${index}].degreeCertificate`,
