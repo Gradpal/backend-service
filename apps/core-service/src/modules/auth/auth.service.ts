@@ -83,9 +83,15 @@ export class AuthService {
     if (!isOtpValid) this.exceptionHandler.throwBadRequest(_400.INVALID_OTP);
   }
 
-  async verifyAccount(dto: ActivateAccount): Promise<User> {
+  async verifyAccount(
+    dto: ActivateAccount,
+    isResetPassword: boolean = true,
+  ): Promise<User | any> {
     const academicEmailVerfication = verifyAcademicEmailByDomain(dto.email);
     await this.verifyOtp(dto.email, dto.otp);
+    if (!isResetPassword) {
+      return true;
+    }
     const cacheKey = this.brainService.getCacheKey(dto.email);
     const createUserDto: CreateUserDTO =
       await this.brainService.remindMe(cacheKey);
@@ -155,20 +161,22 @@ export class AuthService {
 
     return savedUserObject;
   }
-  async sendOpt(email: string) {
-    const account: User = await this.userService.findByEmail(email);
-    const otp = await this.generateOTP(account.id);
+  async sendOpt(email: string, isResetPassword: boolean = false) {
+    const account: User = await this.userService.findByEmail(email, false);
+    const otpId = isResetPassword ? account.id : email;
+    const otp = await this.generateOTP(otpId);
     await this.notificationProcessor.sendTemplateEmail(
-      EmailTemplates.VERIFICATION,
-      [account.email],
+      isResetPassword
+        ? EmailTemplates.VERIFICATION
+        : EmailTemplates.VERIFICATION_ADDITIONAL_EMAIL,
+      [email],
       {
-        userName: account.userName,
+        userName: account?.userName || email,
         otp: otp,
         otpValidityDuration: 12,
-        verificationUrl: `${this.config.clientUrl}auth/reset-password/?email=${account.email}&verification_code=${otp}`,
+        verificationUrl: `${this.config.clientUrl}auth/reset-password/?email=${email}&verification_code=${otp}`,
       },
     );
-    console.log('otp', otp);
   }
 
   async resetPassword(dto: ResetPasswordDto): Promise<User> {
@@ -205,10 +213,8 @@ export class AuthService {
   }
 
   private async verifyOTP(userId: string, otp: number): Promise<boolean> {
-    return true;
     const key = `${RESET_PASSWORD_CACHE.name}:${userId}`;
     const storedOTP = await this.brainService.remindMe<number>(key);
-    console.log('storedOTP---->', storedOTP, userId);
     if (!storedOTP || storedOTP !== otp) {
       return false;
     }

@@ -9,6 +9,17 @@ export class WelcomeEmailDto extends VerificationEmailDto {
   otpValidityDuration?: number;
 }
 
+export class AddEmailEmailDto {
+  @IsString()
+  userName?: string;
+
+  @IsNumber()
+  otp?: number;
+
+  @IsNumber()
+  otpValidityDuration?: number;
+}
+
 export class ParentInvitationEmailDto {
   @IsString()
   studentName?: string;

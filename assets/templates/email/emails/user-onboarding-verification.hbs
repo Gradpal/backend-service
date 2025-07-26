@@ -1,0 +1,29 @@
+{{> header title="GradPal Marketplace - Welcome"}}
+
+        <main style="font-size: 16px; line-height: 1.7;">
+            <p style="margin-bottom: 24px; font-weight: 500;">Dear {{userName}},</p>
+
+            <p style="margin-bottom: 32px; color: #374151;">
+                Thank you for joining GradPal Marketplace.
+            </p>
+
+            <p style="margin-bottom: 32px; color: #374151;">
+                Please use the One-Time Password (OTP) below to verify the email.
+            </p>
+
+            <p style="margin-bottom: 32px; color: #374151;">OTP: {{otp}}</p>
+
+            <p style="margin-bottom: 32px; color: #374151;">
+                The OTP will expire in {{otpValidityDuration}} minutes.
+            </p>
+
+            <p style="margin-bottom: 32px; color: #374151;">
+                        If you have any questions about this change, please contact <span style="font-weight: bold;">{{nationalPortalAdminContact}}</span>
+            </p>
+
+        {{> footer NationalPortal=NationalPortal}}
+
+        </main>
+    </div>
+</body>
+</html>

@@ -1,5 +1,6 @@
 import { ActivateAccountDto } from '@core-service/integrations/notification/dto/emails/activate-account.dto';
 import {
+  AddEmailEmailDto,
   ParentInvitationEmailDto,
   WelcomeEmailDto,
 } from '@core-service/integrations/notification/dto/emails/welcome.email.dto';
@@ -7,6 +8,7 @@ import {
 export enum EmailTemplates {
   WELCOME = 'welcome',
   VERIFICATION = 'verify-email',
+  VERIFICATION_ADDITIONAL_EMAIL = 'add-email',
   ACTIVATION = 'activate-account',
   USER_ONBOARDING_VERIFICATION = 'user-onboarding-verification',
   PARENT_INVITATION = 'invite-parent',
@@ -24,6 +26,10 @@ export const EMAIL_TEMPLATES_CONFIG = {
   [EmailTemplates.VERIFICATION]: {
     subject: 'Verify Your Email',
     dto: WelcomeEmailDto,
+  },
+  [EmailTemplates.VERIFICATION_ADDITIONAL_EMAIL]: {
+    subject: 'Verify Your Additional Email',
+    dto: AddEmailEmailDto,
   },
   [EmailTemplates.USER_ONBOARDING_VERIFICATION]: {
     subject: 'Verify Your Email',
