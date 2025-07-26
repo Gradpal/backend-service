@@ -38,7 +38,6 @@ import {
 } from './dto/update-settings.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { CreateNationalPortalAdminDTO } from './dto/create-admin.dto';
-import { TestFileUploadDto } from './dto/test-file-upload.dto';
 import { AcceptInvitationDto } from './dto/accept-invitation.dto';
 import { GrpcMethod } from '@nestjs/microservices';
 import {
@@ -251,5 +250,33 @@ export class UserController {
   @Get('/children/:parentId')
   getMyChildren(@Param('parentId') parentId: string) {
     return this.userService.getMyChildren(parentId);
+  }
+
+  @Patch('/vacation/vacation-mode/activate')
+  @ApiOperation({ summary: 'Activate vacation mode for tutor' })
+  @ApiResponse({
+    status: 200,
+    description: 'Vacation mode activated successfully',
+    type: User,
+  })
+  @AuthUser()
+  @PreAuthorize(EUserRole.TUTOR)
+  async activateVacationMode(@Req() req) {
+    const user = req.user as User;
+    return this.userService.activateVacationMode(user);
+  }
+
+  @Patch('/vacation/vacation-mode/deactivate')
+  @ApiOperation({ summary: 'Deactivate vacation mode for tutor' })
+  @ApiResponse({
+    status: 200,
+    description: 'Vacation mode deactivated successfully',
+    type: User,
+  })
+  @AuthUser()
+  @PreAuthorize(EUserRole.TUTOR)
+  async deactivateVacationMode(@Req() req) {
+    const user = req.user as User;
+    return this.userService.deactivateVacationMode(user);
   }
 }

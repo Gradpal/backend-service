@@ -599,4 +599,12 @@ export class UserService {
       },
     });
   }
+  activateVacationMode(user: User) {
+    user.vacationMode = true;
+    return this.userRepository.save(user);
+  }
+  deactivateVacationMode(user: User) {
+    user.vacationMode = false;
+    return this.userRepository.save(user);
+  }
 }
