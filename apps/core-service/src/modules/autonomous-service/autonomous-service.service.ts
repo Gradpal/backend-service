@@ -90,7 +90,6 @@ export class AutonomousServiceService {
         id: loggedInUser.id,
       };
     }
-
     const autonomousServces = await this.autonomousServiceRepository.find({
       where: whereClause,
       relations: ['invitations'],
@@ -140,6 +139,7 @@ export class AutonomousServiceService {
       'student.firstName',
       'student.lastName',
       'student.profilePicture',
+      'student.email',
       'bids.id',
       'bids.bidAmount',
       'bids.description',
@@ -153,6 +153,7 @@ export class AutonomousServiceService {
       'tutor.id',
       'tutor.firstName',
       'tutor.lastName',
+      'tutor.email',
       'tutor.profilePicture',
     ]);
     const [services, total] = await query.getManyAndCount();

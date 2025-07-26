@@ -843,13 +843,17 @@ export class PortfolioService {
         await this.sessionPackageService.findOnePackageType(
           sessionTypeOffering.sessionPackageTypeId,
         );
-      const sessionPackageOffering = this.sessionPackageService
+      let sessionPackageOffering = this.sessionPackageService
         .getPackageOfferingRepository()
         .create({
           packageType: sessionPackageType,
           discount: sessionTypeOffering.discount,
           portfolio: portfolio,
         });
+      sessionPackageOffering = await this.sessionPackageService
+        .getPackageOfferingRepository()
+        .save(sessionPackageOffering);
+
       sessionPackageOfferings.push(sessionPackageOffering);
     }
     portfolio.sessionPackageOfferings = sessionPackageOfferings;
