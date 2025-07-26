@@ -34,7 +34,7 @@ import {
 } from '@core-service/common/constants/brain.constants';
 import { EmailTemplates } from '@core-service/configs/email-template-configs/email-templates.config';
 import { Booking } from '../booking/entities/booking.entity';
-import { PortalService } from '@core-service/portal/portal.service';
+import { PortalService } from '@core-service/modules/portal/portal.service';
 import { PortfolioService } from '../portfolio/portfolio.service';
 import { AcceptInvitationDto } from './dto/accept-invitation.dto';
 import { LoadChatUserByIdRequest } from './dto/grpc/load-chat-user-by-id.dto';

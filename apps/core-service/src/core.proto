@@ -7,8 +7,6 @@ service MinioClientService {
   rpc uploadAttachments (FilesList) returns (FileAttachmentResponsesList) {}
   rpc uploadMessageAttachments (FilesList) returns (FileAttachmentResponsesList) {}
 }
-
-
 message File {
   string fieldname = 1;
   string originalname = 2;
