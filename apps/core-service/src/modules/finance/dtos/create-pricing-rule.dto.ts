@@ -30,9 +30,9 @@ export class CreatePricingRuleDto {
   @ApiProperty({
     description: 'The condition of the pricing rule',
     example: 'Pricing rule 1 condition',
+    required: false,
   })
   @IsOptional()
-  @IsEnum(ERuleCondition)
   condition: ERuleCondition;
 
   @ApiProperty({

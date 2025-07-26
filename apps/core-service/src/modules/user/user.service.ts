@@ -34,7 +34,7 @@ import {
 } from '@core-service/common/constants/brain.constants';
 import { EmailTemplates } from '@core-service/configs/email-template-configs/email-templates.config';
 import { Booking } from '../booking/entities/booking.entity';
-import { PortalService } from '@core-service/portal/portal.service';
+import { PortalService } from '@core-service/modules/portal/portal.service';
 import { PortfolioService } from '../portfolio/portfolio.service';
 import { AcceptInvitationDto } from './dto/accept-invitation.dto';
 import { LoadChatUserByIdRequest } from './dto/grpc/load-chat-user-by-id.dto';
@@ -93,18 +93,18 @@ export class UserService {
     );
     return otp;
 
-    // await this.notificationProcessor.sendTemplateEmail(
-    //   EmailTemplates.USER_ONBOARDING_VERIFICATION,
-    //   [createUserDto.email],
-    //   {
-    //     userName: createUserDto?.firstName
-    //       ? createUserDto?.firstName
-    //       : createUserDto?.email,
-    //     otp: otp,
-    //     otpValidityDuration: 12,
-    //     verificationUrl: `${this.configService.clientUrl}user/onboarding/verify-email/?otp=${otp}&email=${createUserDto.email}`,
-    //   },
-    // );
+    await this.notificationProcessor.sendTemplateEmail(
+      EmailTemplates.USER_ONBOARDING_VERIFICATION,
+      [createUserDto.email],
+      {
+        userName: createUserDto?.firstName
+          ? createUserDto?.firstName
+          : createUserDto?.email,
+        otp: otp,
+        otpValidityDuration: 12,
+        verificationUrl: `${this.configService.clientUrl}user/onboarding/verify-email/?otp=${otp}&email=${createUserDto.email}`,
+      },
+    );
   }
 
   async getUserEntityFromDto(createUserDto: CreateUserDTO) {
