@@ -12,7 +12,7 @@ export class PackageOffering extends BaseEntity {
   @JoinColumn({ name: 'package_type_id' })
   packageType: PackageType;
 
-  @ManyToOne(() => Portfolio, (portfolio) => portfolio)
+  @ManyToOne(() => Portfolio, (portfolio) => portfolio.sessionPackageOfferings)
   @JoinColumn({ name: 'portfolio_id' })
   portfolio: Portfolio;
 }
