@@ -1,4 +1,4 @@
-import { forwardRef, HttpException, Inject, Injectable } from '@nestjs/common';
+import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
@@ -91,7 +91,6 @@ export class UserService {
       { ...createUserDto, profilePicture: profilePicture },
       USER_BY_EMAIL_CACHE.ttl,
     );
-    return otp;
 
     await this.notificationProcessor.sendTemplateEmail(
       EmailTemplates.USER_ONBOARDING_VERIFICATION,
@@ -174,8 +173,13 @@ export class UserService {
     return await this.userRepository.save(user);
   }
 
-  async findByEmail(email: string) {
-    if (!(await this.existByEmail(email)))
+  async addEmail(user: User, email: string) {
+    user.secondEmails = [...(user.secondEmails || []), email];
+    return await this.userRepository.save(user);
+  }
+
+  async findByEmail(email: string, throwNotFound: boolean = true) {
+    if (throwNotFound && !(await this.existByEmail(email)))
       this.exceptionHandler.throwNotFound(_404.USER_NOT_FOUND);
     return await this.userRepository.findOne({ where: { email } });
   }
@@ -253,6 +257,8 @@ export class UserService {
     if (password) {
       user.password = await hashPassword(password);
     }
+
+    // TODO: Below code needs to be revised -> It should be simple and clean
 
     Object.entries(restFields).forEach(([key, value]) => {
       if (value !== undefined && key in user) {

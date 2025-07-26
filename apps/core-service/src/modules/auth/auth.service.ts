@@ -155,20 +155,22 @@ export class AuthService {
 
     return savedUserObject;
   }
-  async sendOpt(email: string) {
-    const account: User = await this.userService.findByEmail(email);
-    const otp = await this.generateOTP(account.id);
+  async sendOpt(email: string, isResetPassword: boolean = false) {
+    const account: User = await this.userService.findByEmail(email, false);
+    const otpId = isResetPassword ? account.id : email;
+    const otp = await this.generateOTP(otpId);
     await this.notificationProcessor.sendTemplateEmail(
-      EmailTemplates.VERIFICATION,
-      [account.email],
+      isResetPassword
+        ? EmailTemplates.VERIFICATION
+        : EmailTemplates.VERIFICATION_ADDITIONAL_EMAIL,
+      [email],
       {
-        userName: account.userName,
+        userName: account?.userName || email,
         otp: otp,
         otpValidityDuration: 12,
         verificationUrl: `${this.config.clientUrl}auth/reset-password/?email=${account.email}&verification_code=${otp}`,
       },
     );
-    console.log('otp', otp);
   }
 
   async resetPassword(dto: ResetPasswordDto): Promise<User> {

@@ -1,5 +1,5 @@
 import { Body, Controller, Get, Param, Post, Req } from '@nestjs/common';
-import { ApiBearerAuth, ApiBody, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiParam, ApiTags } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { Public } from '@app/common/decorators/public.decorator';
 import { LoginDTO } from './dto/login.dto';
@@ -24,6 +24,12 @@ export class AuthController {
   @Post('/send-otp/:email')
   @Public()
   async sendOpt(@Param('email') email: string) {
+    return await this.authService.sendOpt(email, true);
+  }
+
+  @Post('/send-otp-additional-email/:email')
+  @ApiParam({ name: 'email', type: String, example: 'test@example.com' })
+  async sendOptAdditionalEmail(@Param('email') email: string) {
     return await this.authService.sendOpt(email);
   }
 
