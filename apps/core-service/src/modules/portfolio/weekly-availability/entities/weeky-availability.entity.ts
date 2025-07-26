@@ -4,6 +4,7 @@ import { Column, ManyToOne, JoinColumn } from 'typeorm';
 import { Entity } from 'typeorm';
 import { WeekDay } from '../../dto/weekly-availability.dto';
 import { User } from '@core-service/modules/user/entities/user.entity';
+import { ETimeSlotStatus } from '../enums/time-slot.enum';
 
 @Entity('weekly_availability')
 export class WeeklyAvailability extends BaseEntity {
@@ -36,8 +37,13 @@ export class TimeSlot extends BaseEntity {
   @JoinColumn()
   daySchedule: DaySchedule;
 
-  @Column({ nullable: true, default: false })
-  deactivated: boolean;
+  @Column({
+    nullable: false,
+    type: 'enum',
+    enum: ETimeSlotStatus,
+    default: ETimeSlotStatus.ACTIVE,
+  })
+  status: ETimeSlotStatus;
 
   @ManyToOne(() => User, (user) => user.timeSlots)
   @JoinColumn({ name: 'owner_id' })

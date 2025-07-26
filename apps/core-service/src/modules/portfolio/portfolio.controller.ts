@@ -214,7 +214,7 @@ export class PortfolioController {
     }
     return this.portfolioService.updatePortfolioAvailability(
       req.user as User,
-      dto.update,
+      dto.newAvailability,
     );
   }
 

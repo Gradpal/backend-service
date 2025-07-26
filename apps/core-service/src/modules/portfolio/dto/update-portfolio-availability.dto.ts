@@ -69,7 +69,7 @@ export class UpdateDeactivateTimeSlotDto {
   @ValidateNested()
   @Type(() => UpdatePortfolioAvailabilityDto)
   @IsOptional()
-  update: UpdatePortfolioAvailabilityDto;
+  newAvailability: UpdatePortfolioAvailabilityDto;
 
   @ApiProperty({ type: [String], required: true })
   @IsArray()

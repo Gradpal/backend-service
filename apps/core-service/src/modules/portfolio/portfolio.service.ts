@@ -46,6 +46,7 @@ import { ETierCategory } from '../subjects/subject-tier/enums/tier-category.enum
 import { AddSessionTypeOfferingDto } from './dto/add-session-type-offering.dto';
 import { SessionPackageService } from '../session-package/session-package.service';
 import { UpdateSessionLengthDto } from './dto/Update-session-length.dto';
+import { ETimeSlotStatus } from './weekly-availability/enums/time-slot.enum';
 @Injectable()
 export class PortfolioService {
   constructor(
@@ -988,7 +989,7 @@ export class PortfolioService {
         owner: {
           id: user.id,
         },
-        deactivated: false,
+        status: ETimeSlotStatus.ACTIVE,
       },
       relations: {
         daySchedule: {

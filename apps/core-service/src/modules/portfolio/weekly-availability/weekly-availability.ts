@@ -9,6 +9,7 @@ import {
 import { TimeSlotDto } from '../dto/update-portfolio-availability.dto';
 import { ExceptionHandler } from '@app/common/exceptions/exceptions.handler';
 import { _404 } from '@app/common/constants/errors-constants';
+import { ETimeSlotStatus } from './enums/time-slot.enum';
 @Injectable()
 export class WeeklyAvailabilityService {
   constructor(
@@ -68,14 +69,9 @@ export class WeeklyAvailabilityService {
   async deactivateTimeSlot(timeSlotIds: string[]): Promise<void> {
     if (!timeSlotIds.length) return;
 
-    const timeSlots = await this.timeSlotRepository.find({
-      where: { id: In(timeSlotIds) },
-    });
-
-    timeSlots.forEach((timeSlot) => {
-      timeSlot.deactivated = true;
-    });
-
-    await this.timeSlotRepository.save(timeSlots);
+    await this.timeSlotRepository.update(
+      { id: In(timeSlotIds) },
+      { status: ETimeSlotStatus.DEACTIVATED },
+    );
   }
 }
