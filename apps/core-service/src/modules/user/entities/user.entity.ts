@@ -75,4 +75,10 @@ export class User extends BaseEntity {
   @ManyToOne(() => User, { nullable: true })
   @JoinColumn({ name: 'parent_id' })
   parent: User;
+
+  @Column('text', { array: true, nullable: true })
+  secondEmails: string[];
+
+  @Column('text', { array: true, nullable: true })
+  secondPhoneNumbers: string[];
 }
