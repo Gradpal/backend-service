@@ -46,6 +46,7 @@ import { ETierCategory } from '../subjects/subject-tier/enums/tier-category.enum
 import { AddSessionTypeOfferingDto } from './dto/add-session-type-offering.dto';
 import { SessionPackageService } from '../session-package/session-package.service';
 import { UpdateSessionLengthDto } from './dto/Update-session-length.dto';
+import { ETimeSlotStatus } from './weekly-availability/enums/time-slot.enum';
 @Injectable()
 export class PortfolioService {
   constructor(
@@ -980,5 +981,21 @@ export class PortfolioService {
       googleCalenderLinked: portfolio.google_calendar_linked,
       appleCalenderLinked: portfolio.apple_calendar_linked,
     };
+  }
+
+  async getAvailability(user: User) {
+    return await this.timeSlotRepository.find({
+      where: {
+        owner: {
+          id: user.id,
+        },
+        status: ETimeSlotStatus.ACTIVE,
+      },
+      relations: {
+        daySchedule: {
+          weeklyAvailability: true,
+        },
+      },
+    });
   }
 }

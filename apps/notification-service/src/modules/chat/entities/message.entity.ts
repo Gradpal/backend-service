@@ -11,7 +11,7 @@ export class Message extends BaseEntity {
   content: string;
 
   @Column({ type: 'jsonb', nullable: true })
-  url: string[];
+  urls: string[];
 
   @Column({
     type: 'enum',

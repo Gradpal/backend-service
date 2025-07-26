@@ -117,4 +117,16 @@ export class ChatController {
   async getConversations(@Query('userId') userId: string) {
     return this.chatService.getConversations(userId);
   }
+  @Get('conversations/:conversationId/shared-files')
+  async getAllFilesSharedInConversations(
+    @Param('conversationsId') conversationId: string,
+  ) {
+    return this.chatService.getSharedFilesInConversation(conversationId);
+  }
+  @Get('conversations/:conversationId/shared-links')
+  async getAllKinksSharedInConversations(
+    @Param('conversationsId') conversationId: string,
+  ) {
+    return this.chatService.getSharedLinksInConversation(conversationId);
+  }
 }

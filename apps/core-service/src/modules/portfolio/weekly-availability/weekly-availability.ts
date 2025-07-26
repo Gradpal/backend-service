@@ -1,6 +1,6 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import {
   TimeSlot,
   WeeklyAvailability,
@@ -9,6 +9,7 @@ import {
 import { TimeSlotDto } from '../dto/update-portfolio-availability.dto';
 import { ExceptionHandler } from '@app/common/exceptions/exceptions.handler';
 import { _404 } from '@app/common/constants/errors-constants';
+import { ETimeSlotStatus } from './enums/time-slot.enum';
 @Injectable()
 export class WeeklyAvailabilityService {
   constructor(
@@ -63,5 +64,14 @@ export class WeeklyAvailabilityService {
     timeSlotEntity.daySchedule = daySchedule;
 
     return this.timeSlotRepository.save(timeSlot);
+  }
+
+  async deactivateTimeSlot(timeSlotIds: string[]): Promise<void> {
+    if (!timeSlotIds.length) return;
+
+    await this.timeSlotRepository.update(
+      { id: In(timeSlotIds) },
+      { status: ETimeSlotStatus.DEACTIVATED },
+    );
   }
 }

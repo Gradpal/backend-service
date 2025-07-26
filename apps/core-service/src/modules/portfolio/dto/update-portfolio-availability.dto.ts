@@ -63,3 +63,16 @@ export class UpdatePortfolioAvailabilityDto {
   @IsOptional()
   saturday: TimeSlotDto[];
 }
+
+export class UpdateDeactivateTimeSlotDto {
+  @ApiProperty({ type: UpdatePortfolioAvailabilityDto, required: true })
+  @ValidateNested()
+  @Type(() => UpdatePortfolioAvailabilityDto)
+  @IsOptional()
+  newAvailability: UpdatePortfolioAvailabilityDto;
+
+  @ApiProperty({ type: [String], required: true })
+  @IsArray()
+  @IsString({ each: true })
+  deactivatedTimeSlotIds: string[];
+}
