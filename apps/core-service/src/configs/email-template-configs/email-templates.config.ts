@@ -8,7 +8,7 @@ import {
 export enum EmailTemplates {
   WELCOME = 'welcome',
   VERIFICATION = 'verify-email',
-  VERIFICATION_ADDITIONAL_EMAIL = 'verify-additional-email',
+  VERIFICATION_ADDITIONAL_EMAIL = 'add-email',
   ACTIVATION = 'activate-account',
   USER_ONBOARDING_VERIFICATION = 'user-onboarding-verification',
   PARENT_INVITATION = 'invite-parent',

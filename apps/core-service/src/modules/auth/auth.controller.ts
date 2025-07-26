@@ -42,6 +42,13 @@ export class AuthController {
   }
 
   @Public()
+  @Post('/verify-email-additional-email')
+  @ApiBody({ type: ActivateAccount })
+  async verifyEmailAdditionalEmail(@Body() dto: ActivateAccount) {
+    const activatedAccount = await this.authService.verifyAccount(dto, false);
+    return activatedAccount;
+  }
+  @Public()
   @Post('/forgot-password')
   @ApiBody({ type: ForgotPasswordDTO })
   async forgotPassword(@Body() dto: ForgotPasswordDTO) {

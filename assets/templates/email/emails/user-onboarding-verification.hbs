@@ -1,17 +1,21 @@
 {{> header title="GradPal Marketplace - Welcome"}}
 
         <main style="font-size: 16px; line-height: 1.7;">
-            <p style="margin-bottom: 24px; font-weight: 500;">Dear Parent,</p>
+            <p style="margin-bottom: 24px; font-weight: 500;">Dear {{userName}},</p>
 
             <p style="margin-bottom: 32px; color: #374151;">
-This is to inform you that {{studentName}}, who is a student from {{nationalPortal}} has had invited you to join their account, monitor their progress and provide guidance as their parent.
+                Thank you for joining GradPal Marketplace.
             </p>
 
             <p style="margin-bottom: 32px; color: #374151;">
-                Please click the button below to accept the invitation and join their account.
+                Please use the One-Time Password (OTP) below to verify the email.
             </p>
 
-            {{> button url=invitationUrl text="Accept Invitation" style="background-color: #2F6A4D; color: #ffffff; padding: 12px 25px; border-radius: 5px; text-align: center; font-weight: bold; text-decoration: none;"}}
+            <p style="margin-bottom: 32px; color: #374151;">OTP: {{otp}}</p>
+
+            <p style="margin-bottom: 32px; color: #374151;">
+                The OTP will expire in {{otpValidityDuration}} minutes.
+            </p>
 
             <p style="margin-bottom: 32px; color: #374151;">
                         If you have any questions about this change, please contact <span style="font-weight: bold;">{{nationalPortalAdminContact}}</span>
