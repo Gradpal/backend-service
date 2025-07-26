@@ -81,4 +81,7 @@ export class User extends BaseEntity {
 
   @Column('text', { array: true, nullable: true })
   secondPhoneNumbers: string[];
+
+  @Column({ default: false, nullable: true })
+  vacationMode: boolean;
 }

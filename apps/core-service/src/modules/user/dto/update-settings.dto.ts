@@ -37,6 +37,10 @@ export class UpdateSettingsDto {
   @ApiPropertyOptional()
   @IsOptional()
   referralCode?: string;
+  @IsString()
+  @ApiPropertyOptional()
+  @IsOptional()
+  phoneNumber?: string;
 
   @IsString()
   @IsNotEmpty()
