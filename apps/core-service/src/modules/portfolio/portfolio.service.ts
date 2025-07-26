@@ -984,12 +984,6 @@ export class PortfolioService {
   }
 
   async getAvailability(user: User) {
-    console.log('====================================');
-    console.log(user);
-    console.log('====================================');
-    console.log('====================================');
-    console.log(user.id);
-    console.log('====================================');
     return await this.timeSlotRepository.find({
       where: {
         owner: {
