@@ -191,10 +191,9 @@ export class PortfolioController {
   @AuthUser()
   @UseGuards(AuthGuard)
   @ApiOperation({ summary: 'Get availability for a user' })
-  @ApiParam({ name: 'userId', description: 'User ID' })
   @ApiResponse({ status: 200, type: Portfolio })
   async getAvailability(@Req() req) {
-    return this.portfolioService.getAvailability(req as User);
+    return this.portfolioService.getAvailability(req.user as User);
   }
   @Post(':id/update-availability')
   @UseGuards(AuthGuard)
