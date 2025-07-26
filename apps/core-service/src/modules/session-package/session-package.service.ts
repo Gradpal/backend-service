@@ -195,6 +195,33 @@ export class SessionPackageService {
     return classSession;
   }
 
+  async getAvailablePackageTypes() {
+    const packageTypes = await this.packageTypeRepository.find({
+      order: { maximumSessions: 'ASC' },
+    });
+    return packageTypes;
+  }
+
+  async createPackageTypeIfNotExists(
+    maximumSessions: number,
+    description: string,
+  ) {
+    const existingPackageType = await this.packageTypeRepository.findOne({
+      where: { maximumSessions },
+    });
+
+    if (existingPackageType) {
+      return existingPackageType;
+    }
+
+    const packageType = this.packageTypeRepository.create({
+      maximumSessions,
+      description,
+    });
+
+    return await this.packageTypeRepository.save(packageType);
+  }
+
   async addSessionDetailsToClassSession(
     classSessionId: string,
     addSessionsDetailsDto: AddSessionsDetailsDto,

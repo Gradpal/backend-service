@@ -838,26 +838,33 @@ export class PortfolioService {
   ) {
     const portfolio = await this.findOne(portfolioId);
     const sessionPackageOfferings = portfolio.sessionPackageOfferings || [];
+
     for (const sessionTypeOffering of addSessionTypeOfferingDto.sessionTypeOfferings) {
-      const sessionPackageType =
-        await this.sessionPackageService.findOnePackageType(
+      const [sessionPackageType] = await Promise.all([
+        this.sessionPackageService.findOnePackageType(
           sessionTypeOffering.sessionPackageTypeId,
-        );
-      let sessionPackageOffering = this.sessionPackageService
+        ),
+      ]);
+
+      let sessionPackageOffering = await this.sessionPackageService
         .getPackageOfferingRepository()
         .create({
-          packageType: sessionPackageType,
+          packageType: {
+            id: sessionPackageType.id,
+          },
           discount: sessionTypeOffering.discount,
           portfolio: portfolio,
         });
+
       sessionPackageOffering = await this.sessionPackageService
         .getPackageOfferingRepository()
         .save(sessionPackageOffering);
 
       sessionPackageOfferings.push(sessionPackageOffering);
     }
+
     portfolio.sessionPackageOfferings = sessionPackageOfferings;
-    return await this.portfolioRepository.save(portfolio);
+    return portfolio;
   }
 
   async removeSessionPackageOffering(

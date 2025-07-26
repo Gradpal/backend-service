@@ -215,17 +215,9 @@ export class Portfolio extends BaseEntity {
   @Column({ type: 'json', nullable: true })
   sessionLengths: number[];
 
-  @ManyToMany(() => PackageType)
-  @JoinTable({
-    name: 'portfolio_package_offerings',
-    joinColumn: {
-      name: 'portfolio_id',
-      referencedColumnName: 'id',
-    },
-    inverseJoinColumn: {
-      name: 'package_offering_id',
-      referencedColumnName: 'id',
-    },
-  })
+  @OneToMany(
+    () => PackageOffering,
+    (packageOffering) => packageOffering.portfolio,
+  )
   sessionPackageOfferings: PackageOffering[];
 }
