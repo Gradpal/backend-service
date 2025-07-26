@@ -407,7 +407,7 @@ export class PortfolioService {
     }
 
     if (availabilityDto.tuesday) {
-      const slotsDtos = availabilityDto.monday;
+      const slotsDtos = availabilityDto.tuesday;
 
       let tuesdaySchedule = new DaySchedule();
       tuesdaySchedule.day = WeekDay.TUESDAY;
