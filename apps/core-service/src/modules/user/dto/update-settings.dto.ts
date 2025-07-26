@@ -55,6 +55,16 @@ export class UpdateSettingsDto {
   @ApiPropertyOptional()
   @IsOptional()
   displayTimezoneFormat?: string;
+
+  @IsString({ each: true })
+  @IsOptional()
+  @ApiPropertyOptional({ type: [String] })
+  secondEmails?: string[];
+
+  @IsString({ each: true })
+  @IsOptional()
+  @ApiPropertyOptional({ type: [String] })
+  secondPhoneNumbers?: string[];
 }
 
 export class DeactivateUserDto {

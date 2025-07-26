@@ -242,8 +242,10 @@ export class UserService {
       updateSettingsDto;
 
     if (email) {
-      const emailExists = await this.existByEmail(email);
-      if (emailExists) {
+      const existingUser = await this.userRepository.findOne({
+        where: { email },
+      });
+      if (existingUser && existingUser.id !== user.id) {
         this.exceptionHandler.throwConflict(_409.USER_ALREADY_EXISTS);
       }
       user.email = email;
@@ -254,7 +256,15 @@ export class UserService {
 
     Object.entries(restFields).forEach(([key, value]) => {
       if (value !== undefined && key in user) {
-        (user as User)[key] = value;
+        const currentValue = (user as any)[key];
+
+        // If the existing field is an array and the new value is an array too, merge them
+        if (Array.isArray(currentValue) && Array.isArray(value)) {
+          (user as any)[key] = Array.from(new Set([...currentValue, ...value])); // remove duplicates
+        } else {
+          // Otherwise, replace normally
+          (user as any)[key] = value;
+        }
       }
     });
 
