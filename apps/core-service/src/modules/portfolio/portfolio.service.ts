@@ -709,7 +709,12 @@ export class PortfolioService {
     const query = this.portfolioRepository
       .createQueryBuilder('portfolio')
       .leftJoinAndSelect('portfolio.user', 'user')
-      .leftJoinAndSelect('user.timeSlots', 'timeSlots')
+      .leftJoinAndSelect(
+        'user.timeSlots',
+        'timeSlots',
+        'timeSlots.status = :status',
+        { status: ETimeSlotStatus.ACTIVE },
+      )
       .leftJoinAndSelect('timeSlots.daySchedule', 'daySchedule')
       .leftJoinAndSelect(
         'portfolio.sessionPackageOfferings',
