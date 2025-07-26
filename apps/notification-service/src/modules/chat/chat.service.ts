@@ -251,4 +251,32 @@ export class ChatService {
       status: EConversationStatus.ACTIVE,
     });
   }
+  async getSharedFilesInConversation(conversationId: string) {
+    const conversation = await this.conversationRepository.findOne({
+      where: { id: conversationId },
+      relations: { latestMessages: true },
+    });
+
+    if (!conversation?.latestMessages?.length) {
+      return [];
+    }
+
+    return conversation.latestMessages
+      .flatMap((message) => message.sharedFiles ?? [])
+      .filter(Boolean);
+  }
+  async getSharedLinksInConversation(conversationId: string) {
+    const conversation = await this.conversationRepository.findOne({
+      where: { id: conversationId },
+      relations: { latestMessages: true },
+    });
+
+    if (!conversation?.latestMessages?.length) {
+      return [];
+    }
+
+    return conversation.latestMessages
+      .flatMap((message) => message.urls ?? [])
+      .filter(Boolean);
+  }
 }

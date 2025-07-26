@@ -1,6 +1,6 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import {
   TimeSlot,
   WeeklyAvailability,
@@ -63,5 +63,19 @@ export class WeeklyAvailabilityService {
     timeSlotEntity.daySchedule = daySchedule;
 
     return this.timeSlotRepository.save(timeSlot);
+  }
+
+  async deactivateTimeSlot(timeSlotIds: string[]): Promise<void> {
+    if (!timeSlotIds.length) return;
+
+    const timeSlots = await this.timeSlotRepository.find({
+      where: { id: In(timeSlotIds) },
+    });
+
+    timeSlots.forEach((timeSlot) => {
+      timeSlot.deactivated = true;
+    });
+
+    await this.timeSlotRepository.save(timeSlots);
   }
 }

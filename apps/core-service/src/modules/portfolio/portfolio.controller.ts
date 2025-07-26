@@ -40,7 +40,7 @@ import {
 } from './dto/update-portfolio-profile.dto';
 import { AuthGuard } from '@core-service/guards/auth.guard';
 import { Portfolio } from './entities/portfolio.entity';
-import { UpdatePortfolioAvailabilityDto } from './dto/update-portfolio-availability.dto';
+import { UpdateDeactivateTimeSlotDto } from './dto/update-portfolio-availability.dto';
 import { TutorProfileDto } from './dto/tutor-profile.dto';
 import { Booking } from '../booking/entities/booking.entity';
 import { SessionDetailsDto } from '../booking/dto/session-details.dto';
@@ -56,12 +56,14 @@ import { User } from '../user/entities/user.entity';
 import { AddSessionLengthDto } from './dto/create-portfolio.dto';
 import { AddSessionTypeOfferingDto } from './dto/add-session-type-offering.dto';
 import { UpdateSessionLengthDto } from './dto/Update-session-length.dto';
+import { WeeklyAvailabilityService } from './weekly-availability/weekly-availability';
 @Controller('portfolio')
 @ApiBearerAuth()
 export class PortfolioController {
   constructor(
     private readonly portfolioService: PortfolioService,
     private readonly userService: UserService,
+    private readonly weeklyAvailabilityService: WeeklyAvailabilityService,
   ) {}
 
   @Get()
@@ -185,6 +187,15 @@ export class PortfolioController {
     );
   }
 
+  @Get('/user/availability')
+  @AuthUser()
+  @UseGuards(AuthGuard)
+  @ApiOperation({ summary: 'Get availability for a user' })
+  @ApiParam({ name: 'userId', description: 'User ID' })
+  @ApiResponse({ status: 200, type: Portfolio })
+  async getAvailability(@Req() req) {
+    return this.portfolioService.getAvailability(req as User);
+  }
   @Post(':id/update-availability')
   @UseGuards(AuthGuard)
   @ApiOperation({ summary: 'Update portfolio availability' })
@@ -193,12 +204,17 @@ export class PortfolioController {
   @ApiResponse({ status: 200, type: Portfolio })
   async updatePortfolioAvailability(
     @Param('id') id: string,
-    @Body() updatePortfolioAvailabilityDto: UpdatePortfolioAvailabilityDto,
+    @Body() dto: UpdateDeactivateTimeSlotDto,
     @Req() req,
   ) {
+    if (dto.deactivatedTimeSlotIds) {
+      await this.weeklyAvailabilityService.deactivateTimeSlot(
+        dto.deactivatedTimeSlotIds,
+      );
+    }
     return this.portfolioService.updatePortfolioAvailability(
       req.user as User,
-      updatePortfolioAvailabilityDto,
+      dto.update,
     );
   }
 

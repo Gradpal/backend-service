@@ -981,4 +981,20 @@ export class PortfolioService {
       appleCalenderLinked: portfolio.apple_calendar_linked,
     };
   }
+
+  async getAvailability(user: User) {
+    return await this.timeSlotRepository.find({
+      where: {
+        owner: {
+          id: user.id,
+        },
+        deactivated: false,
+      },
+      relations: {
+        daySchedule: {
+          weeklyAvailability: true,
+        },
+      },
+    });
+  }
 }
