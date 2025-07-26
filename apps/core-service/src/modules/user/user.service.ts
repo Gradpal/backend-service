@@ -38,6 +38,7 @@ import { PortalService } from '@core-service/modules/portal/portal.service';
 import { PortfolioService } from '../portfolio/portfolio.service';
 import { AcceptInvitationDto } from './dto/accept-invitation.dto';
 import { LoadChatUserByIdRequest } from './dto/grpc/load-chat-user-by-id.dto';
+import { ETimeSlotStatus } from '../portfolio/weekly-availability/enums/time-slot.enum';
 
 @Injectable()
 export class UserService {
@@ -209,7 +210,7 @@ export class UserService {
         'user.timeSlots',
         'timeSlots',
         'timeSlots.status = :status',
-        { status: 'ACTIVE' },
+        { status: ETimeSlotStatus.ACTIVE },
       )
       .leftJoinAndSelect('timeSlots.daySchedule', 'daySchedule')
       .leftJoinAndSelect('daySchedule.weeklyAvailability', 'weeklyAvailability')
