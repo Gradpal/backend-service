@@ -196,19 +196,30 @@ export class UserService {
   }
 
   async findOne(id: string) {
-    const user = await this.userRepository.findOne({
-      where: { id },
-      relations: [
-        'portfolio',
-        'portfolio.subjects',
-        'portfolio.subjectTiers',
+    const user = await this.userRepository
+      .createQueryBuilder('user')
+      .leftJoinAndSelect('user.portfolio', 'portfolio')
+      .leftJoinAndSelect('portfolio.subjects', 'subjects')
+      .leftJoinAndSelect('portfolio.subjectTiers', 'subjectTiers')
+      .leftJoinAndSelect(
         'portfolio.sessionPackageOfferings',
+        'sessionPackageOfferings',
+      )
+      .leftJoinAndSelect(
+        'user.timeSlots',
         'timeSlots',
-        'timeSlots.daySchedule',
-        'timeSlots.daySchedule.weeklyAvailability',
-      ],
-    });
-    if (!user) this.exceptionHandler.throwNotFound(_404.USER_NOT_FOUND);
+        'timeSlots.status = :status',
+        { status: 'ACTIVE' },
+      )
+      .leftJoinAndSelect('timeSlots.daySchedule', 'daySchedule')
+      .leftJoinAndSelect('daySchedule.weeklyAvailability', 'weeklyAvailability')
+      .where('user.id = :id', { id })
+      .getOne();
+
+    if (!user) {
+      this.exceptionHandler.throwNotFound(_404.USER_NOT_FOUND);
+    }
+
     return user;
   }
 
