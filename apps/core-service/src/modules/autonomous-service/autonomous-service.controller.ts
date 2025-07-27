@@ -32,6 +32,7 @@ import { EAutonomousServiceStatus } from './enums/autonomous-service-status.enum
 import { CreateInvitationDto } from './dtos/create-invitation.dto';
 import { EInvitationStatus } from './enums/invitation-status.enum';
 import { UpdateInvitationStageDto } from './dtos/invitation-dto';
+import { EBidStatus } from './enums/bid-status.enum';
 
 @Controller('autonomous-service')
 @ApiTags('Autonomous Service')
@@ -199,7 +200,7 @@ export class AutonomousServiceController {
   async acceptBid(@Param('bidId') bidId: string, @Req() req) {
     return this.autonomousServiceService.acceptOrRejectBid(
       bidId,
-      'accept',
+      EBidStatus.ACCEPTED,
       req.user as User,
     );
   }
@@ -215,7 +216,7 @@ export class AutonomousServiceController {
   async rejectBid(@Param('bidId') bidId: string, @Req() req) {
     return this.autonomousServiceService.acceptOrRejectBid(
       bidId,
-      'reject',
+      EBidStatus.REJECTED,
       req.user as User,
     );
   }

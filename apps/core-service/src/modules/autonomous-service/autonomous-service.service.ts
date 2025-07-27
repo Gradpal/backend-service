@@ -294,13 +294,9 @@ export class AutonomousServiceService {
     return await this.bidRepository.save(bid);
   }
 
-  async acceptOrRejectBid(
-    bidId: string,
-    action: 'accept' | 'reject',
-    user: User,
-  ) {
+  async acceptOrRejectBid(bidId: string, action: EBidStatus, user: User) {
     const bid = await this.getBidById(bidId);
-    if (action === 'accept') {
+    if (action === EBidStatus.ACCEPTED) {
       bid.status = EBidStatus.ACCEPTED;
       if (user.role === EUserRole.STUDENT) {
         bid.autonomousService.status = EAutonomousServiceStatus.IN_PROGRESS;
