@@ -576,6 +576,9 @@ export class UserService {
         status: true,
       },
     });
+    if (!user) {
+      this.exceptionHandler.throwNotFound(_404.USER_NOT_FOUND_IN_CHAT);
+    }
     console.log('--- user --- ', user);
     return user;
     // return { result: user ? [user] : [] };

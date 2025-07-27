@@ -114,8 +114,14 @@ export class ChatController {
 
   @Get('conversations')
   @ApiQuery({ name: 'userId', type: String })
-  async getConversations(@Query('userId') userId: string) {
-    return this.chatService.getConversations(userId);
+  @ApiQuery({ name: 'page', type: Number, required: false, default: 1 })
+  @ApiQuery({ name: 'limit', type: Number, required: false, default: 10 })
+  async getConversations(
+    @Query('userId') userId: string,
+    @Query('page') page: number,
+    @Query('limit') limit: number,
+  ) {
+    return this.chatService.getConversations(userId, page, limit);
   }
   @Get('conversations/:conversationId/shared-files')
   async getAllFilesSharedInConversations(
