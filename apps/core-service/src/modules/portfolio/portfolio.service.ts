@@ -720,7 +720,7 @@ export class PortfolioService {
         'portfolio.sessionPackageOfferings',
         'sessionPackageOfferings',
       )
-      // .leftJoinAndSelect('sessionPackageOfferings.packageType', 'packageType')
+      .leftJoinAndSelect('sessionPackageOfferings.packageType', 'packageType')
       .leftJoinAndSelect('daySchedule.weeklyAvailability', 'weeklyAvailability')
       .leftJoinAndSelect('portfolio.subjectTiers', 'subjectTier')
       .leftJoinAndSelect('subjectTier.subjects', 'subjects')

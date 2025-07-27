@@ -52,11 +52,10 @@ export class ClassSession extends BaseEntity {
   extensionTime: Date;
 
   @Column({
-    type: 'timestamp',
+    type: 'varchar',
     nullable: true,
-    default: () => 'CURRENT_TIMESTAMP',
   })
-  sessionDate: Date;
+  sessionDate: string;
 
   @ManyToOne(() => TimeSlot)
   @JoinColumn({ name: 'time_slot_id' })

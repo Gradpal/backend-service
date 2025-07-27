@@ -71,7 +71,7 @@ export class SessionPackageService {
     createClassSessionPackageDto: CreateClassSessionPackageDto,
   ) {
     const packageOffering = await this.getPackageOfferingRepository().findOne({
-      where: { id: createClassSessionPackageDto.packageTypeId },
+      where: { id: createClassSessionPackageDto.packageOfferingId },
       relations: ['packageType'],
     });
 
@@ -102,7 +102,7 @@ export class SessionPackageService {
     const tutor = firstTimeSlot.owner;
 
     let sessionPackage = this.sessionPackageRepository.create({
-      sessionPackageType: packageOffering,
+      sessionPackageType: packageOffering.packageType,
       tutor: tutor,
       student: student,
     });
@@ -145,7 +145,7 @@ export class SessionPackageService {
         subject: { id: createClassSessionPackageDto.subjectId },
         price: sessionPrice,
         timeSlot,
-        sessionDate: new Date(sessionDate),
+        sessionDate: sessionDate,
         sessionPackage,
         sessionTimelines: [
           {
