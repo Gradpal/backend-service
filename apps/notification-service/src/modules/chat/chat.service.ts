@@ -102,7 +102,13 @@ export class ChatService {
         files: serializedFiles,
         recipients,
       };
-      return this.messageClient.emit(PATTERNS.SEND_MESSAGE, payload);
+
+      this.messageClient.emit(PATTERNS.SEND_MESSAGE, payload);
+      return {
+        converstion: {
+          id: conversation.id,
+        },
+      };
     } catch (error) {
       Logger.error(
         '❌ Error sending platform message:',
