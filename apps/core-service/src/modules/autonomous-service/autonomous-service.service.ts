@@ -316,6 +316,7 @@ export class AutonomousServiceService {
   async reviewBid(serviceId: string, review: SessionReviewDto) {
     const service = await this.getAutonomousServiceById(serviceId);
     service.review = review;
+    service.status = EAutonomousServiceStatus.COMPLETED;
     return await this.autonomousServiceRepository.save(service);
   }
 

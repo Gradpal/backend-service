@@ -17,11 +17,14 @@ import { Complaint } from './entities/complaints.entity';
 import { ComplaintCategory } from './enums/complaint-category.enum';
 import { AutonomousServiceService } from '../autonomous-service/autonomous-service.service';
 import { AutonomousService } from '../autonomous-service/entities/autonomous-service.entity';
+import { EAutonomousServiceStatus } from '../autonomous-service/enums/autonomous-service-status.enum';
 @Injectable()
 export class ComplaintsService {
   constructor(
     @InjectRepository(Complaint)
     private readonly complaintRepository: Repository<Complaint>,
+    @InjectRepository(AutonomousService)
+    private readonly autonomousServiceRepository: Repository<AutonomousService>,
     private readonly minioService: MinioClientService,
     private readonly classSessionService: ClassSessionService,
     private readonly exceptionHandler: ExceptionHandler,
@@ -43,6 +46,8 @@ export class ComplaintsService {
       service = await this.autonomousServiceService.getAutonomousServiceById(
         createComplaintDto.serviceId,
       );
+      service.status = EAutonomousServiceStatus.COMPLAINED;
+      await this.autonomousServiceRepository.save(service);
     }
     const complaintExists =
       await this.existsByDescriptionAndSessionAndIssueTypeAndPriority(
