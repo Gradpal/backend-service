@@ -30,10 +30,10 @@ export class CreatePackageTypeDto {
 }
 
 export class CreateClassSessionPackageDto {
-  @ApiProperty({ description: 'Package type ID' })
+  @ApiProperty({ description: 'Package offering ID' })
   @IsUUID()
   @IsNotEmpty()
-  packageTypeId: string;
+  packageOfferingId: string;
 
   @ApiProperty({ description: 'Session length in minutes' })
   @IsNumber()
