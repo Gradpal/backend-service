@@ -59,22 +59,26 @@ export class PlatformChattingService {
         path: '',
         stream: null as any,
       }));
-
-      const message = await this.chatService.createMessage(
+      const messageExists = await this.chatService.existsByOwner(
         queuePayload.sender,
-        queuePayload.receiver,
-        messageDto,
-        deserializedFiles,
+        messageDto.content,
       );
+      if (!messageExists) {
+        const message = await this.chatService.createMessage(
+          queuePayload.sender,
+          queuePayload.receiver,
+          messageDto,
+          deserializedFiles,
+        );
 
-      server.to(`user_${recipient}`).emit('message', {
-        ...queuePayload,
-        id: message.id,
-        createdAt: new Date(),
-        notificationStatus: ENotificationStatus.DELIVERED,
-      });
-
-      this.logger.log(`Message sent to room: user_${recipient}`);
+        server.to(`user_${recipient}`).emit('message', {
+          ...queuePayload,
+          id: message.id,
+          createdAt: new Date(),
+          notificationStatus: ENotificationStatus.DELIVERED,
+        });
+        this.logger.log(`Message sent to room: user_${recipient}`);
+      }
     } catch (error) {
       this.logger.error(`Failed to send message to user_${recipient}:`, error);
       throw error;
