@@ -425,6 +425,6 @@ export class AutonomousServiceService {
     if (invitations.length === 0) {
       this.exceptionHandler.throwNotFound(_404.INVITATION_NOT_FOUND);
     }
-    await this.invitationRepository.remove(invitations);
+    await this.invitationRepository.delete(invitations.map((inv) => inv.id));
   }
 }
