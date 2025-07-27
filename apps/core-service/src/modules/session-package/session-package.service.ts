@@ -121,7 +121,6 @@ export class SessionPackageService {
         this.exceptionHandler.throwBadRequest(_400.TIME_SLOT_ALREADY_BOOKED);
       }
       timeSlot.isBooked = true;
-      await this.timeSlotRepository.save(timeSlot);
 
       const subjectTier =
         await this.subjectTierService.findSubjectTierWhichHasSubjectByTutorId(
@@ -138,6 +137,7 @@ export class SessionPackageService {
       if (student.credits < subjectTier.credits) {
         this.exceptionHandler.throwBadRequest(_400.INSUFFICIENT_CREDITS);
       }
+      await this.timeSlotRepository.save(timeSlot);
 
       const session = this.classSessionRepository.create({
         ...createClassSessionPackageDto,

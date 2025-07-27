@@ -206,6 +206,8 @@ export class UserService {
         'portfolio.sessionPackageOfferings',
         'sessionPackageOfferings',
       )
+      .leftJoinAndSelect('sessionPackageOfferings.packageType', 'packageType')
+
       .leftJoinAndSelect(
         'user.timeSlots',
         'timeSlots',
