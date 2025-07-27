@@ -10,10 +10,11 @@ import { MinioClientService } from '../minio-client/minio-client.service';
 import { ClassSessionModule } from '../class-session/class-session.module';
 import { AutonomousServiceModule } from '../autonomous-service/autonomous-service.module';
 import { ComplaintsController } from './complaints.controller';
+import { AutonomousService } from '../autonomous-service/entities/autonomous-service.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Complaint]),
+    TypeOrmModule.forFeature([Complaint, AutonomousService]),
     forwardRef(() => ClassSessionModule),
     forwardRef(() => AutonomousServiceModule),
     forwardRef(() => UserModule),

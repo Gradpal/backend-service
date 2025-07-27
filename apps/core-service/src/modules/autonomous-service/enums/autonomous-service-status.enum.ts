@@ -5,4 +5,5 @@ export enum EAutonomousServiceStatus {
   COMPLETED = 'COMPLETED',
   CANCELLED = 'CANCELLED',
   BIDS_SUBMITTED = 'BIDS_SUBMITTED',
+  COMPLAINED = 'COMPLAINED',
 }
