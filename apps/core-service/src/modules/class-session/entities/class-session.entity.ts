@@ -52,7 +52,7 @@ export class ClassSession extends BaseEntity {
   extensionTime: Date;
 
   @Column({
-    type: 'string',
+    type: 'varchar',
     nullable: true,
   })
   sessionDate: string;
