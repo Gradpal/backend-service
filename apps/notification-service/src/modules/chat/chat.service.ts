@@ -130,13 +130,14 @@ export class ChatService {
         sender.id,
         receiver.id,
       );
+      console.log('--- conversation --- ', conversation);
+
       if (!conversation) {
         conversation = this.conversationRepository.create({
           sender,
           receiver,
           status: EConversationStatus.ACTIVE,
         });
-        console.log('conversation', conversation);
         await this.conversationRepository.save(conversation);
         Logger.log(`Created dummy conversation with ID: ${conversation.id}`);
       }
@@ -182,12 +183,22 @@ export class ChatService {
     return this.messageRepository.update(messageId, updateMessageDto);
   }
 
-  async getConversations(userId: string) {
-    return this.conversationRepository
+  async getConversations(userId: string, page: number, limit: number) {
+    const query = this.conversationRepository
       .createQueryBuilder('conversation')
       .where(`conversation.sender->>'id' = :userId`, { userId })
-      .orWhere(`conversation.receiver->>'id' = :userId`, { userId })
-      .getMany();
+      .orWhere(`conversation.receiver->>'id' = :userId`, { userId });
+
+    if (page && limit) {
+      query.skip((page - 1) * limit).take(limit);
+    }
+
+    const [conversations, total] = await query.getManyAndCount();
+
+    return {
+      conversations,
+      total,
+    };
   }
 
   async getMessages(conversationId: string) {
@@ -205,12 +216,12 @@ export class ChatService {
     senderId: string,
     receiverId: string,
   ) {
-    return this.conversationRepository.findOne({
-      where: {
-        sender: { id: senderId },
-        receiver: { id: receiverId },
-      },
-    });
+    const query = this.conversationRepository
+      .createQueryBuilder('conversation')
+      .where(`conversation.sender->>'id' = :senderId`, { senderId })
+      .orWhere(`conversation.receiver->>'id' = :receiverId`, { receiverId });
+
+    return query.getOne();
   }
 
   async getMessage(messageId: string) {

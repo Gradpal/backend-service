@@ -179,6 +179,10 @@ export const _404 = {
     code: 'USER_NOT_FOUND',
     message: 'No User exists with provided id',
   },
+  USER_NOT_FOUND_IN_CHAT: {
+    code: 'USER_NOT_FOUND_IN_CHAT',
+    message: 'No User exists with provided id in chat',
+  },
   STUDENT_NOT_FOUND: {
     code: 'STUDENT_NOT_FOUND',
     message: 'No Student exists with provided attributes',
