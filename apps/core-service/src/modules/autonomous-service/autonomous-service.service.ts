@@ -21,6 +21,7 @@ import { CreateInvitationDto } from './dtos/create-invitation.dto';
 import { UserService } from '../user/user.service';
 import { EInvitationStatus } from './enums/invitation-status.enum';
 import { Invitation } from './entities/invitation.entity';
+import { UpdateInvitationStageDto } from './dtos/invitation-dto';
 
 @Injectable()
 export class AutonomousServiceService {
@@ -33,7 +34,7 @@ export class AutonomousServiceService {
     private invitationRepository: Repository<Invitation>,
     private readonly minioClientService: MinioClientService,
     private readonly subjectService: SubjectsService,
-    private readonly exceptionHander: ExceptionHandler,
+    private readonly exceptionHandler: ExceptionHandler,
     private readonly userService: UserService,
   ) {}
 
@@ -46,7 +47,7 @@ export class AutonomousServiceService {
       createAutonomousServiceDto.projectTitle,
     );
     if (existingAutonomousService) {
-      this.exceptionHander.throwConflict(
+      this.exceptionHandler.throwConflict(
         _409.AUTONOMOUS_SERVICE_ALREADY_EXISTS,
       );
     }
@@ -84,6 +85,7 @@ export class AutonomousServiceService {
         tutor: {
           id: loggedInUser.id,
         },
+        status: EInvitationStatus.PENDING,
       };
     } else {
       whereClause.student = {
@@ -201,15 +203,11 @@ export class AutonomousServiceService {
           status: true,
           createdAt: true,
           updatedAt: true,
-          invitation: {
+          user: {
             id: true,
-            status: true,
-            tutor: {
-              id: true,
-              firstName: true,
-              lastName: true,
-              profilePicture: true,
-            },
+            firstName: true,
+            lastName: true,
+            email: true,
           },
         },
         invitations: {
@@ -227,7 +225,7 @@ export class AutonomousServiceService {
       },
     });
     if (!service) {
-      this.exceptionHander.throwNotFound(_404.AUTONOMOUS_SERVICE_NOT_FOUND);
+      this.exceptionHandler.throwNotFound(_404.AUTONOMOUS_SERVICE_NOT_FOUND);
     }
     return service;
   }
@@ -247,7 +245,7 @@ export class AutonomousServiceService {
       relations: ['autonomousService'],
     });
     if (!bid) {
-      this.exceptionHander.throwNotFound(_404.BID_NOT_FOUND);
+      this.exceptionHandler.throwNotFound(_404.BID_NOT_FOUND);
     }
     return bid;
   }
@@ -257,15 +255,19 @@ export class AutonomousServiceService {
     serviceId: string,
     loggedInUser: User,
   ) {
-    const [autonomousService, invitation] = await Promise.all([
+    const [autonomousService] = await Promise.all([
       this.getAutonomousServiceById(serviceId),
-      this.getInvitationByTutorAndService(loggedInUser.id, serviceId),
     ]);
     const bid = this.bidRepository.create({
       bidAmount: submitBidDto.bidAmount,
       description: submitBidDto.description,
       autonomousService,
-      invitation,
+      user: {
+        id: loggedInUser.id,
+        firstName: loggedInUser.firstName,
+        lastName: loggedInUser.lastName,
+        email: loggedInUser.email,
+      },
     });
     autonomousService.status = EAutonomousServiceStatus.BIDS_SUBMITTED;
     const [updatedBid, updatedService] = await Promise.all([
@@ -292,11 +294,13 @@ export class AutonomousServiceService {
     return await this.bidRepository.save(bid);
   }
 
-  async acceptOrRejectBid(bidId: string, action: 'accept' | 'reject') {
+  async acceptOrRejectBid(bidId: string, action: EBidStatus, user: User) {
     const bid = await this.getBidById(bidId);
-    if (action === 'accept') {
+    if (action === EBidStatus.ACCEPTED) {
       bid.status = EBidStatus.ACCEPTED;
-      bid.autonomousService.status = EAutonomousServiceStatus.IN_PROGRESS;
+      if (user.role === EUserRole.STUDENT) {
+        bid.autonomousService.status = EAutonomousServiceStatus.IN_PROGRESS;
+      }
     } else {
       bid.status = EBidStatus.REJECTED;
     }
@@ -355,7 +359,7 @@ export class AutonomousServiceService {
       relations: ['autonomousService', 'tutor'],
     });
     if (!invitation) {
-      this.exceptionHander.throwNotFound(
+      this.exceptionHandler.throwNotFound(
         _404.YOU_ARE_NOT_INVITED_TO_JOIN_THIS_SERVICE,
       );
     }
@@ -368,7 +372,7 @@ export class AutonomousServiceService {
       relations: ['autonomousService', 'tutor'],
     });
     if (!invitation) {
-      this.exceptionHander.throwNotFound(
+      this.exceptionHandler.throwNotFound(
         _404.YOU_ARE_NOT_INVITED_TO_JOIN_THIS_SERVICE,
       );
     }
@@ -379,5 +383,48 @@ export class AutonomousServiceService {
     const invitation = await this.getInvitationById(invitationId);
     invitation.status = EInvitationStatus.PENDING;
     return await this.invitationRepository.save(invitation);
+  }
+  async moveInvitationToPending(dto: UpdateInvitationStageDto) {
+    const autonomousService = await this.getAutonomousServiceById(
+      dto.autonomousServiceId,
+    );
+    if (!autonomousService) {
+      this.exceptionHandler.throwNotFound(_404.AUTONOMOUS_SERVICE_NOT_FOUND);
+    }
+
+    const invitations = await this.invitationRepository.find({
+      where: {
+        autonomousService: { id: dto.autonomousServiceId },
+        tutor: { id: In(dto.tutorIds) },
+        status: EInvitationStatus.INITIATED,
+      },
+      relations: ['tutor'],
+    });
+    invitations.forEach((invitation) => {
+      invitation.status = EInvitationStatus.PENDING;
+    });
+    return await this.invitationRepository.save(invitations);
+  }
+
+  async deleteInvitations(dto: UpdateInvitationStageDto) {
+    const autonomousService = await this.getAutonomousServiceById(
+      dto.autonomousServiceId,
+    );
+    if (!autonomousService) {
+      this.exceptionHandler.throwNotFound(_404.AUTONOMOUS_SERVICE_NOT_FOUND);
+    }
+
+    const invitations = await this.invitationRepository.find({
+      where: {
+        autonomousService: { id: dto.autonomousServiceId },
+        tutor: { id: In(dto.tutorIds) },
+        status: EInvitationStatus.INITIATED,
+      },
+      relations: ['tutor'],
+    });
+    if (invitations.length === 0) {
+      this.exceptionHandler.throwNotFound(_404.INVITATION_NOT_FOUND);
+    }
+    await this.invitationRepository.remove(invitations);
   }
 }

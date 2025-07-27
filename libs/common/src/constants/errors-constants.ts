@@ -187,6 +187,10 @@ export const _404 = {
     code: 'STUDENT_NOT_FOUND',
     message: 'No Student exists with provided attributes',
   },
+  INVITATION_NOT_FOUND: {
+    code: 'INVITATION_NOT_FOUND',
+    message: 'No Invitation exists with provided attributes',
+  },
 
   PORTFOLIO_NOT_FOUND: {
     code: 'PORTFOLIO_NOT_FOUND',

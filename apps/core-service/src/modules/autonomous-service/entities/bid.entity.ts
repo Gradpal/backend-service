@@ -3,6 +3,8 @@ import { Column, Entity, JoinColumn, ManyToOne, OneToOne } from 'typeorm';
 import { AutonomousService } from './autonomous-service.entity';
 import { EBidStatus } from '../enums/bid-status.enum';
 import { Invitation } from './invitation.entity';
+import { User } from '@core-service/modules/user/entities/user.entity';
+import { PartialUser } from '../dtos/partial-user.dto';
 
 @Entity({ name: 'bid' })
 export class Bid extends BaseEntity {
@@ -32,8 +34,6 @@ export class Bid extends BaseEntity {
     default: EBidStatus.PENDING,
   })
   status: EBidStatus;
-
-  @OneToOne(() => Invitation, { nullable: true })
-  @JoinColumn({ name: 'invitation_id' })
-  invitation: Invitation;
+  @Column({ type: 'jsonb', nullable: true })
+  user: PartialUser;
 }
