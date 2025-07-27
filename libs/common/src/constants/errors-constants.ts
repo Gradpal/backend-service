@@ -16,6 +16,14 @@ export const _400 = {
     code: 'PORTFOLIO_NOT_OWNER',
     message: 'The portfolio is not owned by the logged in user',
   },
+  TIME_SLOT_ALREADY_BOOKED: {
+    code: 'TIME_SLOT_ALREADY_BOOKED',
+    message: 'The time slot is already booked',
+  },
+  INVALID_TIMESLOTS: {
+    code: 'INVALID_TIMESLOTS',
+    message: 'The provided time slots are invalid',
+  },
   INVALID_OTP: {
     code: 'INVALID_OTP',
     message: 'The OTP you have provided is invalid ',
@@ -249,6 +257,10 @@ export const _404 = {
   NATIONAL_PORTAL_NOT_FOUND: {
     code: 'NATIONAL_PORTAL_NOT_FOUND',
     message: 'The requested national portal was not found',
+  },
+  TIME_SLOT_NOT_FOUND: {
+    code: 'TIME_SLOT_NOT_FOUND',
+    message: 'The requested time slot was not found',
   },
 
   //complaints

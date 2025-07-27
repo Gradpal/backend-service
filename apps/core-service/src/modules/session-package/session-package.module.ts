@@ -13,6 +13,7 @@ import { SubjectsModule } from '../subjects/subjects.module';
 import { CoreServiceConfigModule } from '@core-service/configs/core-service-config.module';
 import { PortfolioModule } from '../portfolio/portfolio.module';
 import { PackageOffering } from './entities/package-offering.entity';
+import { TimeSlot } from '../portfolio/weekly-availability/entities/weeky-availability.entity';
 @Module({
   imports: [
     ClassSessionModule,
@@ -21,6 +22,7 @@ import { PackageOffering } from './entities/package-offering.entity';
       PackageType,
       ClassSession,
       PackageOffering,
+      TimeSlot,
     ]),
     MinioClientModule,
     BrainModule,
