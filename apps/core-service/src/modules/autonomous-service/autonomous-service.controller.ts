@@ -31,6 +31,7 @@ import { SessionReviewDto } from '../class-session/dto/session-review.dto';
 import { EAutonomousServiceStatus } from './enums/autonomous-service-status.enum';
 import { CreateInvitationDto } from './dtos/create-invitation.dto';
 import { EInvitationStatus } from './enums/invitation-status.enum';
+import { UpdateInvitationStageDto } from './dtos/invitation-dto';
 
 @Controller('autonomous-service')
 @ApiTags('Autonomous Service')
@@ -195,8 +196,12 @@ export class AutonomousServiceController {
     description: 'The bid has been successfully accepted.',
   })
   @ApiParam({ name: 'bidId', description: 'Bid ID' })
-  async acceptBid(@Param('bidId') bidId: string) {
-    return this.autonomousServiceService.acceptOrRejectBid(bidId, 'accept');
+  async acceptBid(@Param('bidId') bidId: string, @Req() req) {
+    return this.autonomousServiceService.acceptOrRejectBid(
+      bidId,
+      'accept',
+      req.user as User,
+    );
   }
 
   @Patch('bid/:bidId/reject')
@@ -207,8 +212,12 @@ export class AutonomousServiceController {
     description: 'The bid has been successfully rejected.',
   })
   @ApiParam({ name: 'bidId', description: 'Bid ID' })
-  async rejectBid(@Param('bidId') bidId: string) {
-    return this.autonomousServiceService.acceptOrRejectBid(bidId, 'reject');
+  async rejectBid(@Param('bidId') bidId: string, @Req() req) {
+    return this.autonomousServiceService.acceptOrRejectBid(
+      bidId,
+      'reject',
+      req.user as User,
+    );
   }
 
   @Patch(':serviceId/review')
@@ -271,5 +280,30 @@ export class AutonomousServiceController {
     @Query('status') status: EInvitationStatus,
   ) {
     return this.autonomousServiceService.getInvitations(serviceId, status);
+  }
+
+  @Patch('/invitations/move-to-pending')
+  @ApiOperation({ summary: 'Move initiated invitations to pending stage' })
+  @ApiResponse({
+    status: 200,
+    description: 'Invitations moved to pending successfully',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Autonomous service or invitations not found',
+  })
+  async moveInvitationToPending(@Body() dto: UpdateInvitationStageDto) {
+    return this.autonomousServiceService.moveInvitationToPending(dto);
+  }
+
+  @Patch('/invitations/delete')
+  @ApiOperation({ summary: 'Delete initiated invitations for tutors' })
+  @ApiResponse({ status: 200, description: 'Invitations deleted successfully' })
+  @ApiResponse({
+    status: 404,
+    description: 'Autonomous service or invitations not found',
+  })
+  async deleteInitiatedInvitations(@Body() dto: UpdateInvitationStageDto) {
+    return this.autonomousServiceService.deleteInvitations(dto);
   }
 }
