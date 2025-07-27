@@ -161,6 +161,21 @@ export class AuthService {
 
     return savedUserObject;
   }
+
+  async verifyAdditionalEmail(
+    dto: ActivateAccount,
+    loggedInUser: User,
+  ): Promise<User | any> {
+    await this.verifyOtp(dto.email, dto.otp);
+    const additionalEmails = loggedInUser?.secondEmails || [];
+    if (!additionalEmails.includes(dto.email)) {
+      additionalEmails.push(dto.email);
+    }
+    loggedInUser.secondEmails = additionalEmails;
+    await this.userService.saveUser(loggedInUser);
+    return loggedInUser;
+  }
+
   async sendOpt(email: string, isResetPassword: boolean = false) {
     const account: User = await this.userService.findByEmail(email, false);
     const otpId = isResetPassword ? account.id : email;

@@ -7,6 +7,7 @@ import { ActivateAccount } from './dto/activate-account.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { User } from '../user/entities/user.entity';
 import { ForgotPasswordDTO } from './dto/forgot-password.dto';
+import { AuthUser } from '@core-service/decorators/auth.decorator';
 
 @Controller('auth')
 @ApiTags('Auth')
@@ -44,8 +45,12 @@ export class AuthController {
   @Public()
   @Post('/verify-email-additional-email')
   @ApiBody({ type: ActivateAccount })
-  async verifyEmailAdditionalEmail(@Body() dto: ActivateAccount) {
-    const activatedAccount = await this.authService.verifyAccount(dto, false);
+  @AuthUser()
+  async verifyEmailAdditionalEmail(@Body() dto: ActivateAccount, @Req() req) {
+    const activatedAccount = await this.authService.verifyAdditionalEmail(
+      dto,
+      req.user as User,
+    );
     return activatedAccount;
   }
   @Public()

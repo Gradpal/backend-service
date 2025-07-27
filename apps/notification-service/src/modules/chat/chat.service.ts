@@ -139,11 +139,7 @@ export class ChatService {
           status: EConversationStatus.ACTIVE,
         });
         await this.conversationRepository.save(conversation);
-        Logger.log(`Created dummy conversation with ID: ${conversation.id}`);
       }
-
-      Logger.log(`Processing ${files.length} files for upload`);
-
       let sharedFiles = [];
       if (files.length > 0) {
         const sharedFilesObservables =
@@ -155,8 +151,6 @@ export class ChatService {
 
         sharedFiles = sharedFilesResult.result || [];
       }
-
-      console.log('owner', sender);
 
       const message = this.messageRepository.create({
         ...createMessageDto,
@@ -218,8 +212,10 @@ export class ChatService {
   ) {
     const query = this.conversationRepository
       .createQueryBuilder('conversation')
-      .where(`conversation.sender->>'id' = :senderId`, { senderId })
-      .orWhere(`conversation.receiver->>'id' = :receiverId`, { receiverId });
+      .where(
+        `(conversation.sender->>'id' = :senderId AND conversation.receiver->>'id' = :receiverId) OR (conversation.sender->>'id' = :receiverId AND conversation.receiver->>'id' = :senderId)`,
+        { senderId: senderId, receiverId: receiverId },
+      );
 
     return query.getOne();
   }
