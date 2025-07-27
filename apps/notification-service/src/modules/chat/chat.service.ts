@@ -139,11 +139,7 @@ export class ChatService {
           status: EConversationStatus.ACTIVE,
         });
         await this.conversationRepository.save(conversation);
-        Logger.log(`Created dummy conversation with ID: ${conversation.id}`);
       }
-
-      Logger.log(`Processing ${files.length} files for upload`);
-
       let sharedFiles = [];
       if (files.length > 0) {
         const sharedFilesObservables =
