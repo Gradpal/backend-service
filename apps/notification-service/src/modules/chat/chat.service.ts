@@ -152,8 +152,6 @@ export class ChatService {
         sharedFiles = sharedFilesResult.result || [];
       }
 
-      console.log('owner', sender);
-
       const message = this.messageRepository.create({
         ...createMessageDto,
         conversation,
@@ -214,8 +212,10 @@ export class ChatService {
   ) {
     const query = this.conversationRepository
       .createQueryBuilder('conversation')
-      .where(`conversation.sender->>'id' = :senderId`, { senderId })
-      .orWhere(`conversation.receiver->>'id' = :receiverId`, { receiverId });
+      .where(
+        `(conversation.sender->>'id' = :senderId AND conversation.receiver->>'id' = :receiverId) OR (conversation.sender->>'id' = :receiverId AND conversation.receiver->>'id' = :senderId)`,
+        { senderId: senderId, receiverId: receiverId },
+      );
 
     return query.getOne();
   }
