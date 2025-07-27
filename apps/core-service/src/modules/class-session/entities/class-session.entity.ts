@@ -51,6 +51,13 @@ export class ClassSession extends BaseEntity {
   @Column({ default: null, nullable: true })
   extensionTime: Date;
 
+  @Column({
+    type: 'timestamp',
+    nullable: true,
+    default: () => 'CURRENT_TIMESTAMP',
+  })
+  sessionDate: Date;
+
   @ManyToOne(() => TimeSlot)
   @JoinColumn({ name: 'time_slot_id' })
   timeSlot: TimeSlot;

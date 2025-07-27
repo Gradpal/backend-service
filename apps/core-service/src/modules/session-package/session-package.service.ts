@@ -25,12 +25,14 @@ import {
   CreateClassSessionPackageDto,
   CreatePackageTypeDto,
   AddSessionsDetailsDto,
+  TimeSlotSessionDateDto,
 } from './dto/create-session-package.dto';
 import { createPaginatedResponse } from '@app/common/helpers/pagination.helper';
 import { AcceptPackageSessionDto } from '../finance/dtos/accept-package-session.dto';
 import { PackageStatus } from './enums/paclage-status.enum';
 import { PackageOffering } from './entities/package-offering.entity';
 import { UpdatePackageDto } from './dto/update-session-package.dto';
+import { TimeSlot } from '../portfolio/weekly-availability/entities/weeky-availability.entity';
 
 @Injectable()
 export class SessionPackageService {
@@ -43,6 +45,8 @@ export class SessionPackageService {
     private readonly classSessionRepository: Repository<ClassSession>,
     @InjectRepository(PackageOffering)
     private readonly packageOfferingRepository: Repository<PackageOffering>,
+    @InjectRepository(TimeSlot)
+    private readonly timeSlotRepository: Repository<TimeSlot>,
     @Inject(forwardRef(() => UserService))
     private readonly userService: UserService,
     private readonly exceptionHandler: ExceptionHandler,
@@ -71,87 +75,113 @@ export class SessionPackageService {
       relations: ['packageType'],
     });
 
-    const sessions = [];
+    if (!packageOffering) {
+      this.exceptionHandler.throwNotFound(_404.PACKAGE_OFFERING_NOT_FOUND);
+    }
 
-    const { ...sessionData } = createClassSessionPackageDto;
+    const timeSlotSessions = normalizeArray(
+      createClassSessionPackageDto.timeSlots,
+    ) as TimeSlotSessionDateDto[];
 
-    const timeSlotIds = normalizeArray(
-      createClassSessionPackageDto.timeSlotIds,
-    );
-    const timeslots = [];
-
-    if (timeSlotIds.length > 0) {
-      for (const timeSlotId of timeSlotIds) {
-        const timeSlot =
-          await this.weeklyAvailabilityService.findOne(timeSlotId);
-        timeslots.push(timeSlot);
-      }
+    if (!Array.isArray(timeSlotSessions) || timeSlotSessions.length === 0) {
+      this.exceptionHandler.throwBadRequest(_400.INVALID_TIMESLOTS);
     }
 
     const createdAt = new Date();
     const updatedAt = createdAt;
+
+    const sessions = [];
+
+    const firstTimeSlot = await this.weeklyAvailabilityService.findOne(
+      timeSlotSessions[0].timeSlotId,
+    );
+    if (!firstTimeSlot) {
+      this.exceptionHandler.throwNotFound(_404.TIME_SLOT_NOT_FOUND);
+    }
+
+    const tutor = firstTimeSlot.owner;
+
     let sessionPackage = this.sessionPackageRepository.create({
       sessionPackageType: packageOffering,
-      tutor: student,
+      tutor: tutor,
       student: student,
     });
     sessionPackage = await this.sessionPackageRepository.save(sessionPackage);
 
-    for (const timeSlot of timeslots) {
+    for (const {
+      timeSlotId,
+      sessionDate,
+    } of timeSlotSessions as TimeSlotSessionDateDto[]) {
+      const timeSlot = await this.weeklyAvailabilityService.findOne(timeSlotId);
+      if (!timeSlot) {
+        this.exceptionHandler.throwNotFound(_404.TIME_SLOT_NOT_FOUND);
+      }
+
+      if (timeSlot.isBooked) {
+        this.exceptionHandler.throwBadRequest(_400.TIME_SLOT_ALREADY_BOOKED);
+      }
+      timeSlot.isBooked = true;
+      await this.timeSlotRepository.save(timeSlot);
+
       const subjectTier =
         await this.subjectTierService.findSubjectTierWhichHasSubjectByTutorId(
-          timeSlot.owner.id,
-          sessionData.subjectId,
+          tutor.id,
+          createClassSessionPackageDto.subjectId,
         );
-      sessionPackage.tutor = timeSlot.owner;
-      sessionPackage = await this.sessionPackageRepository.save(sessionPackage);
 
-      // Price calculation
-      const price =
+      const sessionPrice =
         (subjectTier.credits *
           (createClassSessionPackageDto.sessionLength / 60) *
           packageOffering.discount) /
         100;
 
-      let session = this.classSessionRepository.create({
-        ...sessionData,
+      if (student.credits < subjectTier.credits) {
+        this.exceptionHandler.throwBadRequest(_400.INSUFFICIENT_CREDITS);
+      }
+
+      const session = this.classSessionRepository.create({
+        ...createClassSessionPackageDto,
         status: ESessionStatus.SCHEDULED,
-        subject: { id: sessionData.subjectId },
-        price: price,
-        timeSlot: timeSlot,
-        sessionPackage: sessionPackage,
+        subject: { id: createClassSessionPackageDto.subjectId },
+        price: sessionPrice,
+        timeSlot,
+        sessionDate: new Date(sessionDate),
+        sessionPackage,
         sessionTimelines: [
           {
             type: SessionTimelineType.REQUEST_SUBMITTED,
             description: 'Session request submitted',
             actor: student,
-            createdAt: createdAt,
-            updatedAt: updatedAt,
+            createdAt,
+            updatedAt,
           },
           {
             type: SessionTimelineType.PAYMENT_PROCESSED,
             description: 'Payment processed',
             actor: student,
-            createdAt: createdAt,
-            updatedAt: updatedAt,
+            createdAt,
+            updatedAt,
           },
         ],
       });
-      sessions.push(session);
 
       student.credits -= subjectTier.credits;
 
-      const meetId = generateUUID();
-      session = await this.classSessionRepository.save(session);
-      const sessionMeetLink = `${this.coreServiceConfigService.getMeetHost()}/join?sessionId=${session.id}&meetId=${meetId}`;
-      const key = `${MEETING_CACHE.name}:${session.id}`;
-      await this.brainService.memorize(key, meetId);
+      const savedSession = await this.classSessionRepository.save(session);
 
-      session.meetLink = sessionMeetLink;
+      const meetId = generateUUID();
+      const sessionMeetLink = `${this.coreServiceConfigService.getMeetHost()}/join?sessionId=${savedSession.id}&meetId=${meetId}`;
+      const cacheKey = `${MEETING_CACHE.name}:${savedSession.id}`;
+      await this.brainService.memorize(cacheKey, meetId);
+
+      savedSession.meetLink = sessionMeetLink;
+
       await Promise.all([
         this.userService.save(student),
-        this.classSessionRepository.save(session),
+        this.classSessionRepository.save(savedSession),
       ]);
+
+      sessions.push(savedSession);
     }
     return await this.getSessionPackageById(sessionPackage.id);
   }

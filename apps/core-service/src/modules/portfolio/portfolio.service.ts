@@ -712,7 +712,7 @@ export class PortfolioService {
       .leftJoinAndSelect(
         'user.timeSlots',
         'timeSlots',
-        'timeSlots.status = :status',
+        'timeSlots.status = :status AND timeSlots.isBooked = false',
         { status: ETimeSlotStatus.ACTIVE },
       )
       .leftJoinAndSelect('timeSlots.daySchedule', 'daySchedule')
