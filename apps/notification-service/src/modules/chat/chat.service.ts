@@ -73,8 +73,6 @@ export class ChatService {
       const sender = await lastValueFrom(
         senderObservable as unknown as Observable<any>,
       );
-      console.log(' --- receiver --- ', receiver);
-      console.log('--- sender --- ', sender);
 
       if (!conversation) {
         conversation = this.conversationRepository.create({
@@ -96,7 +94,6 @@ export class ChatService {
         buffer: file.buffer.toString('base64'), // Convert buffer to base64 string
       }));
 
-      console.log('===conversation ==== ', conversation);
       const payload = {
         conversationId: conversation.id,
         createMessageDto,
@@ -119,6 +116,19 @@ export class ChatService {
     }
   }
 
+  async existsByOwner(sender: MessageOwner, content: string) {
+    const query = this.messageRepository
+      .createQueryBuilder('message')
+      .where(`message.owner->>'id' = :userId`, { userId: sender.id })
+      .andWhere(`message.content = :content`, {
+        content: content,
+      });
+
+    const message = await query.getOne();
+    console.log('======= message ======= ', message);
+    return !!message;
+  }
+
   async createMessage(
     sender: MessageOwner,
     receiver: MessageOwner,
@@ -130,7 +140,6 @@ export class ChatService {
         sender.id,
         receiver.id,
       );
-      console.log('--- conversation --- ', conversation);
 
       if (!conversation) {
         conversation = this.conversationRepository.create({
@@ -151,7 +160,6 @@ export class ChatService {
 
         sharedFiles = sharedFilesResult.result || [];
       }
-
       const message = this.messageRepository.create({
         ...createMessageDto,
         conversation,
