@@ -22,7 +22,7 @@ import {
 } from '@nestjs/swagger';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { AuthUser } from '@notification-service/common/decorators/auth-checker.decorator';
-import { MessageOwnerDto } from './dtos/message-owner.dto';
+import { MessageOwner } from './dtos/message-owner.dto';
 
 @Controller('chat')
 @ApiTags('Chat')
@@ -44,7 +44,7 @@ export class ChatController {
     return this.chatService.sendMessage(
       createMessageDto,
       receiverId,
-      request.user as MessageOwnerDto,
+      request.user as MessageOwner,
       sharedFiles,
     );
   }

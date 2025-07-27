@@ -1,6 +1,6 @@
 import { ENotificationMessageType } from '@app/common/enums/notification-message-type.enum';
 import { CreateMessageDto } from '@notification-service/modules/chat/dtos/create-message.dto';
-import { MessageOwnerDto } from '@notification-service/modules/chat/dtos/message-owner.dto';
+import { MessageOwner } from '@notification-service/modules/chat/dtos/message-owner.dto';
 
 export interface Recipient {
   userId: string;
@@ -25,8 +25,8 @@ export interface SerializedFile {
 export interface MessageQueuePayload {
   conversationId: string;
   createMessageDto: CreateMessageDto;
-  receiver: MessageOwnerDto;
-  sender: MessageOwnerDto;
+  receiver: MessageOwner;
+  sender: MessageOwner;
   files: SerializedFile[];
   recipients: string[];
 }

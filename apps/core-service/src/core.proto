@@ -45,9 +45,6 @@ message LoadChartUserByIdResponse {
   string role = 4;
   string profilePicture = 5;
 }
-message LoadChartUserByIdResponseList {
-  repeated LoadChartUserByIdResponse result = 1;
-}
 
 
 

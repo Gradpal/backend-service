@@ -574,7 +574,9 @@ export class UserService {
         status: true,
       },
     });
-    return { result: user ? [user] : [] };
+    console.log('--- user --- ', user);
+    return user;
+    // return { result: user ? [user] : [] };
   }
   async getMyChildren(parentId: string) {
     return await this.userRepository.find({
