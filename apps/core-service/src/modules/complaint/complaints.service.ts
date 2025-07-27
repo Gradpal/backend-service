@@ -52,8 +52,9 @@ export class ComplaintsService {
     const complaintExists =
       await this.existsByDescriptionAndSessionAndIssueTypeAndPriority(
         createComplaintDto.description,
-        session,
         createComplaintDto.issueType,
+        session,
+        service,
       );
     if (complaintExists) {
       this.exceptionHandler.throwBadRequest(_409.COMPLAINT_ALREADY_EXISTS);
@@ -79,16 +80,24 @@ export class ComplaintsService {
 
   async existsByDescriptionAndSessionAndIssueTypeAndPriority(
     description: string,
-    session: ClassSession,
     issueType: ComplaintIssueType,
-  ) {
-    const complaint = await this.complaintRepository.findOne({
-      where: {
-        description: description,
-        session: { id: session.id },
-        issueType: issueType,
-      },
-    });
+    session?: ClassSession,
+    service?: AutonomousService,
+  ): Promise<boolean> {
+    const where: any = {
+      description,
+      issueType,
+    };
+
+    if (session) {
+      where.session = { id: session.id };
+    }
+
+    if (service) {
+      where.autonomousService = { id: service.id };
+    }
+
+    const complaint = await this.complaintRepository.findOne({ where });
     return !!complaint;
   }
 
