@@ -9,7 +9,7 @@ import {
 import { Logger } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { JwtService } from '@nestjs/jwt';
-import { MessageOwnerDto } from '@notification-service/modules/chat/dtos/message-owner.dto';
+import { MessageOwner } from '@notification-service/modules/chat/dtos/message-owner.dto';
 
 class AuthChecker implements NestInterceptor {
   private readonly logger = new Logger('RequestLogger');
@@ -26,7 +26,7 @@ class AuthChecker implements NestInterceptor {
     const token = authHeader.split(' ')[1];
     try {
       const payload = this.jwtService.verify(token, { secret: 'secret' });
-      const user = new MessageOwnerDto();
+      const user = new MessageOwner();
       user.id = payload.id;
       user.firstName = payload.firstName;
       user.lastName = payload.lastName;

@@ -23,7 +23,7 @@ import {
 } from '@app/common/constants/rabbitmq-constants';
 import { ExceptionHandler } from '@app/common/exceptions/exceptions.handler';
 import { UserService } from '@core-service/modules/user/user.service';
-import { MessageOwnerDto } from './dtos/message-owner.dto';
+import { MessageOwner } from './dtos/message-owner.dto';
 
 @Injectable()
 export class ChatService {
@@ -49,7 +49,7 @@ export class ChatService {
   async sendMessage(
     createMessageDto: CreateMessageDto,
     receiverId: string,
-    messageOwner: MessageOwnerDto,
+    messageOwner: MessageOwner,
     files: Express.Multer.File[],
   ) {
     try {
@@ -73,6 +73,9 @@ export class ChatService {
       const sender = await lastValueFrom(
         senderObservable as unknown as Observable<any>,
       );
+      console.log(' --- receiver --- ', receiver);
+      console.log('--- sender --- ', sender);
+
       if (!conversation) {
         conversation = this.conversationRepository.create({
           sender: sender,
@@ -93,6 +96,7 @@ export class ChatService {
         buffer: file.buffer.toString('base64'), // Convert buffer to base64 string
       }));
 
+      console.log('===conversation ==== ', conversation);
       const payload = {
         conversationId: conversation.id,
         createMessageDto,
@@ -116,8 +120,8 @@ export class ChatService {
   }
 
   async createMessage(
-    sender: MessageOwnerDto,
-    receiver: MessageOwnerDto,
+    sender: MessageOwner,
+    receiver: MessageOwner,
     createMessageDto: CreateMessageDto,
     files: Express.Multer.File[],
   ) {
@@ -132,6 +136,7 @@ export class ChatService {
           receiver,
           status: EConversationStatus.ACTIVE,
         });
+        console.log('conversation', conversation);
         await this.conversationRepository.save(conversation);
         Logger.log(`Created dummy conversation with ID: ${conversation.id}`);
       }
@@ -148,8 +153,9 @@ export class ChatService {
         );
 
         sharedFiles = sharedFilesResult.result || [];
-        Logger.log(`Uploaded ${sharedFiles.length} files successfully`);
       }
+
+      console.log('owner', sender);
 
       const message = this.messageRepository.create({
         ...createMessageDto,
@@ -157,14 +163,13 @@ export class ChatService {
         sharedFiles,
         owner: sender,
       });
-
       const savedMessage = await this.messageRepository.save(message);
+
       conversation.latestMessages = [
         ...(conversation.latestMessages || []),
         savedMessage,
       ];
       await this.conversationRepository.save(conversation);
-      Logger.log(`Message created successfully with ID: ${savedMessage.id}`);
 
       return savedMessage;
     } catch (error) {
@@ -178,9 +183,11 @@ export class ChatService {
   }
 
   async getConversations(userId: string) {
-    return this.conversationRepository.find({
-      where: [{ sender: { id: userId } }, { receiver: { id: userId } }],
-    });
+    return this.conversationRepository
+      .createQueryBuilder('conversation')
+      .where(`conversation.sender->>'id' = :userId`, { userId })
+      .orWhere(`conversation.receiver->>'id' = :userId`, { userId })
+      .getMany();
   }
 
   async getMessages(conversationId: string) {
