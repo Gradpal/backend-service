@@ -77,10 +77,10 @@ export class ChatService {
       if (!conversation) {
         conversation = this.conversationRepository.create({
           sender: sender,
-          receiver,
+          receiver: receiver,
           status: EConversationStatus.ACTIVE,
         });
-        await this.conversationRepository.save(conversation);
+        conversation = await this.conversationRepository.save(conversation);
       }
 
       const recipients = [conversation.sender.id, conversation.receiver.id];
@@ -93,12 +93,14 @@ export class ChatService {
         size: file.size,
         buffer: file.buffer.toString('base64'), // Convert buffer to base64 string
       }));
+      console.log('======= sender ======= ', conversation.sender);
+      console.log('======= receiver ======= ', conversation.receiver);
 
       const payload = {
         conversationId: conversation.id,
         createMessageDto,
-        receiver: conversation.receiver,
-        sender: conversation.sender,
+        receiver: receiver,
+        sender: sender,
         files: serializedFiles,
         recipients,
       };
@@ -172,6 +174,7 @@ export class ChatService {
         sharedFiles,
         owner: sender,
       });
+      console.log('======= sender ======= ', sender);
       const savedMessage = await this.messageRepository.save(message);
 
       conversation.latestMessages = [
