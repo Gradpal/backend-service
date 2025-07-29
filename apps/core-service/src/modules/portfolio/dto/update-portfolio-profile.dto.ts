@@ -43,7 +43,7 @@ export class UpdatePortfolioProfileDto {
   @ApiProperty({ required: false })
   @IsString()
   @IsOptional()
-  time_zone?: string;
+  timezone?: string;
 
   @ApiProperty({ required: false })
   @IsString()

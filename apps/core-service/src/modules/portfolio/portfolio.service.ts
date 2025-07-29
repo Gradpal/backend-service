@@ -351,8 +351,8 @@ export class PortfolioService {
     if (updateDataWithoutFiles.countryOfResidence) {
       portfolio.countryOfResidence = updateDataWithoutFiles.countryOfResidence;
     }
-    if (updateDataWithoutFiles.time_zone) {
-      portfolio.timezone = updateDataWithoutFiles.time_zone;
+    if (updateDataWithoutFiles.timezone) {
+      portfolio.timezone = updateDataWithoutFiles.timezone;
     }
     if (updateDataWithoutFiles.time_zone_display_format) {
       portfolio.time_zone_display_format =
