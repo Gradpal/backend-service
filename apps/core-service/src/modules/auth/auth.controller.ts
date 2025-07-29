@@ -69,6 +69,7 @@ export class AuthController {
   }
 
   @Get('/get-profile')
+  @AuthUser()
   async getProfile(@Req() req) {
     return req.user as User;
   }
