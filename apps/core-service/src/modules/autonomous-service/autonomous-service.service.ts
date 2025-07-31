@@ -72,13 +72,17 @@ export class AutonomousServiceService {
       autonomousService.attachments =
         await this.minioClientService.uploadAttachments({ files }, []);
     }
+
+    const service =
+      await this.autonomousServiceRepository.save(autonomousService);
     await this.notificationProcessor.sendTemplateEmail(
       EmailTemplates.AUTONOMOUS_SERVICE_CREATION,
       [loggedInUser.email],
       {
-        projectTitle: createAutonomousServiceDto.projectTitle,
+        studentName: loggedInUser.firstName,
+        serviceTitle: createAutonomousServiceDto.projectTitle,
         description: createAutonomousServiceDto.description,
-        subject: subject.name,
+        date: new Date().toLocaleString(),
       },
     );
 
@@ -99,7 +103,7 @@ export class AutonomousServiceService {
         },
       },
     });
-    return await this.autonomousServiceRepository.save(autonomousService);
+    return service;
   }
 
   async getAllServices(
@@ -306,6 +310,39 @@ export class AutonomousServiceService {
       this.bidRepository.save(bid),
       this.autonomousServiceRepository.save(autonomousService),
     ]);
+    this.notifyOnPlatform({
+      messageType: ENotificationMessageType.BID_SUBMITTED,
+      recipients: [{ userId: autonomousService.student.id }],
+      subject: 'Service Bid update',
+      metadata: {
+        content: {
+          title: 'Service Bid update',
+          description: `${loggedInUser.email} has submitted a bid for your service `,
+          body: `${loggedInUser.email} has submitted a bid for your service `,
+          subTitle: 'Service Bid update',
+        },
+        callToAction: {
+          id: autonomousService.id,
+        },
+      },
+    });
+    // tutor notification
+    this.notifyOnPlatform({
+      messageType: ENotificationMessageType.BID_SUBMITTED,
+      recipients: [{ userId: bid.user.id }],
+      subject: 'Service Bid update',
+      metadata: {
+        content: {
+          title: 'Service Bid update',
+          description: `You have successfully submitted your bid for ${autonomousService.student.firstName} on service ${autonomousService.projectTitle} `,
+          body: `You have successfully submitted your bid for ${autonomousService.student.firstName} on service ${autonomousService.projectTitle} `,
+          subTitle: 'Service Bid update',
+        },
+        callToAction: {
+          id: autonomousService.id,
+        },
+      },
+    });
     return {
       bid: updatedBid,
       service: updatedService,
@@ -323,7 +360,43 @@ export class AutonomousServiceService {
     } else {
       bid.studentCounterbidAmount = submitCounterBidDto.bidAmount;
     }
-    return await this.bidRepository.save(bid);
+    const updatedBid = await this.bidRepository.save(bid);
+    if (loggedInUser.role == EUserRole.TUTOR) {
+      this.notifyOnPlatform({
+        messageType: ENotificationMessageType.COUNTER_BID_SUBMITTED,
+        recipients: [{ userId: loggedInUser.id }],
+        subject: 'Service Bid update',
+        metadata: {
+          content: {
+            title: 'Service Bid update',
+            description: ` you have received counterbid from  ${bid.autonomousService.student.email}   `,
+            body: ` you have received counterbid from  ${bid.autonomousService.student.email}   `,
+            subTitle: 'Service Bid update',
+          },
+          callToAction: {
+            id: bid.autonomousService.id,
+          },
+        },
+      });
+    } else {
+      this.notifyOnPlatform({
+        messageType: ENotificationMessageType.COUNTER_BID_SUBMITTED,
+        recipients: [{ userId: loggedInUser.id }],
+        subject: 'Service Bid update',
+        metadata: {
+          content: {
+            title: 'Service Bid update',
+            description: ` you have sent counterbid to  ${bid.user.email}  `,
+            body: ` you have sent counterbid to  ${bid.user.email}  `,
+            subTitle: 'Service Bid update',
+          },
+          callToAction: {
+            id: bid.id,
+          },
+        },
+      });
+    }
+    return updatedBid;
   }
 
   async acceptOrRejectBid(bidId: string, action: EBidStatus, user: User) {
@@ -335,6 +408,83 @@ export class AutonomousServiceService {
       }
     } else {
       bid.status = EBidStatus.REJECTED;
+    }
+
+    if (action == EBidStatus.ACCEPTED) {
+      if (user.role == EUserRole.STUDENT) {
+        this.notifyOnPlatform({
+          messageType: ENotificationMessageType.BID_ACCEPTED,
+          recipients: [{ userId: user.id }],
+          subject: 'Service Bid update',
+          metadata: {
+            content: {
+              title: 'Service Bid update',
+              description: ` you have accepted ${bid.user.email}'s bid   `,
+              body: ` you have accepted ${bid.user.email}'s bid   `,
+              subTitle: 'Service Bid update',
+            },
+            callToAction: {
+              id: bid.autonomousService.id,
+            },
+          },
+        });
+      }
+
+      // tutor notification
+      this.notifyOnPlatform({
+        messageType: ENotificationMessageType.BID_ACCEPTED,
+        recipients: [{ userId: user.id }],
+        subject: 'Service Bid update',
+        metadata: {
+          content: {
+            title: 'Service Bid update',
+            description: ` your bid for  ${bid.autonomousService.student.firstName}'s ${bid.autonomousService}  has been  accepted   `,
+            body: ` your bid for  ${bid.autonomousService.student.firstName}'s ${bid.autonomousService}  has been  accepted   `,
+            subTitle: 'Service Bid update',
+          },
+          callToAction: {
+            id: bid.autonomousService.id,
+          },
+        },
+      });
+    } else {
+      //  student  notification
+      if (user.role == EUserRole.STUDENT) {
+        this.notifyOnPlatform({
+          messageType: ENotificationMessageType.BID_REJECTED,
+          recipients: [{ userId: user.id }],
+          subject: 'Service Bid update',
+          metadata: {
+            content: {
+              title: 'Service Bid update',
+              description: ` you have rejected ${bid.user.email}'s bid   `,
+              body: ` you have rejected ${bid.user.email}'s bid   `,
+              subTitle: 'Service Bid update',
+            },
+            callToAction: {
+              id: bid.autonomousService.id,
+            },
+          },
+        });
+      } else {
+        //tutor notification
+        this.notifyOnPlatform({
+          messageType: ENotificationMessageType.BID_REJECTED,
+          recipients: [{ userId: user.id }],
+          subject: 'Service Bid update',
+          metadata: {
+            content: {
+              title: 'Service Bid update',
+              description: ` your bid for  ${bid.autonomousService.student.firstName}'s ${bid.autonomousService}  has been  rejected   `,
+              body: ` your bid for  ${bid.autonomousService.student.firstName}'s ${bid.autonomousService}  has been  rejected    `,
+              subTitle: 'Service Bid update',
+            },
+            callToAction: {
+              id: bid.autonomousService.id,
+            },
+          },
+        });
+      }
     }
     const [updatedBid, updatedService] = await Promise.all([
       this.bidRepository.save(bid),
@@ -349,7 +499,25 @@ export class AutonomousServiceService {
     const service = await this.getAutonomousServiceById(serviceId);
     service.review = review;
     service.status = EAutonomousServiceStatus.COMPLETED;
-    return await this.autonomousServiceRepository.save(service);
+    const updatedService = await this.autonomousServiceRepository.save(service);
+    // student  notification
+    this.notifyOnPlatform({
+      messageType: ENotificationMessageType.COUNTER_BID_SUBMITTED,
+      recipients: [{ userId: service.student.id }],
+      subject: 'Service Progress update',
+      metadata: {
+        content: {
+          title: 'Service Progress update',
+          description: `  you marked the service ${service.projectTitle} as completed `,
+          body: `  you marked the service ${service.projectTitle} as completed `,
+          subTitle: 'Service progress update',
+        },
+        callToAction: {
+          id: service.id,
+        },
+      },
+    });
+    return updatedService;
   }
 
   async inviteTutor(createInvitationDto: CreateInvitationDto, tutorId: string) {
@@ -367,6 +535,8 @@ export class AutonomousServiceService {
           : EInvitationStatus.INITIATED,
         tutor,
       });
+      await this.invitationRepository.save(invitation);
+
       if (createInvitationDto.inviteDirectly) {
         // show platform  & email notification to student
         await this.notificationProcessor.sendTemplateEmail(
@@ -410,13 +580,13 @@ export class AutonomousServiceService {
         await this.notifyOnPlatform({
           messageType: ENotificationMessageType.INVITATION_SENT,
           recipients: [{ userId: tutor.id }],
-          subject: 'sent invitation to tutor',
+          subject: 'Service Update',
           metadata: {
             content: {
-              title: 'invitation sent',
-              description: `invitation  received from ${service.student.firstName} ${service.student.lastName} on subject ${service.subject.name} `,
-              subTitle: 'invitation sent',
-              body: `invitation  received from ${service.student.firstName} ${service.student.lastName} on subject ${service.subject.name} `,
+              title: 'Service Update',
+              description: `you have received an invitation to bid on new   ${service.subject.name} from ${service.student.firstName} ${service.student.lastName}  `,
+              body: `you have received an invitation to bid on new   ${service.subject.name} from ${service.student.firstName} ${service.student.lastName}  `,
+              subTitle: 'Service Update',
             },
             callToAction: {
               id: service.id,
@@ -424,24 +594,14 @@ export class AutonomousServiceService {
           },
         });
       } else {
-        await this.notificationProcessor.sendTemplateEmail(
-          EmailTemplates.INVITATION_SENT,
-          [service.student.email],
-          {
-            teacherName: tutor.email,
-            serviceTitle: service.projectTitle,
-            subject: service.subject.name,
-          },
-        );
         await this.notifyOnPlatform({
           messageType: ENotificationMessageType.INVITATION_CREATION,
           recipients: [{ userId: service.student.id }],
-          subject: 'invitation creation ',
+          subject: 'Service invitation update ',
           metadata: {
             content: {
-              title: 'invitation created',
-              description: `you have added   ${tutor.firstName} ${tutor.lastName}  to your invitation list and sent invitation for service ${service.projectTitle} `,
-              subTitle: 'invitation  sent',
+              title: 'Service invitation update ',
+              description: `you have  added    ${tutor.firstName} ${tutor.lastName}  to your invitation list`,
               body: `"invitation  for ${service.projectTitle} has been created `,
             },
             callToAction: {
@@ -450,8 +610,6 @@ export class AutonomousServiceService {
           },
         });
       }
-
-      await this.invitationRepository.save(invitation);
     });
   }
 
@@ -523,6 +681,11 @@ export class AutonomousServiceService {
         'autonomousService.student',
       ],
     });
+    invitations.forEach((invitation) => {
+      invitation.status = EInvitationStatus.PENDING;
+    });
+
+    await this.invitationRepository.save(invitations);
     invitations.forEach(async (invitation) => {
       await this.notificationProcessor.sendTemplateEmail(
         EmailTemplates.INVITATION_SENT,
@@ -549,10 +712,8 @@ export class AutonomousServiceService {
           },
         },
       });
-      invitation.status = EInvitationStatus.PENDING;
     });
-
-    return await this.invitationRepository.save(invitations);
+    return invitations;
   }
 
   async deleteInvitations(dto: UpdateInvitationStageDto) {
@@ -579,6 +740,8 @@ export class AutonomousServiceService {
     if (invitations.length === 0) {
       this.exceptionHandler.throwNotFound(_404.INVITATION_NOT_FOUND);
     }
+
+    await this.invitationRepository.delete(invitations.map((inv) => inv.id));
     invitations.forEach(async (invitation) => {
       await this.notificationProcessor.sendTemplateEmail(
         EmailTemplates.INVITATION_DELETED,
@@ -606,7 +769,6 @@ export class AutonomousServiceService {
         },
       });
     });
-    await this.invitationRepository.delete(invitations.map((inv) => inv.id));
   }
   async notifyOnPlatform(data: PlatformQueuePayload) {
     return await this.notificationProcessor.sendPlatformNotification(data);

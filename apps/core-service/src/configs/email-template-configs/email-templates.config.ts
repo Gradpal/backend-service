@@ -48,7 +48,7 @@ export const EMAIL_TEMPLATES_CONFIG = {
     dto: ParentInvitationEmailDto,
   },
   [EmailTemplates.AUTONOMOUS_SERVICE_CREATION]: {
-    subject: 'Service invitation creation ',
+    subject: '✅ Your Autonomous Service Request Has Been Posted',
     dto: AutonomousServiceCreationEmailDto,
   },
   [EmailTemplates.INVITATION_CREATION]: {

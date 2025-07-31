@@ -2,11 +2,13 @@ import { IsString } from 'class-validator';
 
 export class AutonomousServiceCreationEmailDto {
   @IsString()
-  projectTitle: string;
+  studentName: string;
+  @IsString()
+  serviceTitle: string;
   @IsString()
   description: string;
   @IsString()
-  subject: string;
+  date: string;
 }
 
 export class InvitationCreationEmailDto {
