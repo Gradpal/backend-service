@@ -17,6 +17,7 @@ import {
   ApiBearerAuth,
   ApiBody,
   ApiConsumes,
+  ApiParam,
   ApiQuery,
   ApiTags,
 } from '@nestjs/swagger';
@@ -123,16 +124,11 @@ export class ChatController {
   ) {
     return this.chatService.getConversations(userId, page, limit);
   }
-  @Get('conversations/:conversationId/shared-files')
-  async getAllFilesSharedInConversations(
-    @Param('conversationsId') conversationId: string,
+  @Get('conversations/:conversationId/shared-files-and-urls')
+  @ApiParam({ name: 'conversationId', type: String })
+  async getAllSharedFilesAndUrlsInConversation(
+    @Param('conversationId') conversationId: string,
   ) {
-    return this.chatService.getSharedFilesInConversation(conversationId);
-  }
-  @Get('conversations/:conversationId/shared-links')
-  async getAllKinksSharedInConversations(
-    @Param('conversationsId') conversationId: string,
-  ) {
-    return this.chatService.getSharedLinksInConversation(conversationId);
+    return this.chatService.getSharedFilesAndUrlsInConversation(conversationId);
   }
 }
