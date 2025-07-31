@@ -35,8 +35,12 @@ import { UpdatePackageDto } from './dto/update-session-package.dto';
 import { TimeSlot } from '../portfolio/weekly-availability/entities/weeky-availability.entity';
 import { ClientGrpc } from '@nestjs/microservices';
 import { NOTIFICATION_GRPC_PACKAGE } from '@app/common/constants/services-constants';
+<<<<<<< HEAD
 import { ChatService } from '@notification-service/modules/chat/chat.service';
 import { lastValueFrom, Observable } from 'rxjs';
+=======
+import { ChatService } from '@core-service/integrations/notification/interfaces/chat-service.interface';
+>>>>>>> deb8fd1 (fix: fixed getting shared files)
 
 @Injectable()
 export class SessionPackageService {
