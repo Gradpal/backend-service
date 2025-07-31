@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invitation Successfully Sent</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 0;
+            background-color: #f5f5f5;
+        }
+
+        .email-container {
+            background-color: #ffffff;
+            margin: 20px;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .header {
+            background: linear-gradient(135deg, #6B46C1 0%, #9333EA 100%);
+            padding: 30px 40px;
+            text-align: center;
+            color: white;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 15px;
+        }
+
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            background-color: white;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 10px;
+            font-weight: bold;
+            color: #6B46C1;
+            font-size: 18px;
+        }
+
+        .logo-text {
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        .header-title {
+            font-size: 22px;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .success-badge {
+            display: inline-block;
+            background-color: rgba(34, 197, 94, 0.2);
+            color: #F0FDF4;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .greeting {
+            font-size: 16px;
+            color: #374151;
+            margin-bottom: 20px;
+        }
+
+        .main-message {
+            font-size: 16px;
+            color: #374151;
+            margin-bottom: 25px;
+            line-height: 1.6;
+        }
+
+        .service-card {
+            background: linear-gradient(135deg, #ECFDF5 0%, #F0FDF4 100%);
+            border: 2px solid #BBF7D0;
+            border-radius: 12px;
+            padding: 24px;
+            margin: 25px 0;
+            position: relative;
+        }
+
+        .service-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(135deg, #22C55E 0%, #16A34A 100%);
+            border-radius: 12px 12px 0 0;
+        }
+
+        .service-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1F2937;
+            margin-bottom: 16px;
+            text-align: center;
+        }
+
+        .service-detail {
+            display: flex;
+            margin-bottom: 12px;
+            font-size: 15px;
+        }
+
+        .service-label {
+            font-weight: 600;
+            color: #6B7280;
+            min-width: 120px;
+        }
+
+        .service-value {
+            color: #374151;
+        }
+
+        .subject-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #6B46C1 0%, #9333EA 100%);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 16px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .status-section {
+            background-color: #F0F9FF;
+            border: 1px solid #0EA5E9;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 25px 0;
+            text-align: center;
+        }
+
+        .status-icon {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+
+        .status-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #0369A1;
+            margin-bottom: 8px;
+        }
+
+        .status-text {
+            font-size: 14px;
+            color: #0284C7;
+            line-height: 1.5;
+        }
+
+        .tracking-section {
+            background-color: #F8FAFC;
+            border-radius: 8px;
+            padding: 24px;
+            margin: 25px 0;
+        }
+
+        .tracking-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1F2937;
+            margin-bottom: 16px;
+            text-align: center;
+        }
+
+        .tracking-steps {
+            display: grid;
+            gap: 16px;
+        }
+
+        .tracking-step {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            background-color: white;
+            border-radius: 6px;
+            border: 1px solid #E5E7EB;
+        }
+
+        .step-number {
+            width: 28px;
+            height: 28px;
+            background: linear-gradient(135deg, #6B46C1 0%, #9333EA 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 14px;
+            font-weight: 600;
+            margin-right: 12px;
+            flex-shrink: 0;
+        }
+
+        .step-text {
+            font-size: 14px;
+            color: #374151;
+            font-weight: 500;
+        }
+
+        .next-steps {
+            margin: 25px 0;
+        }
+
+        .next-steps h3 {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1F2937;
+            margin-bottom: 12px;
+        }
+
+        .steps-list {
+            margin: 0;
+            padding-left: 20px;
+        }
+
+        .steps-list li {
+            margin-bottom: 8px;
+            color: #374151;
+            font-size: 15px;
+        }
+
+        .cta-section {
+            text-align: center;
+            margin: 30px 0;
+        }
+
+        .cta-button {
+            background: linear-gradient(135deg, #6B46C1 0%, #9333EA 100%);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 600;
+            display: inline-block;
+            font-size: 15px;
+            margin: 0 8px 8px 0;
+        }
+
+        .cta-button.secondary {
+            background: white;
+            color: #6B46C1;
+            border: 2px solid #6B46C1;
+        }
+
+        .footer {
+            background-color: #F9FAFB;
+            padding: 24px 40px;
+            text-align: center;
+            border-top: 1px solid #E5E7EB;
+        }
+
+        .footer-text {
+            color: #6B7280;
+            font-size: 14px;
+            margin: 5px 0;
+        }
+
+        .footer-links {
+            margin-top: 15px;
+        }
+
+        .footer-link {
+            color: #6B46C1;
+            text-decoration: none;
+            margin: 0 10px;
+            font-size: 14px;
+        }
+
+        .copyright {
+            margin-top: 15px;
+            color: #9CA3AF;
+            font-size: 13px;
+        }
+
+        @media (max-width: 600px) {
+            .email-container {
+                margin: 10px;
+            }
+
+            .header,
+            .content,
+            .footer {
+                padding: 20px;
+            }
+
+            .service-card,
+            .tracking-section,
+            .status-section {
+                padding: 16px;
+            }
+
+            .cta-button {
+                display: block;
+                margin: 8px 0;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="email-container">
+        <div class="header">
+            <div class="logo">
+                <div class="logo-icon">G</div>
+                <div class="logo-text">GradPal</div>
+            </div>
+            <h1 class="header-title">Invitation Successfully Sent</h1>
+            <div class="success-badge">✅ Delivered</div>
+        </div>
+
+        <div class="content">
+            <div class="greeting">
+                Hello {{teacherName}},
+            </div>
+
+            <div class="main-message">
+                Great news! Your service invitation has been successfully sent to the selected student. The invitation
+                is now in their inbox and they'll be able to review the details and decide whether to join your
+                autonomous learning service.
+            </div>
+
+            <div class="service-card">
+                <div class="service-title">{{serviceTitle}}</div>
+
+                <div class="service-detail">
+                    <div class="service-label">Teacher:</div>
+                    <div class="service-value">{{teacherName}}</div>
+                </div>
+
+                <div class="service-detail">
+                    <div class="service-label">Subject:</div>
+                    <div class="service-value">
+                        <span class="subject-badge">{{subject}}</span>
+                    </div>
+                </div>
+
+                <div class="service-detail">
+                    <div class="service-label">Status:</div>
+                    <div class="service-value">Invitation Sent</div>
+                </div>
+            </div>
+
+            <div class="status-section">
+                <div class="status-icon">📤</div>
+                <div class="status-title">Invitation Delivered Successfully</div>
+                <div class="status-text">
+                    The student has received your invitation and can now review the service details. They'll be notified
+                    via email and can access the invitation through their GradPal dashboard.
+                </div>
+            </div>
+
+            <div class="tracking-section">
+                <div class="tracking-title">What happens next:</div>
+                <div class="tracking-steps">
+                    <div class="tracking-step">
+                        <div class="step-number">1</div>
+                        <div class="step-text">Student receives and reviews the invitation</div>
+                    </div>
+                    <div class="tracking-step">
+                        <div class="step-number">2</div>
+                        <div class="step-text">Student decides to accept or decline the invitation</div>
+                    </div>
+                    <div class="tracking-step">
+                        <div class="step-number">3</div>
+                        <div class="step-text">You'll receive a notification of their decision</div>
+                    </div>
+                    <div class="tracking-step">
+                        <div class="step-number">4</div>
+                        <div class="step-text">If accepted, the service begins automatically</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="next-steps">
+                <h3>While you wait:</h3>
+                <ul class="steps-list">
+                    <li>Monitor your dashboard for invitation responses</li>
+                    <li>Prepare any additional materials for when students join</li>
+                    <li>Check your notification settings to stay updated</li>
+                    <li>Send additional invitations if you have more capacity</li>
+                </ul>
+            </div>
+
+            <div class="main-message">
+                <strong>Invitation Timeline:</strong> Students typically respond within 24-48 hours. If they haven't
+                responded within a week, you may want to follow up directly or send a reminder through the platform.
+            </div>
+
+            <div class="cta-section">
+                <a href="#" class="cta-button">View Dashboard</a>
+                <a href="#" class="cta-button secondary">Send More Invitations</a>
+            </div>
+
+            <div class="main-message">
+                <strong>Need assistance?</strong><br>
+                Our support team is here to help with invitation management, student communication, or any questions
+                about your autonomous service setup.
+            </div>
+        </div>
+
+        <div class="footer">
+            <div class="footer-text">Thank you for creating engaging learning experiences with GradPal.</div>
+            <div class="footer-links">
+                <a href="#" class="footer-link">www.gradpal.io</a>
+                <a href="#" class="footer-link">support@gradpal.io</a>
+            </div>
+            <div class="copyright">© 2025 GradPal. All rights reserved.</div>
+        </div>
+    </div>
+</body>
+
+</html>

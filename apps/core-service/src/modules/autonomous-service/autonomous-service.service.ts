@@ -22,6 +22,10 @@ import { UserService } from '../user/user.service';
 import { EInvitationStatus } from './enums/invitation-status.enum';
 import { Invitation } from './entities/invitation.entity';
 import { UpdateInvitationStageDto } from './dtos/invitation-dto';
+import { NotificationPreProcessor } from '@core-service/integrations/notification/notification.preprocessor';
+import { EmailTemplates } from '@core-service/configs/email-template-configs/email-templates.config';
+import { PlatformQueuePayload } from '@app/common/interfaces/shared-queues/platform-queue-payload.interface';
+import { ENotificationMessageType } from '@app/common/enums/notification-message-type.enum';
 
 @Injectable()
 export class AutonomousServiceService {
@@ -36,6 +40,7 @@ export class AutonomousServiceService {
     private readonly subjectService: SubjectsService,
     private readonly exceptionHandler: ExceptionHandler,
     private readonly userService: UserService,
+    private readonly notificationProcessor: NotificationPreProcessor,
   ) {}
 
   async createAutonomousService(
@@ -67,6 +72,33 @@ export class AutonomousServiceService {
       autonomousService.attachments =
         await this.minioClientService.uploadAttachments({ files }, []);
     }
+    await this.notificationProcessor.sendTemplateEmail(
+      EmailTemplates.AUTONOMOUS_SERVICE_CREATION,
+      [loggedInUser.email],
+      {
+        projectTitle: createAutonomousServiceDto.projectTitle,
+        description: createAutonomousServiceDto.description,
+        subject: subject.name,
+      },
+    );
+
+    await this.notifyOnPlatform({
+      messageType: ENotificationMessageType.AUTONOMOUS_SERVICE_CREATION,
+      recipients: [{ userId: loggedInUser.id }],
+      subject: 'autonomous service created',
+      metadata: {
+        content: {
+          title: 'autonomous service created ',
+          description:
+            'your service draft has been created . add teacher to invite',
+          subTitle: 'service created',
+          body: createAutonomousServiceDto.projectTitle,
+        },
+        callToAction: {
+          id: autonomousService.id,
+        },
+      },
+    });
     return await this.autonomousServiceRepository.save(autonomousService);
   }
 
@@ -324,6 +356,7 @@ export class AutonomousServiceService {
     const tutor = await this.userService.findOne(tutorId);
     const services = await this.autonomousServiceRepository.find({
       where: { id: In(createInvitationDto.serviceIds) },
+      relations: ['student', 'subject'],
     });
 
     services.forEach(async (service) => {
@@ -334,6 +367,90 @@ export class AutonomousServiceService {
           : EInvitationStatus.INITIATED,
         tutor,
       });
+      if (createInvitationDto.inviteDirectly) {
+        // show platform  & email notification to student
+        await this.notificationProcessor.sendTemplateEmail(
+          EmailTemplates.INVITATION_CREATION,
+          [service.student.email],
+          {
+            teacherName: tutor.email,
+            serviceTitle: service.projectTitle,
+            subject: service.subject.name,
+          },
+        );
+        await this.notifyOnPlatform({
+          messageType: ENotificationMessageType.INVITATION_CREATION,
+          recipients: [{ userId: service.student.id }],
+          subject: 'invitation creation ',
+          metadata: {
+            content: {
+              title: 'invitation created',
+              description: `you have added   ${tutor.firstName} ${tutor.lastName}  to your invitation list and sent invitation for service ${service.projectTitle} `,
+              subTitle: 'invitation created and sent',
+              body: `"invitation  for ${service.projectTitle} has been created and sent to tutor  ${tutor.firstName} ${tutor.lastName}`,
+            },
+            callToAction: {
+              id: invitation.id,
+            },
+          },
+        });
+
+        // teacher email and platform notification
+
+        await this.notificationProcessor.sendTemplateEmail(
+          EmailTemplates.INVITATION_SENT,
+          [tutor.id],
+          {
+            teacherName: tutor.firstName,
+            serviceTitle: service.projectTitle,
+            subject: service.subject.name,
+          },
+        );
+
+        await this.notifyOnPlatform({
+          messageType: ENotificationMessageType.INVITATION_SENT,
+          recipients: [{ userId: tutor.id }],
+          subject: 'sent invitation to tutor',
+          metadata: {
+            content: {
+              title: 'invitation sent',
+              description: `invitation  received from ${service.student.firstName} ${service.student.lastName} on subject ${service.subject.name} `,
+              subTitle: 'invitation sent',
+              body: `invitation  received from ${service.student.firstName} ${service.student.lastName} on subject ${service.subject.name} `,
+            },
+            callToAction: {
+              id: service.id,
+            },
+          },
+        });
+      } else {
+        await this.notificationProcessor.sendTemplateEmail(
+          EmailTemplates.INVITATION_SENT,
+          [service.student.email],
+          {
+            teacherName: tutor.email,
+            serviceTitle: service.projectTitle,
+            subject: service.subject.name,
+          },
+        );
+        await this.notifyOnPlatform({
+          messageType: ENotificationMessageType.INVITATION_CREATION,
+          recipients: [{ userId: service.student.id }],
+          subject: 'invitation creation ',
+          metadata: {
+            content: {
+              title: 'invitation created',
+              description: `you have added   ${tutor.firstName} ${tutor.lastName}  to your invitation list and sent invitation for service ${service.projectTitle} `,
+              subTitle: 'invitation  sent',
+              body: `"invitation  for ${service.projectTitle} has been created `,
+            },
+            callToAction: {
+              id: invitation.id,
+            },
+          },
+        });
+      }
+
       await this.invitationRepository.save(invitation);
     });
   }
@@ -399,11 +516,42 @@ export class AutonomousServiceService {
         tutor: { id: In(dto.tutorIds) },
         status: EInvitationStatus.INITIATED,
       },
-      relations: ['tutor'],
+      relations: [
+        'tutor',
+        'autonomousService',
+        'autonomousService.subject',
+        'autonomousService.student',
+      ],
     });
-    invitations.forEach((invitation) => {
+    invitations.forEach(async (invitation) => {
+      await this.notificationProcessor.sendTemplateEmail(
+        EmailTemplates.INVITATION_SENT,
+        [invitation.autonomousService.student.email],
+        {
+          teacherName: invitation.tutor.email,
+          serviceTitle: invitation.autonomousService.projectTitle,
+          subject: invitation.autonomousService.subject.name,
+        },
+      );
+      await this.notifyOnPlatform({
+        messageType: ENotificationMessageType.INVITATION_SENT,
+        recipients: [{ userId: invitation.autonomousService.student.id }],
+        subject: 'invitation sent ',
+        metadata: {
+          content: {
+            title: 'invitation sent',
+            description: `invitation sent to    ${invitation.tutor.firstName} ${invitation.tutor.lastName}  `,
+            subTitle: 'invitation sent',
+            body: `invitation sent to    ${invitation.tutor.firstName} ${invitation.tutor.lastName}  `,
+          },
+          callToAction: {
+            id: invitation.id,
+          },
+        },
+      });
       invitation.status = EInvitationStatus.PENDING;
     });
+
     return await this.invitationRepository.save(invitations);
   }
 
@@ -421,11 +569,46 @@ export class AutonomousServiceService {
         tutor: { id: In(dto.tutorIds) },
         status: EInvitationStatus.INITIATED,
       },
-      relations: ['tutor'],
+      relations: [
+        'tutor',
+        'autonomousService',
+        'autonomousService.subject',
+        'autonomousService.student',
+      ],
     });
     if (invitations.length === 0) {
       this.exceptionHandler.throwNotFound(_404.INVITATION_NOT_FOUND);
     }
+    invitations.forEach(async (invitation) => {
+      await this.notificationProcessor.sendTemplateEmail(
+        EmailTemplates.INVITATION_DELETED,
+        [invitation.autonomousService.student.email],
+        {
+          teacherName: invitation.tutor.email,
+          serviceTitle: invitation.autonomousService.projectTitle,
+          subject: invitation.autonomousService.subject.name,
+        },
+      );
+      await this.notifyOnPlatform({
+        messageType: ENotificationMessageType.INVITATION_DELETED,
+        recipients: [{ userId: invitation.autonomousService.student.id }],
+        subject: 'invitation deleted ',
+        metadata: {
+          content: {
+            title: 'invitation deleted',
+            description: `    ${invitation.tutor.firstName} ${invitation.tutor.lastName} has been removed from your invitation list   `,
+            subTitle: 'invitation deleted',
+            body: `    ${invitation.tutor.firstName} ${invitation.tutor.lastName} has been removed from your invitation list   `,
+          },
+          callToAction: {
+            id: invitation.autonomousService.id,
+          },
+        },
+      });
+    });
     await this.invitationRepository.delete(invitations.map((inv) => inv.id));
+  }
+  async notifyOnPlatform(data: PlatformQueuePayload) {
+    return await this.notificationProcessor.sendPlatformNotification(data);
   }
 }

@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Autonomous Service Created</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 0;
+            background-color: #f5f5f5;
+        }
+
+        .email-container {
+            background-color: #ffffff;
+            margin: 20px;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .header {
+            background: linear-gradient(135deg, #6B46C1 0%, #9333EA 100%);
+            padding: 30px 40px;
+            text-align: center;
+            color: white;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 15px;
+        }
+
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            background-color: white;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 10px;
+            font-weight: bold;
+            color: #6B46C1;
+            font-size: 18px;
+        }
+
+        .logo-text {
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        .header-title {
+            font-size: 22px;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .success-badge {
+            display: inline-block;
+            background-color: rgba(255, 255, 255, 0.2);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .greeting {
+            font-size: 16px;
+            color: #374151;
+            margin-bottom: 20px;
+        }
+
+        .main-message {
+            font-size: 16px;
+            color: #374151;
+            margin-bottom: 25px;
+            line-height: 1.6;
+        }
+
+        .project-card {
+            background: linear-gradient(135deg, #F8FAFF 0%, #F3F4F6 100%);
+            border: 2px solid #E5E7EB;
+            border-radius: 12px;
+            padding: 30px;
+            margin: 25px 0;
+            position: relative;
+        }
+
+        .project-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(135deg, #6B46C1 0%, #9333EA 100%);
+            border-radius: 12px 12px 0 0;
+        }
+
+        .project-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #1F2937;
+            margin-bottom: 16px;
+            text-align: center;
+        }
+
+        .project-detail {
+            margin-bottom: 20px;
+        }
+
+        .project-label {
+            font-weight: 600;
+            color: #6B7280;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+
+        .project-value {
+            color: #374151;
+            font-size: 15px;
+            line-height: 1.6;
+        }
+
+        .subject-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #6B46C1 0%, #9333EA 100%);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .features-section {
+            background-color: #F8FAFC;
+            border-radius: 8px;
+            padding: 24px;
+            margin: 25px 0;
+        }
+
+        .features-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1F2937;
+            margin-bottom: 16px;
+            text-align: center;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 16px;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            background-color: white;
+            border-radius: 6px;
+            border: 1px solid #E5E7EB;
+        }
+
+        .feature-icon {
+            width: 24px;
+            height: 24px;
+            background: linear-gradient(135deg, #6B46C1 0%, #9333EA 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+            margin-right: 12px;
+            flex-shrink: 0;
+        }
+
+        .feature-text {
+            font-size: 14px;
+            color: #374151;
+            font-weight: 500;
+        }
+
+        .next-steps {
+            margin: 25px 0;
+        }
+
+        .next-steps h3 {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1F2937;
+            margin-bottom: 12px;
+        }
+
+        .steps-list {
+            margin: 0;
+            padding-left: 20px;
+        }
+
+        .steps-list li {
+            margin-bottom: 8px;
+            color: #374151;
+            font-size: 15px;
+        }
+
+        .cta-section {
+            text-align: center;
+            margin: 30px 0;
+        }
+
+        .cta-button {
+            background: linear-gradient(135deg, #6B46C1 0%, #9333EA 100%);
+            color: white;
+            padding: 14px 28px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            display: inline-block;
+            font-size: 16px;
+            margin: 0 8px 8px 0;
+        }
+
+        .cta-button.secondary {
+            background: white;
+            color: #6B46C1;
+            border: 2px solid #6B46C1;
+        }
+
+        .footer {
+            background-color: #F9FAFB;
+            padding: 24px 40px;
+            text-align: center;
+            border-top: 1px solid #E5E7EB;
+        }
+
+        .footer-text {
+            color: #6B7280;
+            font-size: 14px;
+            margin: 5px 0;
+        }
+
+        .footer-links {
+            margin-top: 15px;
+        }
+
+        .footer-link {
+            color: #6B46C1;
+            text-decoration: none;
+            margin: 0 10px;
+            font-size: 14px;
+        }
+
+        .copyright {
+            margin-top: 15px;
+            color: #9CA3AF;
+            font-size: 13px;
+        }
+
+        @media (max-width: 600px) {
+            .email-container {
+                margin: 10px;
+            }
+
+            .header,
+            .content,
+            .footer {
+                padding: 20px;
+            }
+
+            .project-card {
+                padding: 20px;
+            }
+
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .cta-button {
+                display: block;
+                margin: 8px 0;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="email-container">
+        <div class="header">
+            <div class="logo">
+                <div class="logo-icon">G</div>
+                <div class="logo-text">GradPal</div>
+            </div>
+            <h1 class="header-title">Autonomous Service Created</h1>
+            <div class="success-badge">✨ Successfully Deployed</div>
+        </div>
+
+        <div class="content">
+            <div class="greeting">
+                Congratulations!
+            </div>
+
+            <div class="main-message">
+                Your autonomous service has been successfully created and is now ready to transform the learning
+                experience. This intelligent service will work behind the scenes to provide personalized support and
+                enhance educational outcomes.
+            </div>
+
+            <div class="project-card">
+                <div class="project-title">{{projectTitle}}</div>
+
+                <div class="project-detail">
+                    <div class="project-label">Subject Area</div>
+                    <div class="project-value">
+                        <span class="subject-badge">{{subject}}</span>
+                    </div>
+                </div>
+
+                <div class="project-detail">
+                    <div class="project-label">Service Description</div>
+                    <div class="project-value">{{description}}</div>
+                </div>
+            </div>
+
+            <div class="features-section">
+                <div class="features-title">Your Service Includes</div>
+                <div class="features-grid">
+                    <div class="feature-item">
+                        <div class="feature-icon">🤖</div>
+                        <div class="feature-text">AI-Powered Learning Assistant</div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon">📊</div>
+                        <div class="feature-text">Progress Tracking & Analytics</div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon">🎯</div>
+                        <div class="feature-text">Personalized Learning Paths</div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon">📚</div>
+                        <div class="feature-text">Smart Content Recommendations</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="next-steps">
+                <h3>What happens next:</h3>
+                <ul class="steps-list">
+                    <li>Your service is now live and processing student interactions</li>
+                    <li>Students will begin receiving personalized recommendations</li>
+                    <li>You'll receive weekly analytics reports on service performance</li>
+                    <li>The AI will continuously learn and improve from student engagement</li>
+                </ul>
+            </div>
+
+            <div class="cta-section">
+                <a href="#" class="cta-button">View Service Dashboard</a>
+                <a href="#" class="cta-button secondary">Manage Settings</a>
+            </div>
+
+            <div class="main-message">
+                <strong>Need help getting started?</strong><br>
+                Our support team is ready to assist you with service configuration, student onboarding, or any questions
+                about maximizing the impact of your autonomous service.
+            </div>
+        </div>
+
+        <div class="footer">
+            <div class="footer-text">This service will help create more engaging and effective learning experiences.
+            </div>
+            <div class="footer-links">
+                <a href="#" class="footer-link">www.gradpal.io</a>
+                <a href="#" class="footer-link">support@gradpal.io</a>
+            </div>
+            <div class="copyright">© 2025 GradPal. All rights reserved.</div>
+        </div>
+    </div>
+</body>
+
+</html>

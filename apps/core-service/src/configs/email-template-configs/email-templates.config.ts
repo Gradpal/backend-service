@@ -1,5 +1,9 @@
 import { ActivateAccountDto } from '@core-service/integrations/notification/dto/emails/activate-account.dto';
 import {
+  AutonomousServiceCreationEmailDto,
+  InvitationCreationEmailDto,
+} from '@core-service/integrations/notification/dto/emails/autonomous_service.email.dto';
+import {
   AddEmailEmailDto,
   ParentInvitationEmailDto,
   WelcomeEmailDto,
@@ -12,6 +16,10 @@ export enum EmailTemplates {
   ACTIVATION = 'activate-account',
   USER_ONBOARDING_VERIFICATION = 'user-onboarding-verification',
   PARENT_INVITATION = 'invite-parent',
+  AUTONOMOUS_SERVICE_CREATION = 'autonomous_service_creation',
+  INVITATION_CREATION = 'invitation_creation',
+  INVITATION_SENT = 'invitation_sent',
+  INVITATION_DELETED = 'invitation_deleted',
 }
 
 export const EMAIL_TEMPLATES_CONFIG = {
@@ -38,6 +46,22 @@ export const EMAIL_TEMPLATES_CONFIG = {
   [EmailTemplates.PARENT_INVITATION]: {
     subject: 'Your Child has invited you to join Gradpal',
     dto: ParentInvitationEmailDto,
+  },
+  [EmailTemplates.AUTONOMOUS_SERVICE_CREATION]: {
+    subject: 'Service invitation creation ',
+    dto: AutonomousServiceCreationEmailDto,
+  },
+  [EmailTemplates.INVITATION_CREATION]: {
+    subject: 'autonomous service invitation created ',
+    dto: InvitationCreationEmailDto,
+  },
+  [EmailTemplates.INVITATION_SENT]: {
+    subject: 'autonomous service invitation sent ',
+    dto: InvitationCreationEmailDto,
+  },
+  [EmailTemplates.INVITATION_DELETED]: {
+    subject: 'autonomous service invitation deleted ',
+    dto: InvitationCreationEmailDto,
   },
 } as const;
 
