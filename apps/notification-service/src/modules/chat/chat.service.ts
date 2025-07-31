@@ -16,7 +16,7 @@ import { CORE_GRPC_PACKAGE } from '@app/common/constants/services-constants';
 import { ClientGrpc, ClientProxy } from '@nestjs/microservices';
 import { GrpcServices } from '@core-service/common/constants/grpc.constants';
 import { MinioClientService } from '@core-service/modules/minio-client/minio-client.service';
-import { lastValueFrom, Observable } from 'rxjs';
+import { flatMap, lastValueFrom, Observable } from 'rxjs';
 import {
   PATTERNS,
   QUEUE_HANDLERS,
@@ -24,6 +24,7 @@ import {
 import { ExceptionHandler } from '@app/common/exceptions/exceptions.handler';
 import { UserService } from '@core-service/modules/user/user.service';
 import { MessageOwner } from './dtos/message-owner.dto';
+import { createPaginatedResponse } from '@app/common/helpers/pagination.helper';
 
 @Injectable()
 export class ChatService {
@@ -203,13 +204,16 @@ export class ChatService {
     if (page && limit) {
       query.skip((page - 1) * limit).take(limit);
     }
+    console.log('======= userId ======= ', userId);
+    console.log('======= page ======= ', page);
+    console.log('======= limit ======= ', limit);
+    console.log('======= query ======= ', query.getQueryAndParameters());
 
     const [conversations, total] = await query.getManyAndCount();
+    console.log('======= conversations ======= ', conversations);
+    return conversations;
 
-    return {
-      conversations,
-      total,
-    };
+    // return createPaginatedResponse(conversations, total, page, limit);
   }
 
   async getMessages(conversationId: string) {
@@ -282,32 +286,28 @@ export class ChatService {
       status: EConversationStatus.ACTIVE,
     });
   }
-  async getSharedFilesInConversation(conversationId: string) {
+  async getSharedFilesAndUrlsInConversation(conversationId: string) {
+    console.log('======= conversationId ======= ', conversationId);
     const conversation = await this.conversationRepository.findOne({
       where: { id: conversationId },
-      relations: { latestMessages: true },
+      select: {
+        latestMessages: {
+          sharedFiles: true,
+        },
+      },
     });
 
     if (!conversation?.latestMessages?.length) {
-      return [];
+      return { sharedUrls: [], sharedFiles: [] };
     }
 
-    return conversation.latestMessages
+    const sharedFiles = conversation.latestMessages
       .flatMap((message) => message.sharedFiles ?? [])
       .filter(Boolean);
-  }
-  async getSharedLinksInConversation(conversationId: string) {
-    const conversation = await this.conversationRepository.findOne({
-      where: { id: conversationId },
-      relations: { latestMessages: true },
-    });
-
-    if (!conversation?.latestMessages?.length) {
-      return [];
-    }
-
-    return conversation.latestMessages
+    const sharedUrls = conversation.latestMessages
       .flatMap((message) => message.urls ?? [])
       .filter(Boolean);
+
+    return { sharedFiles, sharedUrls };
   }
 }

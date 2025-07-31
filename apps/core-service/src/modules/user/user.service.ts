@@ -240,7 +240,6 @@ export class UserService {
 
     return user;
   }
-
   async existByEmail(email: string): Promise<boolean> {
     const user = await this.userRepository.findOne({ where: { email } });
     return !!user;
