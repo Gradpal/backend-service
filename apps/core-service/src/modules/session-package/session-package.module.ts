@@ -26,6 +26,7 @@ import { TimeSlot } from '../portfolio/weekly-availability/entities/weeky-availa
     ]),
     MinioClientModule,
     BrainModule,
+
     forwardRef(() => UserModule),
     forwardRef(() => SubjectsModule),
     CoreServiceConfigModule,

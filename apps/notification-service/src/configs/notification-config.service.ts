@@ -35,6 +35,13 @@ export class NotificationConfigService {
   get dbName(): string {
     return this.configService.getOrThrow('DB_NAME');
   }
+  get GrpcHost(): string {
+    return this.configService.getOrThrow('GRPC_HOST');
+  }
+
+  get GrpcPort(): number {
+    return this.configService.getOrThrow('GRPC_PORT');
+  }
 
   get chatDbName(): string {
     return this.configService.getOrThrow('CHAT_DB_NAME');

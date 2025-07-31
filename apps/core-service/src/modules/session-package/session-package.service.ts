@@ -33,9 +33,13 @@ import { PackageStatus } from './enums/paclage-status.enum';
 import { PackageOffering } from './entities/package-offering.entity';
 import { UpdatePackageDto } from './dto/update-session-package.dto';
 import { TimeSlot } from '../portfolio/weekly-availability/entities/weeky-availability.entity';
+import { ClientGrpc } from '@nestjs/microservices';
+import { NOTIFICATION_GRPC_PACKAGE } from '@app/common/constants/services-constants';
+import { ChatService } from '@core-service/integrations/notification/interfaces/chat-service.interface';
 
 @Injectable()
 export class SessionPackageService {
+  private chatService: ChatService;
   constructor(
     @InjectRepository(SessionPackage)
     private readonly sessionPackageRepository: Repository<SessionPackage>,
@@ -56,7 +60,12 @@ export class SessionPackageService {
     private readonly brainService: BrainService,
     private readonly minioService: MinioClientService,
     private readonly coreServiceConfigService: CoreServiceConfigService,
-  ) {}
+    @Inject(NOTIFICATION_GRPC_PACKAGE) private client: ClientGrpc,
+  ) {
+    this.chatService = this.client.getService<ChatService>(
+      'ConversationServices',
+    );
+  }
 
   async getSessionPackageRepository() {
     return this.sessionPackageRepository;
@@ -183,7 +192,24 @@ export class SessionPackageService {
 
       sessions.push(savedSession);
     }
-    return await this.getSessionPackageById(sessionPackage.id);
+    const session = await this.getSessionPackageById(sessionPackage.id);
+    await this.chatService.createConversation(
+      {
+        id: tutor.id,
+        firstName: tutor.firstName,
+        lastName: tutor.lastName,
+        role: tutor.role,
+        profilePicture: tutor.profilePicture,
+      },
+      {
+        id: student.id,
+        firstName: student.firstName,
+        lastName: student.lastName,
+        role: student.role,
+        profilePicture: student.profilePicture,
+      },
+    );
+    return session;
   }
 
   // Session Package Type CRUD

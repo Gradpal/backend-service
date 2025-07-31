@@ -25,6 +25,7 @@ import { ExceptionHandler } from '@app/common/exceptions/exceptions.handler';
 import { UserService } from '@core-service/modules/user/user.service';
 import { MessageOwner } from './dtos/message-owner.dto';
 import { createPaginatedResponse } from '@app/common/helpers/pagination.helper';
+import { CreateConversationRequest } from './dtos/create-conversation.dto';
 
 @Injectable()
 export class ChatService {
@@ -204,16 +205,9 @@ export class ChatService {
     if (page && limit) {
       query.skip((page - 1) * limit).take(limit);
     }
-    console.log('======= userId ======= ', userId);
-    console.log('======= page ======= ', page);
-    console.log('======= limit ======= ', limit);
-    console.log('======= query ======= ', query.getQueryAndParameters());
-
     const [conversations, total] = await query.getManyAndCount();
-    console.log('======= conversations ======= ', conversations);
-    return conversations;
 
-    // return createPaginatedResponse(conversations, total, page, limit);
+    return createPaginatedResponse(conversations, total, page, limit);
   }
 
   async getMessages(conversationId: string) {
@@ -287,7 +281,6 @@ export class ChatService {
     });
   }
   async getSharedFilesAndUrlsInConversation(conversationId: string) {
-    console.log('======= conversationId ======= ', conversationId);
     const conversation = await this.conversationRepository.findOne({
       where: { id: conversationId },
       select: {
@@ -309,5 +302,14 @@ export class ChatService {
       .filter(Boolean);
 
     return { sharedFiles, sharedUrls };
+  }
+
+  async createConversation(createConversationDto: CreateConversationRequest) {
+    const conversation = this.conversationRepository.create({
+      sender: createConversationDto.sender,
+      receiver: createConversationDto.receiver,
+      status: EConversationStatus.ACTIVE,
+    });
+    return this.conversationRepository.save(conversation);
   }
 }
