@@ -25,12 +25,8 @@ import { ExceptionHandler } from '@app/common/exceptions/exceptions.handler';
 import { MessageOwner } from './dtos/message-owner.dto';
 import { createPaginatedResponse } from '@app/common/helpers/pagination.helper';
 import { CreateConversationRequest } from './dtos/create-conversation.dto';
-<<<<<<< HEAD
 import { UserService } from '@core-service/modules/user/user.service';
 import { NotificationUserService } from '../user/user.service';
-=======
-
->>>>>>> deb8fd1 (fix: fixed getting shared files)
 @Injectable()
 export class ChatService {
   private minioClientService: MinioClientService;
@@ -242,14 +238,6 @@ export class ChatService {
         take: limit,
       });
 
-<<<<<<< HEAD
-=======
-    if (page && limit) {
-      query.skip((page - 1) * limit).take(limit);
-    }
-    const [conversations, total] = await query.getManyAndCount();
-
->>>>>>> deb8fd1 (fix: fixed getting shared files)
     return createPaginatedResponse(conversations, total, page, limit);
   }
 
@@ -417,7 +405,6 @@ export class ChatService {
   }
 
   async createConversation(createConversationDto: CreateConversationRequest) {
-<<<<<<< HEAD
     const existsBySenderAndReceiver =
       await this.getConversationBySenderAndReceiver(
         createConversationDto?.sender?.id,
@@ -439,20 +426,11 @@ export class ChatService {
         ? this.userService.getUserById(createConversationDto?.sender?.id)
         : this.userService.createUser(createConversationDto?.sender),
     ]);
-
     const conversation = this.conversationRepository.create({
       sender: sender,
       receiver: receiver,
       status: EConversationStatus.ACTIVE,
     });
     return await this.conversationRepository.save(conversation);
-=======
-    const conversation = this.conversationRepository.create({
-      sender: createConversationDto.sender,
-      receiver: createConversationDto.receiver,
-      status: EConversationStatus.ACTIVE,
-    });
-    return this.conversationRepository.save(conversation);
->>>>>>> deb8fd1 (fix: fixed getting shared files)
   }
 }

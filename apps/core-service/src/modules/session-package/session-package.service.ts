@@ -36,11 +36,16 @@ import { TimeSlot } from '../portfolio/weekly-availability/entities/weeky-availa
 import { ClientGrpc } from '@nestjs/microservices';
 import { NOTIFICATION_GRPC_PACKAGE } from '@app/common/constants/services-constants';
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { ChatService } from '@notification-service/modules/chat/chat.service';
 import { lastValueFrom, Observable } from 'rxjs';
 =======
 import { ChatService } from '@core-service/integrations/notification/interfaces/chat-service.interface';
 >>>>>>> deb8fd1 (fix: fixed getting shared files)
+=======
+import { ChatService } from '@notification-service/modules/chat/chat.service';
+import { lastValueFrom, Observable } from 'rxjs';
+>>>>>>> e74c62a (feat: create a conversation automatically after session booking)
 
 @Injectable()
 export class SessionPackageService {
