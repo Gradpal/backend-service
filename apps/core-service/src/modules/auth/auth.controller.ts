@@ -53,6 +53,12 @@ export class AuthController {
     );
     return activatedAccount;
   }
+  @Post('/verify-email-and-return-school')
+  @ApiBody({ type: ActivateAccount })
+  @Public()
+  async verifyEmailAndReturnSchool(@Body() dto: ActivateAccount) {
+    return await this.authService.verifyAdditionalEmailAndReturnSchool(dto);
+  }
   @Public()
   @Post('/forgot-password')
   @ApiBody({ type: ForgotPasswordDTO })

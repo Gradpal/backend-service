@@ -12,6 +12,10 @@ export const _400 = {
     code: 'BAD_REQUEST',
     message: 'You are uploading a file that is not supported ',
   },
+  INVALID_EMAIL_DOMAIN: {
+    code: 'INVALID_EMAIL_DOMAIN',
+    message: 'The provided email domain is not valid',
+  },
   PORTFOLIO_NOT_OWNER: {
     code: 'PORTFOLIO_NOT_OWNER',
     message: 'The portfolio is not owned by the logged in user',

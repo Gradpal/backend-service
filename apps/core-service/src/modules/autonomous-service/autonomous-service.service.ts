@@ -114,12 +114,12 @@ export class AutonomousServiceService {
       .where('autonomousService.id IN (:...serviceIds)', { serviceIds });
 
     if (searchKeyword) {
-      query.where('autonomousService.projectTitle ILIKE :searchKeyword', {
+      query.andWhere('autonomousService.projectTitle ILIKE :searchKeyword', {
         searchKeyword: `%${searchKeyword}%`,
       });
     }
     if (status) {
-      query.where('autonomousService.status = :status', { status: status });
+      query.andWhere('autonomousService.status = :status', { status: status });
     }
     query.orderBy('autonomousService.createdAt', 'DESC');
     query.skip((page - 1) * limit);
