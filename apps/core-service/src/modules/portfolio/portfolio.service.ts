@@ -18,7 +18,6 @@ import {
   UpdateSubjectsOfInterestDto,
   UpdatePersonalInfoDto,
   UpdateAcademicDto,
-  InstitutionUpdate,
 } from './dto/update-portfolio-profile.dto';
 import { UpdatePortfolioAvailabilityDto } from './dto/update-portfolio-availability.dto';
 import { _400, _404 } from '@app/common/constants/errors-constants';
