@@ -10,11 +10,9 @@ import { Invitation } from './invitation.entity';
 
 @Entity({ name: 'autonomous_service' })
 export class AutonomousService extends BaseEntity {
-  @Column()
-  projectTitle: string;
+  @Column() projectTitle: string;
 
-  @Column()
-  description: string;
+  @Column() description: string;
 
   @Column({
     type: 'enum',
@@ -27,14 +25,11 @@ export class AutonomousService extends BaseEntity {
   @JoinColumn({ name: 'subject_id' })
   subject: Subject;
 
-  @Column()
-  isOwnerAnonymous: boolean;
+  @Column() isOwnerAnonymous: boolean;
 
-  @Column()
-  contractFinalizationDate: Date;
+  @Column() contractFinalizationDate: Date;
 
-  @Column()
-  finalSubmissionDate: Date;
+  @Column() finalSubmissionDate: Date;
 
   @Column({
     type: 'jsonb',
@@ -48,16 +43,13 @@ export class AutonomousService extends BaseEntity {
   })
   attachments: AttachmentDto[];
 
-  @ManyToOne(() => User)
-  @JoinColumn({ name: 'student_id' })
-  student: User;
+  @ManyToOne(() => User) @JoinColumn({ name: 'student_id' }) student: User;
 
-  @OneToMany(() => Bid, (bid) => bid.autonomousService)
-  bids: Bid[];
+  @OneToMany(() => Bid, (bid) => bid.autonomousService) bids: Bid[];
 
-  @Column({ type: 'json', nullable: true })
-  review: SessionReviewDto;
-
+  @Column({ type: 'json', nullable: true }) review: SessionReviewDto;
+  @Column({ nullable: true, type: 'integer', default: 0 })
+  introductoryMeetingLength: number;
   @OneToMany(() => Invitation, (invitation) => invitation.autonomousService)
   invitations: Invitation[];
 }
