@@ -43,14 +43,12 @@ export class AutonomousService extends BaseEntity {
   })
   attachments: AttachmentDto[];
 
-  @ManyToOne(() => User)
-  @JoinColumn({ name: 'student_id' })
-  student: User;
+  @ManyToOne(() => User) @JoinColumn({ name: 'student_id' }) student: User;
 
   @OneToMany(() => Bid, (bid) => bid.autonomousService) bids: Bid[];
 
   @Column({ type: 'json', nullable: true }) review: SessionReviewDto;
-  @Column({ nullable: true, type: 'integer' })
+  @Column({ nullable: true, type: 'integer', default: 0 })
   introductoryMeetingLength: number;
   @OneToMany(() => Invitation, (invitation) => invitation.autonomousService)
   invitations: Invitation[];
