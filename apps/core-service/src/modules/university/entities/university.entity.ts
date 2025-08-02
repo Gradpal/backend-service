@@ -1,12 +1,18 @@
-import { BaseEntity } from '@app/common/database/base.entity';
 import { Column, Entity } from 'typeorm';
+import { BaseEntity } from '@app/common/database/base.entity';
 
 @Entity()
 export class University extends BaseEntity {
-  @Column()
-  universityName: string;
-  @Column()
-  countryName: string;
-  @Column()
-  universityEmailDomain: string;
+  @Column({ name: 'university_name' }) universityName: string;
+  @Column({ name: 'country_name' }) countryName: string;
+  @Column(
+    'text',
+
+    {
+      array: true,
+      name: 'university_email_domains',
+      nullable: true,
+    },
+  )
+  universityEmailDomains: string[];
 }
