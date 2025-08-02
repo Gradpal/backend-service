@@ -1,4 +1,4 @@
-import { timeStringToNextDate } from '@core-service/modules/class-session/helpers';
+import { timeStringToNextDate } from '@core-service/modules/session-package/class-session/helpers';
 import { TimeSlot } from '@core-service/modules/portfolio/weekly-availability/entities/weeky-availability.entity';
 
 export function calculateSessionStartTimeAndEndTimeBasedOnTimeSlots(

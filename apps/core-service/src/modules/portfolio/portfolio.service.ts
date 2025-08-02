@@ -33,7 +33,7 @@ import { CreateEducationInstitutionRecordDto } from './dto/create-education-reco
 import { generateUUID } from '@app/common/helpers/shared.helpers';
 import { SubjectsService } from '../subjects/subjects.service';
 import { SavedTutorDto } from './dto/dashboard-response.dto';
-import { ClassSessionService } from '../class-session/class-session.service';
+import { ClassSessionService } from '../session-package/class-session/class-session.service';
 import {
   DaySchedule,
   TimeSlot,

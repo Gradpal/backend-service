@@ -142,9 +142,10 @@ export class ChatController {
     GrpcServices.CONVERSATION_SERVICE,
     ConversationGrpcMethods.CREATE_CONVERSATION,
   )
-  async createConversation(
-    @Body() createConversationDto: CreateConversationRequest,
-  ) {
-    return this.chatService.createConversation(createConversationDto);
+  async createConversation(createConversationDto: CreateConversationRequest) {
+    const result = await this.chatService.createConversation(
+      createConversationDto,
+    );
+    return result;
   }
 }

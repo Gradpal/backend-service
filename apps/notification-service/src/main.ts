@@ -11,6 +11,10 @@ async function bootstrap() {
 
   const port = app.get(NotificationConfigService).port;
   const logger = app.get(Logger);
+
+  // // Start all microservices before listening on the main port
+  // await app.startAllMicroservices();
+
   await app.listen(port, () => {
     logger.log(`${APP_NAME} is running on PORT => ${port} 🎉`);
   });

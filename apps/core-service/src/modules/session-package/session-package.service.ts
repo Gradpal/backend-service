@@ -4,19 +4,19 @@ import { In, Not, Repository } from 'typeorm';
 import { SessionPackage } from './entities/session-package.entity';
 import { MEETING_CACHE } from '@core-service/common/constants/brain.constants';
 import { generateUUID } from '@app/common/helpers/shared.helpers';
-import { SessionTimelineType } from '../class-session/enums/session-timeline-type.enum';
+import { SessionTimelineType } from './class-session/enums/session-timeline-type.enum';
 import { User } from '../user/entities/user.entity';
 import { normalizeArray } from '@core-service/common/helpers/all.helpers';
 import { UserService } from '../user/user.service';
 import { _400, _404 } from '@app/common/constants/errors-constants';
 import { ExceptionHandler } from '@app/common/exceptions/exceptions.handler';
-import { ClassSession } from '../class-session/entities/class-session.entity';
+import { ClassSession } from './class-session/entities/class-session.entity';
 import { BrainService } from '@app/common/brain/brain.service';
 import { SubjectTierService } from '../subjects/subject-tier/subject-tier.service';
 import {
   ESessionAcceptanceStatus,
   ESessionStatus,
-} from '../class-session/enums/session-status.enum';
+} from './class-session/enums/session-status.enum';
 import { WeeklyAvailabilityService } from '../portfolio/weekly-availability/weekly-availability';
 import { MinioClientService } from '../minio-client/minio-client.service';
 import { CoreServiceConfigService } from '@core-service/configs/core-service-config.service';
@@ -35,7 +35,8 @@ import { UpdatePackageDto } from './dto/update-session-package.dto';
 import { TimeSlot } from '../portfolio/weekly-availability/entities/weeky-availability.entity';
 import { ClientGrpc } from '@nestjs/microservices';
 import { NOTIFICATION_GRPC_PACKAGE } from '@app/common/constants/services-constants';
-import { ChatService } from '@core-service/integrations/notification/interfaces/chat-service.interface';
+import { ChatService } from '@notification-service/modules/chat/chat.service';
+import { lastValueFrom, Observable } from 'rxjs';
 
 @Injectable()
 export class SessionPackageService {
@@ -126,9 +127,9 @@ export class SessionPackageService {
         this.exceptionHandler.throwNotFound(_404.TIME_SLOT_NOT_FOUND);
       }
 
-      if (timeSlot.isBooked) {
-        this.exceptionHandler.throwBadRequest(_400.TIME_SLOT_ALREADY_BOOKED);
-      }
+      // if (timeSlot.isBooked) {
+      //   this.exceptionHandler.throwBadRequest(_400.TIME_SLOT_ALREADY_BOOKED);
+      // }
       timeSlot.isBooked = true;
 
       const subjectTier =
@@ -138,12 +139,12 @@ export class SessionPackageService {
         );
 
       const sessionPrice =
-        (subjectTier.credits *
+        (subjectTier?.credits *
           (createClassSessionPackageDto.sessionLength / 60) *
           packageOffering.discount) /
         100;
 
-      if (student.credits < subjectTier.credits) {
+      if (student.credits < subjectTier?.credits) {
         this.exceptionHandler.throwBadRequest(_400.INSUFFICIENT_CREDITS);
       }
       await this.timeSlotRepository.save(timeSlot);
@@ -174,7 +175,7 @@ export class SessionPackageService {
         ],
       });
 
-      student.credits -= subjectTier.credits;
+      // student.credits -= subjectTier?.credits;
 
       const savedSession = await this.classSessionRepository.save(session);
 
@@ -192,23 +193,25 @@ export class SessionPackageService {
 
       sessions.push(savedSession);
     }
-    const session = await this.getSessionPackageById(sessionPackage.id);
-    await this.chatService.createConversation(
-      {
-        id: tutor.id,
-        firstName: tutor.firstName,
-        lastName: tutor.lastName,
-        role: tutor.role,
-        profilePicture: tutor.profilePicture,
-      },
-      {
-        id: student.id,
-        firstName: student.firstName,
-        lastName: student.lastName,
-        role: student.role,
-        profilePicture: student.profilePicture,
-      },
-    );
+    const [session, conversationResponse] = await Promise.all([
+      this.getSessionPackageById(sessionPackage.id),
+      this.chatService.createConversation({
+        sender: {
+          id: tutor.id,
+          firstName: tutor.firstName,
+          lastName: tutor.lastName,
+          role: tutor.role,
+          profilePicture: tutor.profilePicture,
+        },
+        receiver: {
+          id: student.id,
+          firstName: student.firstName,
+          lastName: student.lastName,
+          role: student.role,
+          profilePicture: student.profilePicture,
+        },
+      }),
+    ]);
     return session;
   }
 

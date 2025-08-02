@@ -125,7 +125,6 @@ export class PaymentService {
       const account = await this.stripe.accounts.create(params);
       return account.id;
     } catch (error) {
-      console.log('error', error);
       this.exceptionHandler.throwBadRequest(
         _400.STRIPE_ACCOUNT_CREATION_FAILED,
       );
@@ -137,7 +136,6 @@ export class PaymentService {
     accountLink?: string;
     loginLink?: string;
   }> {
-    console.log('stripeAccountId', stripeAccountId);
     try {
       const account = await this.stripe.accounts.retrieve(stripeAccountId);
       const requirements = account.requirements;

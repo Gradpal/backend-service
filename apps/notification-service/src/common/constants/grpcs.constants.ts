@@ -1,5 +1,5 @@
 export const GrpcServices = {
-  CONVERSATION_SERVICE: 'ConversationService',
+  CONVERSATION_SERVICE: 'ConversationServices',
 };
 
 export const ConversationGrpcMethods = {

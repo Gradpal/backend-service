@@ -10,7 +10,7 @@ import { UserModule } from '../user/user.module';
 import { ExceptionHandler } from '@app/common/exceptions/exceptions.handler';
 import { MinioClientModule } from '../minio-client/minio-client.module';
 import { SubjectsModule } from '../subjects/subjects.module';
-import { ClassSessionModule } from '../class-session/class-session.module';
+import { ClassSessionModule } from '../session-package/class-session/class-session.module';
 import { DaySchedule } from './weekly-availability/entities/weeky-availability.entity';
 import { TimeSlot } from './weekly-availability/entities/weeky-availability.entity';
 import { WeeklyAvailability } from './weekly-availability/entities/weeky-availability.entity';

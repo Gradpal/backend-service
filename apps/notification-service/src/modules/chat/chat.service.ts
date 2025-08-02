@@ -16,7 +16,7 @@ import { CORE_GRPC_PACKAGE } from '@app/common/constants/services-constants';
 import { ClientGrpc, ClientProxy } from '@nestjs/microservices';
 import { GrpcServices } from '@core-service/common/constants/grpc.constants';
 import { MinioClientService } from '@core-service/modules/minio-client/minio-client.service';
-import { flatMap, lastValueFrom, Observable } from 'rxjs';
+import { lastValueFrom, Observable } from 'rxjs';
 import {
   PATTERNS,
   QUEUE_HANDLERS,
@@ -95,8 +95,6 @@ export class ChatService {
         size: file.size,
         buffer: file.buffer.toString('base64'), // Convert buffer to base64 string
       }));
-      console.log('======= sender ======= ', conversation.sender);
-      console.log('======= receiver ======= ', conversation.receiver);
 
       const payload = {
         conversationId: conversation.id,
@@ -120,7 +118,6 @@ export class ChatService {
         error?.stack,
       );
       throw new InternalServerErrorException('Failed to send message');
-
       // Logger.error('Error sending platform message:', error);
       // this.exceptionHandler.throwInternalServerError(error);
     }
@@ -135,7 +132,6 @@ export class ChatService {
       });
 
     const message = await query.getOne();
-    console.log('======= message ======= ', message);
     return !!message;
   }
 
@@ -176,7 +172,6 @@ export class ChatService {
         sharedFiles,
         owner: sender,
       });
-      console.log('======= sender ======= ', sender);
       const savedMessage = await this.messageRepository.save(message);
 
       conversation.latestMessages = [
@@ -294,10 +289,10 @@ export class ChatService {
       return { sharedUrls: [], sharedFiles: [] };
     }
 
-    const sharedFiles = conversation.latestMessages
+    const sharedFiles = conversation?.latestMessages
       .flatMap((message) => message.sharedFiles ?? [])
       .filter(Boolean);
-    const sharedUrls = conversation.latestMessages
+    const sharedUrls = conversation?.latestMessages
       .flatMap((message) => message.urls ?? [])
       .filter(Boolean);
 
@@ -310,6 +305,14 @@ export class ChatService {
       receiver: createConversationDto.receiver,
       status: EConversationStatus.ACTIVE,
     });
-    return this.conversationRepository.save(conversation);
+    const savedConversation =
+      await this.conversationRepository.save(conversation);
+
+    return {
+      id: savedConversation.id,
+      sender: savedConversation.sender,
+      receiver: savedConversation.receiver,
+      status: savedConversation.status,
+    };
   }
 }

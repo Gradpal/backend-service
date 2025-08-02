@@ -95,11 +95,10 @@ const enableGRPC = async (app: INestApplication) => {
 
   const grpcPort = app.get(NotificationConfigService).GrpcPort;
   const grpcHost = app.get(NotificationConfigService).GrpcHost;
-  console.log('grpcHost', grpcHost);
-  console.log('grpcPort', grpcPort);
   const url = `${grpcHost}:${grpcPort}`;
 
   const protoPath = join(process.cwd(), NOTIFICATION_PROTO_PATH);
+
   app.connectMicroservice<GrpcOptions>({
     transport: Transport.GRPC,
     options: {
@@ -109,6 +108,7 @@ const enableGRPC = async (app: INestApplication) => {
       onLoadPackageDefinition: (pkg, server) => {
         new ReflectionService(pkg).addToServer(server);
         logger.log(`${APP_NAME} gRPC is running on ${grpcHost}:${grpcPort} 🚀`);
+        console.log('gRPC services registered:', Object.keys(pkg));
       },
     },
   });

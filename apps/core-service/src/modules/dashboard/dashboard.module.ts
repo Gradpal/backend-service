@@ -2,7 +2,7 @@ import { forwardRef, Module } from '@nestjs/common';
 import { DashboardService } from './dashboard.service';
 import { DashboardController } from './dashboard.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { ClassSession } from '../class-session/entities/class-session.entity';
+import { ClassSession } from '../session-package/class-session/entities/class-session.entity';
 import { UserModule } from '../user/user.module';
 import { PortfolioModule } from '../portfolio/portfolio.module';
 import { SubjectsModule } from '../subjects/subjects.module';

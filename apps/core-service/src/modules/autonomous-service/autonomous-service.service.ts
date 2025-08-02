@@ -16,7 +16,7 @@ import { Bid } from './entities/bid.entity';
 import { EUserRole } from '../user/enums/user-role.enum';
 import { EBidStatus } from './enums/bid-status.enum';
 import { EAutonomousServiceStatus } from './enums/autonomous-service-status.enum';
-import { SessionReviewDto } from '../class-session/dto/session-review.dto';
+import { SessionReviewDto } from '../session-package/class-session/dto/session-review.dto';
 import { CreateInvitationDto } from './dtos/create-invitation.dto';
 import { UserService } from '../user/user.service';
 import { EInvitationStatus } from './enums/invitation-status.enum';
