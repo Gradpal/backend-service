@@ -6,6 +6,7 @@ import {
   Res,
   HttpStatus,
   Get,
+  Param,
 } from '@nestjs/common';
 import { PaymentService } from './payment.service';
 import Stripe from 'stripe';
@@ -58,6 +59,28 @@ export class PaymentController {
   ): Promise<Stripe.Checkout.Session | { error: string }> {
     return this.paymentService.createCheckoutSession(
       req.user as User,
+      body.credits,
+    );
+  }
+
+  @Post('/parent/buy-credits/student/:studentId')
+  @ApiOperation({ summary: 'Purchase credits for students by parent' })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        credits: { type: 'number', example: 10 },
+      },
+    },
+  })
+  // @PreAuthorize(EUserRole.STUDENT)
+  @AuthUser()
+  async buyCreditsByParent(
+    @Body() body: BuyCreditsDto,
+    @Param('studentId') studentId: string,
+  ): Promise<Stripe.Checkout.Session | { error: string }> {
+    return this.paymentService.createCheckoutSessionByParent(
+      studentId,
       body.credits,
     );
   }
