@@ -426,10 +426,6 @@ export class ChatService {
         ? this.userService.getUserById(createConversationDto?.sender?.id)
         : this.userService.createUser(createConversationDto?.sender),
     ]);
-<<<<<<< HEAD
-=======
-
->>>>>>> 37f3dda (fix: conversations json query)
     const conversation = this.conversationRepository.create({
       sender: sender,
       receiver: receiver,
