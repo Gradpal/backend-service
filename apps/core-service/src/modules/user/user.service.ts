@@ -351,7 +351,6 @@ export class UserService {
   }
   async deactivateUser(userId: string, deactivateUserDto: DeactivateUserDto) {
     const user = await this.findOne(userId);
-    console.log(user);
     if (user.status === EUserStatus.INACTIVE) {
       this.exceptionHandler.throwConflict(_400.USER_ALREADY_DEACTIVATED);
     }
@@ -578,9 +577,7 @@ export class UserService {
     if (!user) {
       this.exceptionHandler.throwNotFound(_404.USER_NOT_FOUND_IN_CHAT);
     }
-    console.log('--- user --- ', user);
     return user;
-    // return { result: user ? [user] : [] };
   }
   async getMyChildren(parentId: string) {
     return await this.userRepository.find({

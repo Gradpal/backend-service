@@ -12,11 +12,13 @@ import {
   QUEUE_HANDLERS,
 } from '@app/common/constants/rabbitmq-constants';
 import { PlatformChattingModule } from './platform-chatting/platform-chatting.module';
+import { NotificationUserModule } from '../user/user.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Conversation, Message], DB_ROOT_NAMES.CHAT),
     PlatformChattingModule,
+    NotificationUserModule,
   ],
   providers: [
     ChatService,
