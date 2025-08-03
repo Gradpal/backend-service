@@ -1,9 +1,13 @@
 import { BaseEntity } from '@app/common/database/base.entity';
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { Column, Entity, Index, ManyToOne } from 'typeorm';
 =======
 import { Column, Entity, Index } from 'typeorm';
 >>>>>>> 77db3d2 (feat: add duplicates check while creating the a conversation)
+=======
+import { Column, Entity, Index, ManyToOne } from 'typeorm';
+>>>>>>> 37f3dda (fix: conversations json query)
 import { EConversationStatus } from '../enums/conversation-status.enum';
 import { Message } from './message.entity';
 import { User } from '@notification-service/modules/user/entities/user.entity';
