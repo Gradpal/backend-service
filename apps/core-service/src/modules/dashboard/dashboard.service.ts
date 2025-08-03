@@ -44,8 +44,8 @@ export class DashboardService {
         'sessionPackage.tutor',
         'timeSlot',
         'timeSlot.daySchedule',
-        'timeSlot.weeklyAvailability',
         'timeSlot.owner',
+        'timeSlot.daySchedule.weeklyAvailability',
         'subject',
       ],
       select: {
@@ -123,7 +123,7 @@ export class DashboardService {
   certificates: CertificateResponseDTO[] = [
     {
       id: 'a3f1e9d2-7c8b-4d95-b7e1-62f9e3c7a4e1',
-      studentId: '550e8400-e29b-41d4-a716-446655440000',
+      studentId: 'df40fbc6-913b-4de4-8527-2fa52bfaacb6',
       teacherId: 'e7d7a8c9-1a3b-4c4d-9c8b-235d90b2c4f7',
       subjectId: '9b2e13c7-7f3b-4f27-8b2d-88a13e5f1d2a',
       title: 'Mathematical Fundamentals',
@@ -132,7 +132,7 @@ export class DashboardService {
     },
     {
       id: 'f7b57e34-1f1e-4e2d-9c7a-4f5b8d30e1a2',
-      studentId: '550e8400-e29b-41d4-a716-446655440000',
+      studentId: 'e771e644-e1fd-43b2-8ba1-f96930ed03c5',
       teacherId: 'a9d6f4b8-5c8f-4d1f-bb2a-11fa9bc0d9d8',
       subjectId: 'af5e2872-4d73-4a27-a7ea-7fcb7746e865',
       title: 'Advanced Physics',
@@ -141,7 +141,7 @@ export class DashboardService {
     },
     {
       id: 'b8c1d8f6-c9e0-41f8-9373-0a56e8e0a0a3',
-      studentId: 'b9b1e7c6-3f6e-4c75-910e-3c1a2ef23d8d',
+      studentId: '5dc634f0-a5c7-4034-9674-0ccc9205495d',
       teacherId: 'e7d7a8c9-1a3b-4c4d-9c8b-235d90b2c4f7',
       subjectId: '9b2e13c7-7f3b-4f27-8b2d-88a13e5f1d2a',
       title: 'English Literature',
@@ -150,7 +150,7 @@ export class DashboardService {
     },
     {
       id: 'd46f2e98-4cbb-4f02-85d1-f47a2e21c762',
-      studentId: '550e8400-e29b-41d4-a716-446655440000',
+      studentId: 'bedad123-534f-43b2-b667-1d954566f712',
       teacherId: 'c4d2f9a2-6e5b-4dfc-91f3-2308b2a33e99',
       subjectId: 'daf45e67-8b7c-4331-9e20-61c8a94e2fbc',
       title: 'Computer Science Basics',
@@ -159,7 +159,7 @@ export class DashboardService {
     },
     {
       id: 'ea72b8f1-9e15-4f96-9a15-5ed8c8e3f7d4',
-      studentId: 'b9b1e7c6-3f6e-4c75-910e-3c1a2ef23d8d',
+      studentId: 'df40fbc6-913b-4de4-8527-2fa52bfaacb6',
       teacherId: 'a9d6f4b8-5c8f-4d1f-bb2a-11fa9bc0d9d8',
       subjectId: 'fbc123a9-2c44-4b53-9ecf-4426c6e0ee3a',
       title: 'Introduction to Chemistry',
@@ -170,7 +170,7 @@ export class DashboardService {
   badges: BadgeResponseDto[] = [
     {
       id: '9f1c8e40-1d2a-4a2f-8a2b-1e4f3d5a6b7c',
-      studentId: '550e8400-e29b-41d4-a716-446655440000',
+      studentId: '5dc634f0-a5c7-4034-9674-0ccc9205495d',
       title: 'Math Whiz',
       description: 'Awarded for scoring above 90% in Mathematics final exam.',
       issuedDate: '2025-07-10',
@@ -178,7 +178,7 @@ export class DashboardService {
     },
     {
       id: '4b7a1d9f-cf32-4cbe-8426-0e8e6a3b2d9f',
-      studentId: 'b9b1e7c6-3f6e-4c75-910e-3c1a2ef23d8d',
+      studentId: '5dc634f0-a5c7-4034-9674-0ccc9205495d',
       title: 'Science Explorer',
       description:
         'Recognized for outstanding participation in science projects.',
@@ -187,7 +187,7 @@ export class DashboardService {
     },
     {
       id: '6d9e5f21-8d40-44c3-90e3-3a1c9e4b4f8d',
-      studentId: '550e8400-e29b-41d4-a716-446655440000',
+      studentId: 'e771e644-e1fd-43b2-8ba1-f96930ed03c5',
       title: 'Coding Beginner',
       description: 'Completed the beginner coding course successfully.',
       issuedDate: '2025-05-05',
@@ -195,7 +195,7 @@ export class DashboardService {
     },
     {
       id: 'e2a7a683-7109-41e0-bd27-78b2a5c10c8e',
-      studentId: 'd3f6c1a8-e5b4-4a09-8f1c-5d4f7b8a1e9c',
+      studentId: 'e771e644-e1fd-43b2-8ba1-f96930ed03c5',
       title: 'Creative Writer',
       description: 'Awarded for excellent creative writing skills.',
       issuedDate: '2025-07-15',
@@ -203,7 +203,7 @@ export class DashboardService {
     },
     {
       id: 'a1c9e3f4-2b8e-4c71-b1b9-9c2d8f7a4e6d',
-      studentId: '550e8400-e29b-41d4-a716-446655440000',
+      studentId: 'df40fbc6-913b-4de4-8527-2fa52bfaacb6',
       title: 'History Buff',
       description: 'Recognized for exceptional knowledge in history quizzes.',
       issuedDate: '2025-06-30',
