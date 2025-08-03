@@ -183,7 +183,7 @@ export class ChatService {
     return this.messageRepository.update(messageId, updateMessageDto);
   }
 
-  async getConversations(userId: string, page: number, limit: number) {
+  async getConversations(userId: string, page: number = 1, limit: number = 10) {
     const [conversations, total] =
       await this.conversationRepository.findAndCount({
         where: [
@@ -426,7 +426,6 @@ export class ChatService {
         ? this.userService.getUserById(createConversationDto?.sender?.id)
         : this.userService.createUser(createConversationDto?.sender),
     ]);
-
     const conversation = this.conversationRepository.create({
       sender: sender,
       receiver: receiver,

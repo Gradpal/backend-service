@@ -36,7 +36,6 @@ import { TimeSlot } from '../portfolio/weekly-availability/entities/weeky-availa
 import { ClientGrpc } from '@nestjs/microservices';
 import { NOTIFICATION_GRPC_PACKAGE } from '@app/common/constants/services-constants';
 import { ChatService } from '@notification-service/modules/chat/chat.service';
-import { lastValueFrom, Observable } from 'rxjs';
 
 @Injectable()
 export class SessionPackageService {
