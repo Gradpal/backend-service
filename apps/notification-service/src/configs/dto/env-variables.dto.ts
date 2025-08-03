@@ -59,4 +59,10 @@ export class EnvironmentVariables {
 
   @Expose()
   CORE_GRPC_URL: string;
+
+  @Expose()
+  GRPC_HOST: string;
+
+  @Expose()
+  GRPC_PORT: number;
 }

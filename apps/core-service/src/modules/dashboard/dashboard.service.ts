@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { ClassSession } from '../class-session/entities/class-session.entity';
+import { ClassSession } from '../session-package/class-session/entities/class-session.entity';
 import { Repository } from 'typeorm';
 import { ExceptionHandler } from '@app/common/exceptions/exceptions.handler';
 import { User } from '../user/entities/user.entity';

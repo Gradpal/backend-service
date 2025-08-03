@@ -14,7 +14,6 @@ export class SlackService {
 
   async sendMessage(text: string): Promise<boolean> {
     try {
-      console.log('=== ======= Sending email to slack channel =====');
       const response = await firstValueFrom(
         this.httpService.post(this.webhookUrl, { text }),
       );

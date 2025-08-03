@@ -5,7 +5,7 @@ import { User } from '@core-service/modules/user/entities/user.entity';
 import { EAutonomousServiceStatus } from '../enums/autonomous-service-status.enum';
 import { AttachmentDto } from '@app/common/dtos/attachment.dto';
 import { Bid } from './bid.entity';
-import { SessionReviewDto } from '@core-service/modules/class-session/dto/session-review.dto';
+import { SessionReviewDto } from '@core-service/modules/session-package/class-session/dto/session-review.dto';
 import { Invitation } from './invitation.entity';
 
 @Entity({ name: 'autonomous_service' })

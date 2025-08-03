@@ -46,7 +46,6 @@ export class RolesGuard implements CanActivate {
         secret: this.configService.jwtSecret,
       });
       if (requiredRoles.includes(decodedToken.role)) {
-        console.log(decodedToken, '---->');
         const userFromDb = await this.userService.findOne(decodedToken.id);
         req.user = userFromDb;
         return true;

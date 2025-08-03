@@ -4,4 +4,6 @@ export const NOTIFICATIONS_SERVICE = 'NOTIFICATIONS';
 
 export const INTEGRATION_GRPC_PACKAGE = 'integration'; // this name should be the same as the package name in the proto file
 export const CORE_GRPC_PACKAGE = 'core';
+export const NOTIFICATION_GRPC_PACKAGE = 'notification';
 export const CORE_PROTO_PATH = 'assets/proto/core.proto';
+export const NOTIFICATION_PROTO_PATH = 'assets/proto/notification.proto';

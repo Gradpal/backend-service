@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+package notification;
+
+service ConversationServices {
+  rpc createConversation (CreateConversationRequest) returns (ConversationResponse) {}
+}
+
+message MessageOwner{
+  string id = 1;
+  string firstName = 2;
+  string lastName = 3;
+  string role = 4;
+  string profilePicture = 5;
+}
+
+message ConversationResponse{
+  string id = 1;
+  MessageOwner sender = 2;
+  MessageOwner receiver = 3;
+  string status = 4;
+}
+
+message CreateConversationRequest {
+  MessageOwner sender = 1;
+  MessageOwner receiver = 2;
+}
+
+
+

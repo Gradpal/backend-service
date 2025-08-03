@@ -18,14 +18,21 @@ import * as cookieParser from 'cookie-parser';
 import { NotificationConfigService } from './configs/notification-config.service';
 import { createRabbitMQConfig } from './configs/rabbitmq.config';
 import { NOTIFICATION_QUEUE_NAMES } from '@app/common/constants/rabbitmq-constants';
-import { Transport } from '@nestjs/microservices';
+import { GrpcOptions, Transport } from '@nestjs/microservices';
 import { Reflector } from '@nestjs/core';
+import {
+  NOTIFICATION_GRPC_PACKAGE,
+  NOTIFICATION_PROTO_PATH,
+} from '@app/common/constants/services-constants';
+import { ReflectionService } from '@grpc/reflection';
+import { join } from 'path';
 
 export const setUpNotificationConfig = async (app: INestApplication) => {
   const isProdMode =
     app.get(NotificationConfigService).environment == AppEnvironment.Production;
 
   enableValidationPipe(app);
+  enableGRPC(app);
 
   app.setGlobalPrefix(APP_BASE_PATH); // 👈 this should be loaded before swagger docs, otherwise app base path won't be included in swagger docs
 
@@ -83,6 +90,29 @@ export function validationExceptionFactory(errors: ValidationError[]) {
   return new BadRequestException(messages);
 }
 
+const enableGRPC = async (app: INestApplication) => {
+  const logger = app.get(Logger);
+
+  const grpcPort = app.get(NotificationConfigService).GrpcPort;
+  const grpcHost = app.get(NotificationConfigService).GrpcHost;
+  const url = `${grpcHost}:${grpcPort}`;
+
+  const protoPath = join(process.cwd(), NOTIFICATION_PROTO_PATH);
+
+  app.connectMicroservice<GrpcOptions>({
+    transport: Transport.GRPC,
+    options: {
+      package: NOTIFICATION_GRPC_PACKAGE,
+      protoPath,
+      url,
+      onLoadPackageDefinition: (pkg, server) => {
+        new ReflectionService(pkg).addToServer(server);
+        logger.log(`${APP_NAME} gRPC is running on ${grpcHost}:${grpcPort} 🚀`);
+        console.log('gRPC services registered:', Object.keys(pkg));
+      },
+    },
+  });
+};
 /**
  * This will enable the auto-documentation of apis.
  * @param app

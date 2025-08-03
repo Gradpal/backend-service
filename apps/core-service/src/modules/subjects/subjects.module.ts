@@ -10,7 +10,7 @@ import { User } from '../user/entities/user.entity';
 import { Portfolio } from '../portfolio/entities/portfolio.entity';
 import { PortfolioModule } from '../portfolio/portfolio.module';
 import { ExceptionHandler } from '@app/common/exceptions/exceptions.handler';
-import { ClassSessionModule } from '../class-session/class-session.module';
+import { ClassSessionModule } from '../session-package/class-session/class-session.module';
 import { SubjectCategory } from './entities/subject-category.entity';
 
 @Module({

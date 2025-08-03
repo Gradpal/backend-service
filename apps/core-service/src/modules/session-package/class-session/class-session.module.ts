@@ -3,11 +3,11 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ClassSessionService } from './class-session.service';
 import { ClassSessionController } from './class-session.controller';
 import { ClassSession } from './entities/class-session.entity';
-import { PortfolioModule } from '../portfolio/portfolio.module';
-import { SubjectsModule } from '../subjects/subjects.module';
+import { PortfolioModule } from '../../portfolio/portfolio.module';
+import { SubjectsModule } from '../../subjects/subjects.module';
 import { ExceptionHandler } from '@app/common/exceptions/exceptions.handler';
-import { UserModule } from '../user/user.module';
-import { MinioClientService } from '../minio-client/minio-client.service';
+import { UserModule } from '../../user/user.module';
+import { MinioClientService } from '../../minio-client/minio-client.service';
 
 @Module({
   imports: [

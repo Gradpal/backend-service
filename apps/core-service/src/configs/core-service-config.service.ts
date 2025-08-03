@@ -103,6 +103,10 @@ export class CoreServiceConfigService {
     return this.configService.getOrThrow('STRIPE_WEBHOOK_SECRET');
   }
 
+  get notificationGrpcUrl(): string {
+    return this.configService.getOrThrow('NOTIFICATION_GRPC_URL');
+  }
+
   get googleClientId(): string {
     return this.configService.getOrThrow('GOOGLE_CLIENT_ID');
   }
