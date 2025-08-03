@@ -110,7 +110,7 @@ export class NotificationConfigService {
       migrationsRun: this.environment === AppEnvironment.Production,
       dropSchema: false,
       cache: false,
-      logging: false,
+      logging: ['query', 'error'], // Enable logging to debug the issue
     };
   }
 }

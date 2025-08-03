@@ -128,7 +128,19 @@ export class ChatController {
     @Query('page') page: number,
     @Query('limit') limit: number,
   ) {
-    return this.chatService.getConversations(userId, page, limit);
+    try {
+      console.log(`Controller: Getting conversations for userId: ${userId}`);
+      const result = await this.chatService.getConversations(
+        userId,
+        page,
+        limit,
+      );
+      console.log(`Controller: Successfully retrieved conversations`);
+      return result;
+    } catch (error) {
+      console.error('Controller: Error getting conversations:', error);
+      throw error;
+    }
   }
   @Get('conversations/:conversationId/shared-files-and-urls')
   @ApiParam({ name: 'conversationId', type: String })

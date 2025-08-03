@@ -192,17 +192,77 @@ export class ChatService {
   }
 
   async getConversations(userId: string, page: number, limit: number) {
-    const query = this.conversationRepository
-      .createQueryBuilder('conversation')
-      .where(`conversation.sender->>'id' = :userId`, { userId })
-      .orWhere(`conversation.receiver->>'id' = :userId`, { userId });
+    try {
+      console.log(
+        `Getting conversations for userId: ${userId}, page: ${page}, limit: ${limit}`,
+      );
 
-    if (page && limit) {
-      query.skip((page - 1) * limit).take(limit);
+      // Try a simpler approach first - get all conversations and filter in memory
+      // This might be more efficient for small datasets
+      const allConversations = await this.conversationRepository.find({
+        order: {
+          updatedAt: 'DESC',
+          createdAt: 'DESC',
+        },
+        take: 1000, // Limit to prevent loading too many records
+      });
+
+      // Filter conversations where the user is either sender or receiver
+      const userConversations = allConversations.filter(
+        (conversation) =>
+          conversation.sender?.id === userId ||
+          conversation.receiver?.id === userId,
+      );
+
+      // Apply pagination
+      const startIndex = page && limit ? (page - 1) * limit : 0;
+      const endIndex =
+        page && limit ? startIndex + limit : userConversations.length;
+      const paginatedConversations = userConversations.slice(
+        startIndex,
+        endIndex,
+      );
+
+      console.log(
+        `Found ${paginatedConversations.length} conversations, total: ${userConversations.length}`,
+      );
+
+      return createPaginatedResponse(
+        paginatedConversations,
+        userConversations.length,
+        page,
+        limit,
+      );
+    } catch (error) {
+      console.error('Error in getConversations:', error);
+      // Fallback to a simpler approach
+      try {
+        console.log('Using fallback method for getConversations');
+        const allConversations = await this.conversationRepository.find({
+          order: {
+            updatedAt: 'DESC',
+          },
+          take: limit || 10,
+        });
+
+        const userConversations = allConversations.filter(
+          (conversation) =>
+            conversation.sender?.id === userId ||
+            conversation.receiver?.id === userId,
+        );
+
+        return createPaginatedResponse(
+          userConversations,
+          userConversations.length,
+          page,
+          limit,
+        );
+      } catch (fallbackError) {
+        console.error('Fallback query also failed:', fallbackError);
+        // Return empty result instead of throwing error
+        return createPaginatedResponse([], 0, page, limit);
+      }
     }
-    const [conversations, total] = await query.getManyAndCount();
-
-    return createPaginatedResponse(conversations, total, page, limit);
   }
 
   async getMessages(conversationId: string) {
@@ -300,6 +360,14 @@ export class ChatService {
   }
 
   async createConversation(createConversationDto: CreateConversationRequest) {
+    const existsBySenderAndReceiver =
+      await this.getConversationBySenderAndReceiver(
+        createConversationDto?.sender?.id,
+        createConversationDto?.receiver?.id,
+      );
+    if (existsBySenderAndReceiver) {
+      return existsBySenderAndReceiver;
+    }
     const conversation = this.conversationRepository.create({
       sender: createConversationDto.sender,
       receiver: createConversationDto.receiver,

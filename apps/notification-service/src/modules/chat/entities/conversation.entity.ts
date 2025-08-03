@@ -1,10 +1,11 @@
 import { BaseEntity } from '@app/common/database/base.entity';
-import { Column, Entity } from 'typeorm';
+import { Column, Entity, Index } from 'typeorm';
 import { EConversationStatus } from '../enums/conversation-status.enum';
 import { Message } from './message.entity';
 import { MessageOwner } from '../dtos/message-owner.dto';
 
 @Entity()
+@Index(['sender', 'receiver'])
 export class Conversation extends BaseEntity {
   @Column({ type: 'jsonb', nullable: true })
   receiver: MessageOwner;
