@@ -184,7 +184,9 @@ export class AuthService {
     if (!school.isValid) {
       this.exceptionHandler.throwBadRequest(_400.INVALID_EMAIL_DOMAIN);
     }
-    return school;
+    const match = school.message.match(/^(.+?) verified$/);
+    const universityName = match ? match[1] : null;
+    return universityName;
   }
 
   async sendOpt(email: string, isResetPassword: boolean = false) {
