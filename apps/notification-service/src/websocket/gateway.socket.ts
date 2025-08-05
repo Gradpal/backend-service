@@ -11,8 +11,10 @@ import { _401, _404 } from '@app/common/constants/errors-constants';
 import { ExceptionHandler } from '@app/common/exceptions/exceptions.handler';
 
 @WebSocketGateway({
-  cors: true,
   namespace: '/',
+  cors: {
+    origin: '*',
+  },
   transport: ['websocket', 'polling'],
 })
 export class WebSocketGatewayHandler
