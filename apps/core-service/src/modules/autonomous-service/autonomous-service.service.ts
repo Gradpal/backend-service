@@ -147,6 +147,7 @@ export class AutonomousServiceService {
       'bids.description',
       'bids.status',
       'bids.createdAt',
+      'bids.user',
       'bids.updatedAt',
       'invitations.id',
       'invitations.status',

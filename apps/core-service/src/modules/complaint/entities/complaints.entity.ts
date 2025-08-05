@@ -60,7 +60,8 @@ export class Complaint extends BaseEntity {
 
   @Column({ type: 'json', nullable: true })
   adminReviewDecision: SessionComplaintReviwDecisionDto;
-
+  @Column({ type: 'bigint', nullable: true, default: 0 })
+  refundPercentage: number;
   @Column({ type: 'json', nullable: true })
   adminNotes: string[];
 }

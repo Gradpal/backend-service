@@ -71,10 +71,16 @@ export class ComplaintsService {
       );
       complaint.evidenceFiles = evidenceAttachments;
     }
+    if (
+      createComplaintDto.issueType == ComplaintIssueType.CANCELLING_AUTO_SERVICE
+    ) {
+      service.status = EAutonomousServiceStatus.CANCELLED;
+    }
 
     if (this.issueTypeExistsInIssueTypeEnum(createComplaintDto.issueType)) {
       complaint.priority = ComplaintPriority.HIGH;
     }
+    await this.autonomousServiceRepository.save(service);
     return this.complaintRepository.save(complaint);
   }
 
@@ -106,6 +112,7 @@ export class ComplaintsService {
       issueType as ComplaintIssueType,
     );
   }
+
   async getMyComplaints(
     user: User,
     status: EComplaintStatus,
@@ -299,6 +306,7 @@ export class ComplaintsService {
     const [complaints, total] = await queryBuilder.getManyAndCount();
     return createPaginatedResponse(complaints, total, page, limit);
   }
+
   async getComplaintById(id: string) {
     const complaint = await this.complaintRepository.findOne({
       where: { id },
@@ -314,6 +322,7 @@ export class ComplaintsService {
     }
     return complaint;
   }
+
   async getComplaintDetails(id: string) {
     return this.complaintRepository.findOne({
       where: { id },
