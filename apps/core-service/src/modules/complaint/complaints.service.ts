@@ -4,7 +4,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { CreateComplaintDto } from './dtos/create-complaint.dto';
 import { MinioClientService } from '../minio-client/minio-client.service';
 import { ClassSessionService } from '../session-package/class-session/class-session.service';
-import { _400, _404, _409 } from '@app/common/constants/errors-constants';
+import { _404, _409 } from '@app/common/constants/errors-constants';
 import { ExceptionHandler } from '@app/common/exceptions/exceptions.handler';
 import { ComplaintIssueType, ComplaintPriority } from './enums/complaints.enum';
 import { ClassSession } from '../session-package/class-session/entities/class-session.entity';
@@ -18,6 +18,7 @@ import { ComplaintCategory } from './enums/complaint-category.enum';
 import { AutonomousServiceService } from '../autonomous-service/autonomous-service.service';
 import { AutonomousService } from '../autonomous-service/entities/autonomous-service.entity';
 import { EAutonomousServiceStatus } from '../autonomous-service/enums/autonomous-service-status.enum';
+
 @Injectable()
 export class ComplaintsService {
   constructor(
@@ -46,7 +47,13 @@ export class ComplaintsService {
       service = await this.autonomousServiceService.getAutonomousServiceById(
         createComplaintDto.serviceId,
       );
-      service.status = EAutonomousServiceStatus.COMPLAINED;
+      if (
+        createComplaintDto.category === ComplaintCategory.AUTONOMOUS_SERVICE
+      ) {
+        service.status = EAutonomousServiceStatus.COMPLAINED;
+      } else {
+        service.status = EAutonomousServiceStatus.CANCELLED;
+      }
       await this.autonomousServiceRepository.save(service);
     }
     const complaintExists =
@@ -70,11 +77,6 @@ export class ComplaintsService {
         [],
       );
       complaint.evidenceFiles = evidenceAttachments;
-    }
-    if (
-      createComplaintDto.issueType == ComplaintIssueType.CANCELLING_AUTO_SERVICE
-    ) {
-      service.status = EAutonomousServiceStatus.CANCELLED;
     }
 
     if (this.issueTypeExistsInIssueTypeEnum(createComplaintDto.issueType)) {
