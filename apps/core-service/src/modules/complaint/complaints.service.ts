@@ -82,7 +82,6 @@ export class ComplaintsService {
     if (this.issueTypeExistsInIssueTypeEnum(createComplaintDto.issueType)) {
       complaint.priority = ComplaintPriority.HIGH;
     }
-    await this.autonomousServiceRepository.save(service);
     return this.complaintRepository.save(complaint);
   }
 
