@@ -56,6 +56,15 @@ export class CreateAutonomousServiceDto {
 
   @IsOptional()
   @ApiProperty({
+    description: 'Introductory meeting length in minutes',
+    example: 30,
+    type: 'integer',
+    required: false,
+  })
+  introductoryMeetingLength: number;
+
+  @IsOptional()
+  @ApiProperty({
     description: 'Supporting documents - If any',
     type: 'array',
     items: {

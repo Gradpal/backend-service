@@ -80,6 +80,8 @@ export class EnvironmentVariables {
 
   @Expose()
   CLIENT_URL: string;
+  @Expose()
+  NOTIFICATION_GRPC_URL: string;
 
   @Expose()
   GRPC_HOST: string;

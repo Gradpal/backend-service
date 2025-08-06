@@ -1,16 +1,17 @@
 import { BaseEntity } from '@app/common/database/base.entity';
-import { Column, Entity } from 'typeorm';
+import { Column, Entity, Index, ManyToOne } from 'typeorm';
 import { EConversationStatus } from '../enums/conversation-status.enum';
 import { Message } from './message.entity';
-import { MessageOwner } from '../dtos/message-owner.dto';
+import { User } from '@notification-service/modules/user/entities/user.entity';
 
 @Entity()
+@Index(['sender', 'receiver'])
 export class Conversation extends BaseEntity {
-  @Column({ type: 'jsonb', nullable: true })
-  receiver: MessageOwner;
+  @ManyToOne(() => User, { nullable: true })
+  receiver: User;
 
-  @Column({ type: 'jsonb', nullable: true })
-  sender: MessageOwner;
+  @ManyToOne(() => User, { nullable: true })
+  sender: User;
 
   @Column({
     type: 'enum',

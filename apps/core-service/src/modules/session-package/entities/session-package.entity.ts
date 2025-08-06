@@ -2,7 +2,7 @@ import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
 import { PackageType } from './package-type.entity';
 import { BaseEntity } from '@app/common/database/base.entity';
 import { User } from '@core-service/modules/user/entities/user.entity';
-import { ClassSession } from '@core-service/modules/class-session/entities/class-session.entity';
+import { ClassSession } from '@core-service/modules/session-package/class-session/entities/class-session.entity';
 import { PackageStatus } from '../enums/paclage-status.enum';
 import { Expose } from 'class-transformer';
 

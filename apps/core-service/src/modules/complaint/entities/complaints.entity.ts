@@ -1,7 +1,7 @@
 import { BaseEntity } from '@app/common/database/base.entity';
 import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 
-import { ClassSession } from '../../class-session/entities/class-session.entity';
+import { ClassSession } from '../../session-package/class-session/entities/class-session.entity';
 import { Expose } from 'class-transformer';
 import { EComplaintStatus } from '../enums/complaint-status.enum';
 import { AttachmentDto } from '@app/common/dtos/attachment.dto';
@@ -60,7 +60,8 @@ export class Complaint extends BaseEntity {
 
   @Column({ type: 'json', nullable: true })
   adminReviewDecision: SessionComplaintReviwDecisionDto;
-
+  @Column({ type: 'bigint', nullable: true, default: 0 })
+  refundPercentage: number;
   @Column({ type: 'json', nullable: true })
   adminNotes: string[];
 }

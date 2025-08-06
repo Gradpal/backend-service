@@ -29,7 +29,7 @@ import {
 } from '@nestjs/swagger';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { EUserRole } from '../user/enums/user-role.enum';
-import { ESessionStatus } from '../class-session/enums/session-status.enum';
+import { ESessionStatus } from './class-session/enums/session-status.enum';
 import { AcceptPackageSessionDto } from '../finance/dtos/accept-package-session.dto';
 import { UpdatePackageDto } from './dto/update-session-package.dto';
 

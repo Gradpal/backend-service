@@ -16,16 +16,17 @@ import { CORE_GRPC_PACKAGE } from '@app/common/constants/services-constants';
 import { ClientGrpc, ClientProxy } from '@nestjs/microservices';
 import { GrpcServices } from '@core-service/common/constants/grpc.constants';
 import { MinioClientService } from '@core-service/modules/minio-client/minio-client.service';
-import { flatMap, lastValueFrom, Observable } from 'rxjs';
+import { lastValueFrom, Observable } from 'rxjs';
 import {
   PATTERNS,
   QUEUE_HANDLERS,
 } from '@app/common/constants/rabbitmq-constants';
 import { ExceptionHandler } from '@app/common/exceptions/exceptions.handler';
-import { UserService } from '@core-service/modules/user/user.service';
 import { MessageOwner } from './dtos/message-owner.dto';
 import { createPaginatedResponse } from '@app/common/helpers/pagination.helper';
-
+import { CreateConversationRequest } from './dtos/create-conversation.dto';
+import { UserService } from '@core-service/modules/user/user.service';
+import { NotificationUserService } from '../user/user.service';
 @Injectable()
 export class ChatService {
   private minioClientService: MinioClientService;
@@ -38,6 +39,7 @@ export class ChatService {
     @Inject(CORE_GRPC_PACKAGE) private client: ClientGrpc,
     @Inject(QUEUE_HANDLERS.MESSAGE) private messageClient: ClientProxy,
     private readonly exceptionHandler: ExceptionHandler,
+    private readonly userService: NotificationUserService,
   ) {
     this.minioClientService = this.client.getService<MinioClientService>(
       GrpcServices.MINIO_CLIENT_SERVICE,
@@ -63,11 +65,6 @@ export class ChatService {
         }),
       ]);
 
-      let conversation = await this.getConversationBySenderAndReceiver(
-        messageOwner.id,
-        receiverId,
-      );
-
       const receiver = await lastValueFrom(
         receiverObservable as unknown as Observable<any>,
       );
@@ -75,14 +72,10 @@ export class ChatService {
         senderObservable as unknown as Observable<any>,
       );
 
-      if (!conversation) {
-        conversation = this.conversationRepository.create({
-          sender: sender,
-          receiver: receiver,
-          status: EConversationStatus.ACTIVE,
-        });
-        conversation = await this.conversationRepository.save(conversation);
-      }
+      const createConversationDto = new CreateConversationRequest();
+      createConversationDto.sender = sender;
+      createConversationDto.receiver = receiver;
+      const conversation = await this.createConversation(createConversationDto);
 
       const recipients = [conversation.sender.id, conversation.receiver.id];
 
@@ -94,14 +87,12 @@ export class ChatService {
         size: file.size,
         buffer: file.buffer.toString('base64'), // Convert buffer to base64 string
       }));
-      console.log('======= sender ======= ', conversation.sender);
-      console.log('======= receiver ======= ', conversation.receiver);
 
       const payload = {
         conversationId: conversation.id,
         createMessageDto,
-        receiver: receiver,
-        sender: sender,
+        receiver: conversation.receiver,
+        sender: conversation.sender,
         files: serializedFiles,
         recipients,
       };
@@ -119,7 +110,6 @@ export class ChatService {
         error?.stack,
       );
       throw new InternalServerErrorException('Failed to send message');
-
       // Logger.error('Error sending platform message:', error);
       // this.exceptionHandler.throwInternalServerError(error);
     }
@@ -134,7 +124,6 @@ export class ChatService {
       });
 
     const message = await query.getOne();
-    console.log('======= message ======= ', message);
     return !!message;
   }
 
@@ -175,7 +164,6 @@ export class ChatService {
         sharedFiles,
         owner: sender,
       });
-      console.log('======= sender ======= ', sender);
       const savedMessage = await this.messageRepository.save(message);
 
       conversation.latestMessages = [
@@ -195,25 +183,62 @@ export class ChatService {
     return this.messageRepository.update(messageId, updateMessageDto);
   }
 
-  async getConversations(userId: string, page: number, limit: number) {
-    const query = this.conversationRepository
-      .createQueryBuilder('conversation')
-      .where(`conversation.sender->>'id' = :userId`, { userId })
-      .orWhere(`conversation.receiver->>'id' = :userId`, { userId });
+  async getConversations(userId: string, page: number = 1, limit: number = 10) {
+    const [conversations, total] =
+      await this.conversationRepository.findAndCount({
+        where: [
+          {
+            sender: {
+              id: userId,
+            },
+          },
+          {
+            receiver: {
+              id: userId,
+            },
+          },
+        ],
+        relations: ['sender', 'receiver'],
+        select: {
+          id: true,
+          status: true,
+          createdAt: true,
+          updatedAt: true,
+          latestMessages: {
+            id: true,
+            content: true,
+            createdAt: true,
+            updatedAt: true,
+            sharedFiles: true,
+            urls: true,
+            owner: {
+              id: true,
+              firstName: true,
+              lastName: true,
+              profilePicture: true,
+            },
+          },
+          sender: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            profilePicture: true,
+          },
+          receiver: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            profilePicture: true,
+          },
+        },
+        order: {
+          updatedAt: 'DESC',
+        },
+        skip: (page - 1) * limit,
+        take: limit,
+      });
 
-    if (page && limit) {
-      query.skip((page - 1) * limit).take(limit);
-    }
-    console.log('======= userId ======= ', userId);
-    console.log('======= page ======= ', page);
-    console.log('======= limit ======= ', limit);
-    console.log('======= query ======= ', query.getQueryAndParameters());
-
-    const [conversations, total] = await query.getManyAndCount();
-    console.log('======= conversations ======= ', conversations);
-    return conversations;
-
-    // return createPaginatedResponse(conversations, total, page, limit);
+    return createPaginatedResponse(conversations, total, page, limit);
   }
 
   async getMessages(conversationId: string) {
@@ -225,20 +250,89 @@ export class ChatService {
   async getConversation(conversationId: string) {
     return this.conversationRepository.findOne({
       where: { id: conversationId },
+      relations: ['sender', 'receiver'],
+      select: {
+        id: true,
+        status: true,
+        createdAt: true,
+        updatedAt: true,
+        sender: {
+          id: true,
+          firstName: true,
+          lastName: true,
+          profilePicture: true,
+        },
+        receiver: {
+          id: true,
+          firstName: true,
+          lastName: true,
+          profilePicture: true,
+        },
+        latestMessages: {
+          id: true,
+          content: true,
+          createdAt: true,
+          updatedAt: true,
+          sharedFiles: true,
+          urls: true,
+          owner: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            profilePicture: true,
+          },
+        },
+      },
     });
   }
   async getConversationBySenderAndReceiver(
     senderId: string,
     receiverId: string,
   ) {
-    const query = this.conversationRepository
-      .createQueryBuilder('conversation')
-      .where(
-        `(conversation.sender->>'id' = :senderId AND conversation.receiver->>'id' = :receiverId) OR (conversation.sender->>'id' = :receiverId AND conversation.receiver->>'id' = :senderId)`,
-        { senderId: senderId, receiverId: receiverId },
-      );
-
-    return query.getOne();
+    const conversation = await this.conversationRepository.findOne({
+      where: {
+        sender: {
+          id: senderId,
+        },
+        receiver: {
+          id: receiverId,
+        },
+      },
+      relations: ['sender', 'receiver'],
+      select: {
+        id: true,
+        status: true,
+        createdAt: true,
+        updatedAt: true,
+        latestMessages: {
+          id: true,
+          content: true,
+          createdAt: true,
+          updatedAt: true,
+          sharedFiles: true,
+          owner: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            profilePicture: true,
+          },
+          urls: true,
+        },
+        sender: {
+          id: true,
+          firstName: true,
+          lastName: true,
+          profilePicture: true,
+        },
+        receiver: {
+          id: true,
+          firstName: true,
+          lastName: true,
+          profilePicture: true,
+        },
+      },
+    });
+    return conversation;
   }
 
   async getMessage(messageId: string) {
@@ -287,7 +381,6 @@ export class ChatService {
     });
   }
   async getSharedFilesAndUrlsInConversation(conversationId: string) {
-    console.log('======= conversationId ======= ', conversationId);
     const conversation = await this.conversationRepository.findOne({
       where: { id: conversationId },
       select: {
@@ -301,13 +394,43 @@ export class ChatService {
       return { sharedUrls: [], sharedFiles: [] };
     }
 
-    const sharedFiles = conversation.latestMessages
+    const sharedFiles = conversation?.latestMessages
       .flatMap((message) => message.sharedFiles ?? [])
       .filter(Boolean);
-    const sharedUrls = conversation.latestMessages
+    const sharedUrls = conversation?.latestMessages
       .flatMap((message) => message.urls ?? [])
       .filter(Boolean);
 
     return { sharedFiles, sharedUrls };
+  }
+
+  async createConversation(createConversationDto: CreateConversationRequest) {
+    const existsBySenderAndReceiver =
+      await this.getConversationBySenderAndReceiver(
+        createConversationDto?.sender?.id,
+        createConversationDto?.receiver?.id,
+      );
+    if (existsBySenderAndReceiver) {
+      return existsBySenderAndReceiver;
+    }
+    const [receiverExists, senderExists] = await Promise.all([
+      this.userService.userExists(createConversationDto?.receiver?.id),
+      this.userService.userExists(createConversationDto?.sender?.id),
+    ]);
+
+    const [receiver, sender] = await Promise.all([
+      receiverExists
+        ? this.userService.getUserById(createConversationDto?.receiver?.id)
+        : this.userService.createUser(createConversationDto?.receiver),
+      senderExists
+        ? this.userService.getUserById(createConversationDto?.sender?.id)
+        : this.userService.createUser(createConversationDto?.sender),
+    ]);
+    const conversation = this.conversationRepository.create({
+      sender: sender,
+      receiver: receiver,
+      status: EConversationStatus.ACTIVE,
+    });
+    return await this.conversationRepository.save(conversation);
   }
 }

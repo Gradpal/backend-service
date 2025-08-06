@@ -1,11 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Raw, Repository } from 'typeorm';
 import { University } from './entities/university.entity';
 import { CreateUniversityDto } from './dtos/create-university.dto';
 import { ExceptionHandler } from '@app/common/exceptions/exceptions.handler';
 import { _409 } from '@app/common/constants/errors-constants';
 import { createPaginatedResponse } from '@app/common/helpers/pagination.helper';
+
 @Injectable()
 export class UniversityService {
   constructor(
@@ -32,7 +33,7 @@ export class UniversityService {
       .createQueryBuilder('university')
       .where('university.deletedAt IS NULL');
     if (searchKeyword) {
-      query.where('university.universityName ILIKE :searchKeyword', {
+      query.where('university.university_name ILIKE :searchKeyword', {
         searchKeyword: `%${searchKeyword}%`,
       });
     }
@@ -51,8 +52,11 @@ export class UniversityService {
     const university = await this.getUniversityById(id);
     university.universityName = updateUniversityDto.universityName;
     university.countryName = updateUniversityDto.countryName;
-    university.universityEmailDomain =
-      updateUniversityDto.universityEmailDomain;
+    university.universityEmailDomains = [
+      ...university.universityEmailDomains,
+      updateUniversityDto.universityEmailDomain,
+    ];
+
     return this.universityRepository.save(university);
   }
 
@@ -62,7 +66,11 @@ export class UniversityService {
 
   async getUniversityByEmailDomain(emailDomain: string) {
     return this.universityRepository.findOne({
-      where: { universityEmailDomain: emailDomain },
+      where: {
+        universityEmailDomains: Raw(
+          (alias) => `'${emailDomain}' = ANY (${alias})`,
+        ),
+      },
     });
   }
 
@@ -90,11 +98,11 @@ export class UniversityService {
   async existsByDomainOrNameOrCountry(
     universityName: string,
     countryName: string,
-    universityEmailDomain: string,
-  ) {
+    universityEmailDomains: string,
+  ): Promise<boolean> {
     const university = await this.universityRepository.findOne({
-      where: { universityName, countryName, universityEmailDomain },
+      where: { universityName, countryName, universityEmailDomains },
     });
-    return !!university;
+    return university !== null;
   }
 }

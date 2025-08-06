@@ -176,6 +176,19 @@ export class AuthService {
     return loggedInUser;
   }
 
+  async verifyAdditionalEmailAndReturnSchool(
+    dto: ActivateAccount,
+  ): Promise<any> {
+    await this.verifyOtp(dto.email, dto.otp);
+    const school = verifyAcademicEmailByDomain(dto.email);
+    if (!school.isValid) {
+      this.exceptionHandler.throwBadRequest(_400.INVALID_EMAIL_DOMAIN);
+    }
+    const match = school.message.match(/^(.+?) verified$/);
+    const universityName = match ? match[1] : null;
+    return universityName;
+  }
+
   async sendOpt(email: string, isResetPassword: boolean = false) {
     const account: User = await this.userService.findByEmail(email, false);
     const otpId = isResetPassword ? account.id : email;

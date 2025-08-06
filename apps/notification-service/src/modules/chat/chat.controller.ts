@@ -24,6 +24,12 @@ import {
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { AuthUser } from '@notification-service/common/decorators/auth-checker.decorator';
 import { MessageOwner } from './dtos/message-owner.dto';
+import { GrpcMethod } from '@nestjs/microservices';
+import {
+  ConversationGrpcMethods,
+  GrpcServices,
+} from '@notification-service/common/constants/grpcs.constants';
+import { CreateConversationRequest } from './dtos/create-conversation.dto';
 
 @Controller('chat')
 @ApiTags('Chat')
@@ -122,7 +128,8 @@ export class ChatController {
     @Query('page') page: number,
     @Query('limit') limit: number,
   ) {
-    return this.chatService.getConversations(userId, page, limit);
+    const result = await this.chatService.getConversations(userId, page, limit);
+    return result;
   }
   @Get('conversations/:conversationId/shared-files-and-urls')
   @ApiParam({ name: 'conversationId', type: String })
@@ -130,5 +137,16 @@ export class ChatController {
     @Param('conversationId') conversationId: string,
   ) {
     return this.chatService.getSharedFilesAndUrlsInConversation(conversationId);
+  }
+
+  @GrpcMethod(
+    GrpcServices.CONVERSATION_SERVICE,
+    ConversationGrpcMethods.CREATE_CONVERSATION,
+  )
+  async createConversation(createConversationDto: CreateConversationRequest) {
+    const result = await this.chatService.createConversation(
+      createConversationDto,
+    );
+    return result;
   }
 }

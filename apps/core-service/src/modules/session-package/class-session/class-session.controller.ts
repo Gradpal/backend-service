@@ -25,7 +25,7 @@ import {
 import { AuthGuard } from '@core-service/guards/auth.guard';
 import { ClassSession } from './entities/class-session.entity';
 import { ESessionStatus } from './enums/session-status.enum';
-import { User } from '../user/entities/user.entity';
+import { User } from '../../user/entities/user.entity';
 import { FileInterceptor } from '@nestjs/platform-express';
 import {
   ATTACHMENT_MAX_COUNT,
@@ -39,7 +39,7 @@ import {
 } from '@core-service/decorators/auth.decorator';
 import { SessionReviewDto } from './dto/session-review.dto';
 import { Public } from '@app/common/decorators/public.decorator';
-import { EUserRole } from '../user/enums/user-role.enum';
+import { EUserRole } from '../../user/enums/user-role.enum';
 import { SessionDashboardDataDTO } from './dto/session-dashboard-data.dto';
 import { TimeRangeDTO } from '@core-service/common/dtos/all.dto';
 

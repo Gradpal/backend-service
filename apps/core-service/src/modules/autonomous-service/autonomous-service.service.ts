@@ -16,7 +16,7 @@ import { Bid } from './entities/bid.entity';
 import { EUserRole } from '../user/enums/user-role.enum';
 import { EBidStatus } from './enums/bid-status.enum';
 import { EAutonomousServiceStatus } from './enums/autonomous-service-status.enum';
-import { SessionReviewDto } from '../class-session/dto/session-review.dto';
+import { SessionReviewDto } from '../session-package/class-session/dto/session-review.dto';
 import { CreateInvitationDto } from './dtos/create-invitation.dto';
 import { UserService } from '../user/user.service';
 import { EInvitationStatus } from './enums/invitation-status.enum';
@@ -150,12 +150,12 @@ export class AutonomousServiceService {
       .where('autonomousService.id IN (:...serviceIds)', { serviceIds });
 
     if (searchKeyword) {
-      query.where('autonomousService.projectTitle ILIKE :searchKeyword', {
+      query.andWhere('autonomousService.projectTitle ILIKE :searchKeyword', {
         searchKeyword: `%${searchKeyword}%`,
       });
     }
     if (status) {
-      query.where('autonomousService.status = :status', { status: status });
+      query.andWhere('autonomousService.status = :status', { status: status });
     }
     query.orderBy('autonomousService.createdAt', 'DESC');
     query.skip((page - 1) * limit);
@@ -183,6 +183,7 @@ export class AutonomousServiceService {
       'bids.description',
       'bids.status',
       'bids.createdAt',
+      'bids.user',
       'bids.updatedAt',
       'invitations.id',
       'invitations.status',

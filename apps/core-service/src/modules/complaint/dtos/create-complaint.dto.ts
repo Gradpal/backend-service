@@ -1,6 +1,6 @@
 import { ComplaintIssueType } from '../enums/complaints.enum';
 import { IsEnum, IsNotEmpty, IsOptional, IsString } from 'class-validator';
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { ComplaintCategory } from '../enums/complaint-category.enum';
 
 export class CreateComplaintDto {
@@ -47,6 +47,11 @@ export class CreateComplaintDto {
     description: 'Whether the user wants a refund',
   })
   wantRefund: boolean;
+  @ApiPropertyOptional({
+    description: ' the user  refund percentage',
+    required: false,
+  })
+  refundPercentage?: number;
 
   @IsOptional()
   @ApiProperty({

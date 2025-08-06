@@ -27,7 +27,7 @@ import { AuthUser } from '@core-service/decorators/auth.decorator';
 import { User } from '../user/entities/user.entity';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { SubmitBidDto } from './dtos/submit-bid.dto';
-import { SessionReviewDto } from '../class-session/dto/session-review.dto';
+import { SessionReviewDto } from '../session-package/class-session/dto/session-review.dto';
 import { EAutonomousServiceStatus } from './enums/autonomous-service-status.enum';
 import { CreateInvitationDto } from './dtos/create-invitation.dto';
 import { EInvitationStatus } from './enums/invitation-status.enum';

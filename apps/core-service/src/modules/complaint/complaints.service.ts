@@ -3,11 +3,11 @@ import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateComplaintDto } from './dtos/create-complaint.dto';
 import { MinioClientService } from '../minio-client/minio-client.service';
-import { ClassSessionService } from '../class-session/class-session.service';
-import { _400, _404, _409 } from '@app/common/constants/errors-constants';
+import { ClassSessionService } from '../session-package/class-session/class-session.service';
+import { _404, _409 } from '@app/common/constants/errors-constants';
 import { ExceptionHandler } from '@app/common/exceptions/exceptions.handler';
 import { ComplaintIssueType, ComplaintPriority } from './enums/complaints.enum';
-import { ClassSession } from '../class-session/entities/class-session.entity';
+import { ClassSession } from '../session-package/class-session/entities/class-session.entity';
 import { User } from '../user/entities/user.entity';
 import { EComplaintStatus } from './enums/complaint-status.enum';
 import { SessionComplaintReviwDecisionDto } from './dtos/complaint-review.dto';
@@ -18,6 +18,7 @@ import { ComplaintCategory } from './enums/complaint-category.enum';
 import { AutonomousServiceService } from '../autonomous-service/autonomous-service.service';
 import { AutonomousService } from '../autonomous-service/entities/autonomous-service.entity';
 import { EAutonomousServiceStatus } from '../autonomous-service/enums/autonomous-service-status.enum';
+
 @Injectable()
 export class ComplaintsService {
   constructor(
@@ -46,7 +47,13 @@ export class ComplaintsService {
       service = await this.autonomousServiceService.getAutonomousServiceById(
         createComplaintDto.serviceId,
       );
-      service.status = EAutonomousServiceStatus.COMPLAINED;
+      if (
+        createComplaintDto.category === ComplaintCategory.AUTONOMOUS_SERVICE
+      ) {
+        service.status = EAutonomousServiceStatus.COMPLAINED;
+      } else {
+        service.status = EAutonomousServiceStatus.CANCELLED;
+      }
       await this.autonomousServiceRepository.save(service);
     }
     const complaintExists =
@@ -106,6 +113,7 @@ export class ComplaintsService {
       issueType as ComplaintIssueType,
     );
   }
+
   async getMyComplaints(
     user: User,
     status: EComplaintStatus,
@@ -299,6 +307,7 @@ export class ComplaintsService {
     const [complaints, total] = await queryBuilder.getManyAndCount();
     return createPaginatedResponse(complaints, total, page, limit);
   }
+
   async getComplaintById(id: string) {
     const complaint = await this.complaintRepository.findOne({
       where: { id },
@@ -314,6 +323,7 @@ export class ComplaintsService {
     }
     return complaint;
   }
+
   async getComplaintDetails(id: string) {
     return this.complaintRepository.findOne({
       where: { id },

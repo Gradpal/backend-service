@@ -23,21 +23,33 @@ import { EUserRole } from '@core-service/modules/user/enums/user-role.enum';
 @Controller('university')
 @ApiTags('University')
 @ApiBearerAuth()
-@PreAuthorize(EUserRole.SUPER_ADMIN)
+@PreAuthorize(EUserRole.SUPER_ADMIN, EUserRole.TUTOR)
 export class UniversityController {
   constructor(private readonly universityService: UniversityService) {}
 
-  @Post()
-  createUniversity(@Body() createUniversityDto: CreateUniversityDto) {
+  @Post() createUniversity(@Body() createUniversityDto: CreateUniversityDto) {
     return this.universityService.createUniversity(createUniversityDto);
   }
+
   @Get()
   @ApiOperation({ summary: 'Get all universities' })
-  @ApiResponse({ status: 200, description: 'Return all universities' })
+  @ApiResponse({
+    status: 200,
+    description: 'Return all universities',
+  })
   @ApiResponse({ status: 404, description: 'Universities not found' })
-  @ApiQuery({ name: 'searchKeyword', type: String, required: false })
+  @ApiQuery({
+    name: 'searchKeyword',
+    type: String,
+    required: false,
+  })
   @ApiQuery({ name: 'page', type: Number, example: 1, required: false })
-  @ApiQuery({ name: 'limit', type: Number, example: 10, required: false })
+  @ApiQuery({
+    name: 'limit',
+    type: Number,
+    example: 10,
+    required: false,
+  })
   getUniversities(
     @Query('searchKeyword') searchKeyword?: string,
     @Query('page') page?: number,
@@ -45,36 +57,40 @@ export class UniversityController {
   ) {
     return this.universityService.getUniversities(searchKeyword, page, limit);
   }
-  @Get(':id')
-  getUniversityById(@Param('id') id: string) {
+
+  @Get(':id') getUniversityById(@Param('id') id: string) {
     return this.universityService.getUniversityById(id);
   }
-  @Put(':id')
-  updateUniversity(
+
+  @Put(':id') updateUniversity(
     @Param('id') id: string,
     @Body() updateUniversityDto: CreateUniversityDto,
   ) {
     return this.universityService.updateUniversity(id, updateUniversityDto);
   }
 
-  @Delete(':id')
-  deleteUniversity(@Param('id') id: string) {
+  @Delete(':id') deleteUniversity(@Param('id') id: string) {
     return this.universityService.deleteUniversity(id);
   }
-  @Get('email-domain/:emailDomain')
-  getUniversityByEmailDomain(@Param('emailDomain') emailDomain: string) {
+
+  @Get('email-domain/:emailDomain') getUniversityByEmailDomain(
+    @Param('emailDomain') emailDomain: string,
+  ) {
     return this.universityService.getUniversityByEmailDomain(emailDomain);
   }
-  @Get('university-name/:universityName')
-  getUniversityByUniversityName(
+
+  @Get('university-name/:universityName') getUniversityByUniversityName(
     @Param('universityName') universityName: string,
   ) {
     return this.universityService.getUniversityByUniversityName(universityName);
   }
-  @Get('country-name/:countryName')
-  getUniversityByCountryName(@Param('countryName') countryName: string) {
+
+  @Get('country-name/:countryName') getUniversityByCountryName(
+    @Param('countryName') countryName: string,
+  ) {
     return this.universityService.getUniversityByCountryName(countryName);
   }
+
   @Get('university-name-and-country-name/:universityName/:countryName')
   getUniversityByUniversityNameAndCountryName(
     @Param('universityName') universityName: string,

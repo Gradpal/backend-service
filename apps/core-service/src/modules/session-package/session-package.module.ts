@@ -1,11 +1,11 @@
 import { forwardRef, Module } from '@nestjs/common';
 import { SessionPackageController } from './session-package.controller';
 import { SessionPackageService } from './session-package.service';
-import { ClassSessionModule } from '../class-session/class-session.module';
+import { ClassSessionModule } from './class-session/class-session.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { SessionPackage } from './entities/session-package.entity';
 import { PackageType } from './entities/package-type.entity';
-import { ClassSession } from '../class-session/entities/class-session.entity';
+import { ClassSession } from './class-session/entities/class-session.entity';
 import { MinioClientModule } from '../minio-client/minio-client.module';
 import { BrainModule } from '@app/common/brain/brain.module';
 import { UserModule } from '../user/user.module';
@@ -26,6 +26,7 @@ import { TimeSlot } from '../portfolio/weekly-availability/entities/weeky-availa
     ]),
     MinioClientModule,
     BrainModule,
+
     forwardRef(() => UserModule),
     forwardRef(() => SubjectsModule),
     CoreServiceConfigModule,

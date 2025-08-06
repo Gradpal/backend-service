@@ -8,7 +8,7 @@ import { EPaymentType } from './enums/payment-type.enum';
 import { User } from '../user/entities/user.entity';
 import { UserService } from '../user/user.service';
 import { ExceptionHandler } from '@app/common/exceptions/exceptions.handler';
-import { _400 } from '@app/common/constants/errors-constants';
+import { _400, _404 } from '@app/common/constants/errors-constants';
 
 @Injectable()
 export class PaymentService {
@@ -28,6 +28,49 @@ export class PaymentService {
   }
 
   async createCheckoutSession(student: User, credits: number) {
+    const session = await this.stripe.checkout.sessions.create({
+      customer_email: student.email,
+      payment_method_types: ['card'],
+      line_items: [
+        {
+          price_data: {
+            currency: 'USD',
+            product_data: {
+              name: `Purchase ${credits} Credits`,
+            },
+            unit_amount: credits * 100, // 1 credit = $1
+          },
+          quantity: 1,
+        },
+      ],
+      mode: 'payment',
+      metadata: {
+        studentId: student.id,
+        credits,
+      },
+      redirect_on_completion: 'if_required',
+      ui_mode: 'embedded',
+      after_expiration: {
+        recovery: {
+          enabled: true,
+        },
+      },
+      automatic_tax: {
+        enabled: true,
+      },
+      tax_id_collection: {
+        enabled: true,
+      },
+    });
+
+    return session;
+  }
+  async createCheckoutSessionByParent(studentId: string, credits: number) {
+    const student = await this.userService.findOne(studentId);
+    if (!student) {
+      this.exceptionHandler.throwNotFound(_404.USER_NOT_FOUND);
+    }
+
     const session = await this.stripe.checkout.sessions.create({
       customer_email: student.email,
       payment_method_types: ['card'],
@@ -125,7 +168,6 @@ export class PaymentService {
       const account = await this.stripe.accounts.create(params);
       return account.id;
     } catch (error) {
-      console.log('error', error);
       this.exceptionHandler.throwBadRequest(
         _400.STRIPE_ACCOUNT_CREATION_FAILED,
       );
@@ -137,7 +179,6 @@ export class PaymentService {
     accountLink?: string;
     loginLink?: string;
   }> {
-    console.log('stripeAccountId', stripeAccountId);
     try {
       const account = await this.stripe.accounts.retrieve(stripeAccountId);
       const requirements = account.requirements;

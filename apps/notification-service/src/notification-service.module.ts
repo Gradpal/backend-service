@@ -16,6 +16,7 @@ import { DB_ROOT_NAMES } from './common/constants/typeorm-config.constant';
 import { CoreServiceIntegrationModule } from './integrations/core-service/integrations.microservice.module';
 import { EmailNotifierModule } from './modules/notification/email-notifier/email-notifier.module';
 import { PlatformChattingModule } from './modules/chat/platform-chatting/platform-chatting.module';
+import { NotificationUserModule } from './modules/user/user.module';
 
 @Module({
   imports: [
@@ -48,6 +49,7 @@ import { PlatformChattingModule } from './modules/chat/platform-chatting/platfor
     ChatModule,
     CoreServiceIntegrationModule,
     PlatformChattingModule,
+    NotificationUserModule,
   ],
   controllers: [],
   providers: [],

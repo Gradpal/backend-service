@@ -14,23 +14,23 @@ import {
   Repository,
 } from 'typeorm';
 import { ClassSession } from './entities/class-session.entity';
-import { UserService } from '../user/user.service';
+import { UserService } from '../../user/user.service';
 import {
   ESessionJoinStatus,
   ESessionStatus,
   ESessionAcceptanceStatus,
 } from './enums/session-status.enum';
-import { User } from '../user/entities/user.entity';
+import { User } from '../../user/entities/user.entity';
 import { _400, _403, _404 } from '@app/common/constants/errors-constants';
 import { ExceptionHandler } from '@app/common/exceptions/exceptions.handler';
-import { EUserRole } from '../user/enums/user-role.enum';
+import { EUserRole } from '../../user/enums/user-role.enum';
 import { CancelLessonDto } from './dto/cancel-lesson.dto';
 import { RequestSessionExtensionDto } from './dto/request-extion.dto';
 import { SessionTimelineType } from './enums/session-timeline-type.enum';
 import { createPaginatedResponse } from '@app/common/helpers/pagination.helper';
 import { SessionReviewDto } from './dto/session-review.dto';
-import { PortfolioService } from '../portfolio/portfolio.service';
-import { TimeSlot } from '../portfolio/weekly-availability/entities/weeky-availability.entity';
+import { PortfolioService } from '../../portfolio/portfolio.service';
+import { TimeSlot } from '../../portfolio/weekly-availability/entities/weeky-availability.entity';
 import { timeStringToNextDate } from './helpers';
 import { CreateClassSessionPackageDto } from './dto/create-class-session.dto';
 import {
