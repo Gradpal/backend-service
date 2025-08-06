@@ -8,10 +8,18 @@ import { SubjectsModule } from '../subjects/subjects.module';
 import { Bid } from './entities/bid.entity';
 import { UserModule } from '../user/user.module';
 import { Invitation } from './entities/invitation.entity';
+import { TimeSlot } from '../portfolio/weekly-availability/entities/weeky-availability.entity';
+import { IntroductoryMeetingBooking } from './entities/introductory-meeting-booking.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([AutonomousService, Bid, Invitation]),
+    TypeOrmModule.forFeature([
+      AutonomousService,
+      Bid,
+      Invitation,
+      TimeSlot,
+      IntroductoryMeetingBooking,
+    ]),
     MinioClientModule,
     SubjectsModule,
     UserModule,

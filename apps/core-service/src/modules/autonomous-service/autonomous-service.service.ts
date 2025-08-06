@@ -26,6 +26,11 @@ import { NotificationPreProcessor } from '@core-service/integrations/notificatio
 import { EmailTemplates } from '@core-service/configs/email-template-configs/email-templates.config';
 import { PlatformQueuePayload } from '@app/common/interfaces/shared-queues/platform-queue-payload.interface';
 import { ENotificationMessageType } from '@app/common/enums/notification-message-type.enum';
+import { IntroductoryMeetingBooking } from '@core-service/modules/autonomous-service/entities/introductory-meeting-booking.entity';
+import { BookIntroductoryMeetingDto } from './dtos/book-introductory-meeting.dto';
+import { TimeSlot } from '../portfolio/weekly-availability/entities/weeky-availability.entity';
+import { IntroBookingStatus } from './enums/intro-booking-status.enum';
+import { UpdateIntroMeetingStatusDto } from './dtos/update-intro-meeting.dto';
 
 @Injectable()
 export class AutonomousServiceService {
@@ -35,6 +40,10 @@ export class AutonomousServiceService {
     @InjectRepository(Bid) private bidRepository: Repository<Bid>,
     @InjectRepository(Invitation)
     private invitationRepository: Repository<Invitation>,
+    @InjectRepository(IntroductoryMeetingBooking)
+    private readonly meetingRepo: Repository<IntroductoryMeetingBooking>,
+    @InjectRepository(TimeSlot)
+    private readonly timeSlotRepo: Repository<TimeSlot>,
     private readonly minioClientService: MinioClientService,
     private readonly subjectService: SubjectsService,
     private readonly exceptionHandler: ExceptionHandler,
@@ -858,5 +867,53 @@ export class AutonomousServiceService {
 
   async notifyOnPlatform(data: PlatformQueuePayload) {
     return await this.notificationProcessor.sendPlatformNotification(data);
+  }
+  async bookIntroductoryMeeting(user: User, dto: BookIntroductoryMeetingDto) {
+    const tutor = await this.userService.findOne(dto.tutorId);
+    if (!tutor) this.exceptionHandler.throwNotFound(_404.TUTOR_NOT_FOUND);
+
+    const timeSlot = await this.timeSlotRepo.findOne({
+      where: {
+        id: dto.timeSlotId,
+        isBooked: false,
+      },
+    });
+    if (!timeSlot)
+      this.exceptionHandler.throwNotFound(_404.TIME_SLOT_NOT_FOUND);
+
+    const service = await this.autonomousServiceRepository.findOne({
+      where: {
+        id: dto.autonomousServiceId,
+      },
+    });
+    if (!service)
+      this.exceptionHandler.throwNotFound(_404.AUTONOMOUS_SERVICE_NOT_FOUND);
+
+    const meeting = this.meetingRepo.create({
+      student: user,
+      tutor,
+      timeSlot,
+      autonomousService: service,
+    });
+
+    return await this.meetingRepo.save(meeting);
+  }
+
+  async updateIntroductoryMeetingStatus(
+    user: User,
+    id: string,
+    dto: UpdateIntroMeetingStatusDto,
+  ) {
+    const introMeeting = await this.meetingRepo.findOne({
+      where: {
+        student: user,
+        id,
+      },
+    });
+    if (!introMeeting)
+      this.exceptionHandler.throwNotFound(
+        _404.INTRODUCTORY_MEETING_BOOKING_NOT_FOUND,
+      );
+    introMeeting.status = dto.status;
   }
 }
