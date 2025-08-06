@@ -1,7 +1,13 @@
 import { ActivateAccountDto } from '@core-service/integrations/notification/dto/emails/activate-account.dto';
 import {
+  AcceptRejectBidStudentDto,
   AutonomousServiceCreationEmailDto,
+  BidAcceptedRejectedDto,
+  BidReceivedDto,
+  BidSubmittedTeacherDto,
+  CounterBidSubmitted,
   InvitationCreationEmailDto,
+  ReviewDto,
 } from '@core-service/integrations/notification/dto/emails/autonomous_service.email.dto';
 import {
   AddEmailEmailDto,
@@ -20,6 +26,14 @@ export enum EmailTemplates {
   INVITATION_CREATION = 'invitation_creation',
   INVITATION_SENT = 'invitation_sent',
   INVITATION_DELETED = 'invitation_deleted',
+  BID_RECEIVED = 'bid_received',
+  BID_SUBMITTED = 'bid_submitted',
+  COUNTER_BID_SUBMITTED = 'counter_bid_submitted',
+  ACCEPT_BID_STUDENT = 'accept_bid_student',
+  REJECT_BID_STUDENT = 'reject_bid_student',
+  REVIEW = 'review',
+  BID_ACCEPTED = 'bid_accepted',
+  BID_REJECTED = 'bid_rejected',
 }
 
 export const EMAIL_TEMPLATES_CONFIG = {
@@ -62,6 +76,38 @@ export const EMAIL_TEMPLATES_CONFIG = {
   [EmailTemplates.INVITATION_DELETED]: {
     subject: 'autonomous service invitation deleted ',
     dto: InvitationCreationEmailDto,
+  },
+  [EmailTemplates.BID_RECEIVED]: {
+    subject: ' New Bid Received on Your Service Request',
+    dto: BidReceivedDto,
+  },
+  [EmailTemplates.BID_SUBMITTED]: {
+    subject: 'Your Bid Has Been Submitted\n',
+    dto: BidSubmittedTeacherDto,
+  },
+  [EmailTemplates.COUNTER_BID_SUBMITTED]: {
+    subject: 'New Counterbid Received\n',
+    dto: CounterBidSubmitted,
+  },
+  [EmailTemplates.ACCEPT_BID_STUDENT]: {
+    subject: 'You’ve Responded to a Bid',
+    dto: AcceptRejectBidStudentDto,
+  },
+  [EmailTemplates.REJECT_BID_STUDENT]: {
+    subject: "You've Responded to a Bid",
+    dto: AcceptRejectBidStudentDto,
+  },
+  [EmailTemplates.REVIEW]: {
+    subject: 'Service Marked as Complete\n',
+    dto: ReviewDto,
+  },
+  [EmailTemplates.BID_ACCEPTED]: {
+    subject: 'Update on Your Bid for',
+    dto: BidAcceptedRejectedDto,
+  },
+  [EmailTemplates.BID_REJECTED]: {
+    subject: 'Update on Your Bid for',
+    dto: BidAcceptedRejectedDto,
   },
 } as const;
 

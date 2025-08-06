@@ -13,14 +13,14 @@ import {
 import { AutonomousServiceService } from './autonomous-service.service';
 import {
   ApiBearerAuth,
-  ApiOperation,
   ApiBody,
-  ApiResponse,
-  ApiTags,
   ApiConsumes,
+  ApiOperation,
+  ApiParam,
   ApiProduces,
   ApiQuery,
-  ApiParam,
+  ApiResponse,
+  ApiTags,
 } from '@nestjs/swagger';
 import { CreateAutonomousServiceDto } from './dtos/create-autonomous-service.dto';
 import { AuthUser } from '@core-service/decorators/auth.decorator';
@@ -232,9 +232,14 @@ export class AutonomousServiceController {
   @ApiBody({ type: SessionReviewDto })
   async reviewService(
     @Param('serviceId') serviceId: string,
+    @Req() req,
     @Body() review: SessionReviewDto,
   ) {
-    return this.autonomousServiceService.reviewBid(serviceId, review);
+    return this.autonomousServiceService.reviewBid(
+      serviceId,
+      review,
+      req.user as User,
+    );
   }
 
   @Post('/tutors/:tutorId/invite')

@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>New Bid Received</title>
+</head>
+<body style="margin: 0; padding: 20px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif; line-height: 1.6; background-color: #f5f5f5;">
+  <div style="max-width: 600px; margin: 0 auto; background: white; padding: 40px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);">
+
+    {{> header}}
+
+    <h2 style="color: #1F2937;">Hello {{firstName}},</h2>
+
+    <p style="color: #374151; font-size: 15px;">
+      A new bid has been submitted on your service request: <strong>{{serviceTitle}}</strong>
+    </p>
+
+    <p style="color: #374151; font-size: 15px;">
+      Submitted by: <strong>{{teacherName}}</strong><br/>
+      On: <strong>{{date}}</strong>
+    </p>
+
+    <div style="margin: 30px 0;">
+      {{> button url=actionUrl text="View Bid"}}
+    </div>
+
+    {{> footer}}
+
+  </div>
+</body>
+</html>
