@@ -20,7 +20,7 @@ export class AddEmailEmailDto {
   otpValidityDuration?: number;
 }
 
-export class rParentInvitationEmailDto {
+export class ParentInvitationEmailDto {
   @IsString()
   studentName?: string;
 
