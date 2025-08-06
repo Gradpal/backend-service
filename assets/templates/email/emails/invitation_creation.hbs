@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+{{>header title = "Service Invitation Created"}}
+
+<body>
+    <div class="email-container">
+        <div class="header">
+            <div class="logo">
+                <div class="logo-icon">G</div>
+                <div class="logo-text">GradPal</div>
+            </div>
+            <h1 class="header-title">Service Invitation Created</h1>
+        </div>
+
+        <div class="content">
+            <div class="greeting">
+                Hello Team,
+            </div>
+
+            <div class="main-message">
+                Great news! A new autonomous service invitation has been successfully created and is ready for
+                distribution. This service will help enhance the learning experience for students.
+            </div>
+
+            <div class="service-card">
+                <div class="service-title">{{serviceTitle}}</div>
+
+                <div class="service-detail">
+                    <div class="service-label">Created by:</div>
+                    <div class="service-value">{{teacherName}}</div>
+                </div>
+
+                <div class="service-detail">
+                    <div class="service-label">Subject:</div>
+                    <div class="service-value">{{subject}}</div>
+                </div>
+
+                <div class="service-detail">
+                    <div class="service-label">Status:</div>
+                    <div class="service-value">Ready to Send</div>
+                </div>
+            </div>
+
+            <div class="next-steps">
+                <h3>What happens next:</h3>
+                <ul class="steps-list">
+                    <li>The invitation will be distributed to selected participants</li>
+                    <li>Recipients will receive detailed service information</li>
+                    <li>Service will activate once participants accept</li>
+                    <li>You'll receive updates on invitation responses</li>
+                </ul>
+            </div>
+
+            <div class="main-message">
+                This service is designed to provide personalized learning experiences and support educational goals.
+                We're excited to see the positive impact it will have on the learning community.
+            </div>
+
+            <div class="cta-section">
+                <a href="#" class="cta-button">View Service Details</a>
+            </div>
+
+            <div class="main-message">
+                <strong>Need assistance?</strong><br>
+                Our support team is here to help with any questions about the service setup or invitation process.
+            </div>
+        </div>
+        {{> footer NationalPortal=NationalPortal}}
+    </div>
+</body>
+
+</html>

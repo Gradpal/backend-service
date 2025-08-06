@@ -66,5 +66,5 @@ export class CreateNotificationRegistryDto {
     type: Object,
     nullable: true,
   })
-  metadata?: Record<string, Object | string | number>;
+  metadata?: Record<string, object | string | number>;
 }

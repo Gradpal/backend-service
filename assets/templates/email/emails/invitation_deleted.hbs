@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+
+{{> header title ="invitation deleted"}}
+<body>
+    <div class="email-container">
+        <div class="header">
+            <div class="logo">
+                <div class="logo-icon">G</div>
+                <div class="logo-text">GradPal</div>
+            </div>
+            <h1 class="header-title">Service Invitation Update</h1>
+            <div class="status-badge">⚠️ Invitation Cancelled</div>
+        </div>
+
+        <div class="content">
+            <div class="greeting">
+                Dear Student,
+            </div>
+
+            <div class="main-message">
+                We're writing to inform you that an invitation to join an autonomous learning service has been
+                cancelled. While this particular opportunity is no longer available, we want to keep you informed and
+                help you explore other learning options.
+            </div>
+
+            <div class="service-card">
+                <div class="service-title">{{serviceTitle}}</div>
+
+                <div class="service-detail">
+                    <div class="service-label">Teacher:</div>
+                    <div class="service-value">{{teacherName}}</div>
+                </div>
+
+                <div class="service-detail">
+                    <div class="service-label">Subject:</div>
+                    <div class="service-value">
+                        <span class="subject-badge">{{subject}}</span>
+                    </div>
+                </div>
+
+                <div class="service-detail">
+                    <div class="service-label">Status:</div>
+                    <div class="service-value">Invitation Cancelled</div>
+                </div>
+            </div>
+
+            <div class="cancellation-notice">
+                <div class="cancellation-icon">📋</div>
+                <div class="cancellation-title">Invitation No Longer Available</div>
+                <div class="cancellation-text">
+                    This service invitation has been removed by the teacher. This could be due to capacity limits,
+                    schedule changes, or other administrative reasons.
+                </div>
+            </div>
+
+            <div class="alternatives-section">
+                <div class="alternatives-title">Don't worry! Here are your options:</div>
+                <ul class="alternatives-list">
+                    <li>Browse other available services in the same subject area</li>
+                    <li>Contact your teacher directly to discuss alternative learning opportunities</li>
+                    <li>Explore our catalog of autonomous learning services</li>
+                    <li>Set up notifications for similar services that become available</li>
+                </ul>
+            </div>
+
+            <div class="main-message">
+                We understand this might be disappointing, but there are many other excellent learning opportunities
+                available on GradPal. Our team is committed to helping you find the perfect learning experience that
+                matches your needs and goals.
+            </div>
+
+            <div class="cta-section">
+                <a href="#" class="cta-button">Browse Available Services</a>
+                <a href="#" class="cta-button secondary">Contact Support</a>
+            </div>
+
+            <div class="main-message">
+                <strong>Questions or concerns?</strong><br>
+                Our support team is here to help you navigate this change and find alternative learning opportunities
+                that align with your educational goals.
+            </div>
+        </div>
+
+        {{> footer NationalPortal=NationalPortal}}
+    </div>
+</body>
+
+</html>

@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+
+{{>header title="Autonomous service created"}}
+<body>
+<div class="content">
+    <div class="greeting">
+        Hi {{studentName}},
+    </div>
+
+    <div class="main-message">
+        Your service request has been successfully posted to the GradPal community.
+    </div>
+
+    <div class="project-card">
+        <div class="project-detail">
+            <div class="project-label">Service Title</div>
+            <div class="project-value">{{serviceTitle}}</div>
+        </div>
+
+        <div class="project-detail">
+            <div class="project-label">Description</div>
+            <div class="project-value">{{description}}</div>
+        </div>
+
+        <div class="project-detail">
+            <div class="project-label">Posted On</div>
+            <div class="project-value">{{date}}</div>
+        </div>
+    </div>
+
+    <div class="main-message">
+        You’ll be notified as soon as someone responds.
+    </div>
+
+    <div class="main-message">
+        Thanks for using <strong>GradPal Autonomous Services</strong>!
+    </div>
+
+    <div class="main-message">
+        Warm regards,<br>
+        <strong>The GradPal Team</strong>
+    </div>
+</div>
+        {{> footer NationalPortal=NationalPortal}}
+</body>
+
+</html>
