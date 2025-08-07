@@ -46,11 +46,14 @@ export class CreateComplaintDto {
   @ApiProperty({
     description: 'Whether the user wants a refund',
   })
-  wantRefund: boolean;
+  @IsOptional()
+  wantRefund?: boolean;
+
   @ApiPropertyOptional({
     description: ' the user  refund percentage',
     required: false,
   })
+  @IsOptional()
   refundPercentage?: number;
 
   @IsOptional()
