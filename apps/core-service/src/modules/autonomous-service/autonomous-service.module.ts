@@ -9,7 +9,7 @@ import { Bid } from './entities/bid.entity';
 import { UserModule } from '../user/user.module';
 import { Invitation } from './entities/invitation.entity';
 import { TimeSlot } from '../portfolio/weekly-availability/entities/weeky-availability.entity';
-import { IntroductoryMeetingBooking } from './entities/introductory-meeting-booking.entity';
+import { IntroductoryMeeting } from './entities/introductory-meeting.entity';
 
 @Module({
   imports: [
@@ -18,7 +18,7 @@ import { IntroductoryMeetingBooking } from './entities/introductory-meeting-book
       Bid,
       Invitation,
       TimeSlot,
-      IntroductoryMeetingBooking,
+      IntroductoryMeeting,
     ]),
     MinioClientModule,
     SubjectsModule,

@@ -26,10 +26,9 @@ import { NotificationPreProcessor } from '@core-service/integrations/notificatio
 import { EmailTemplates } from '@core-service/configs/email-template-configs/email-templates.config';
 import { PlatformQueuePayload } from '@app/common/interfaces/shared-queues/platform-queue-payload.interface';
 import { ENotificationMessageType } from '@app/common/enums/notification-message-type.enum';
-import { IntroductoryMeetingBooking } from '@core-service/modules/autonomous-service/entities/introductory-meeting-booking.entity';
+import { IntroductoryMeeting } from '@core-service/modules/autonomous-service/entities/introductory-meeting.entity';
 import { BookIntroductoryMeetingDto } from './dtos/book-introductory-meeting.dto';
 import { TimeSlot } from '../portfolio/weekly-availability/entities/weeky-availability.entity';
-import { IntroBookingStatus } from './enums/intro-booking-status.enum';
 import { UpdateIntroMeetingStatusDto } from './dtos/update-intro-meeting.dto';
 
 @Injectable()
@@ -40,8 +39,8 @@ export class AutonomousServiceService {
     @InjectRepository(Bid) private bidRepository: Repository<Bid>,
     @InjectRepository(Invitation)
     private invitationRepository: Repository<Invitation>,
-    @InjectRepository(IntroductoryMeetingBooking)
-    private readonly meetingRepo: Repository<IntroductoryMeetingBooking>,
+    @InjectRepository(IntroductoryMeeting)
+    private readonly meetingRepo: Repository<IntroductoryMeeting>,
     @InjectRepository(TimeSlot)
     private readonly timeSlotRepo: Repository<TimeSlot>,
     private readonly minioClientService: MinioClientService,
@@ -881,11 +880,9 @@ export class AutonomousServiceService {
     if (!timeSlot)
       this.exceptionHandler.throwNotFound(_404.TIME_SLOT_NOT_FOUND);
 
-    const service = await this.autonomousServiceRepository.findOne({
-      where: {
-        id: dto.autonomousServiceId,
-      },
-    });
+    const service = await this.getAutonomousServiceById(
+      dto.autonomousServiceId,
+    );
     if (!service)
       this.exceptionHandler.throwNotFound(_404.AUTONOMOUS_SERVICE_NOT_FOUND);
 
