@@ -179,6 +179,10 @@ export const _403 = {
 
 // not found
 export const _404 = {
+  INTRODUCTORY_MEETING_BOOKING_NOT_FOUND: {
+    code: 'INTRODUCTORY_MEETING_BOOKING_NOT_FOUND',
+    message: 'introductory meeting booking not found',
+  },
   USER_NOT_FOUND: {
     code: 'USER_NOT_FOUND',
     message: 'No User exists with provided id',

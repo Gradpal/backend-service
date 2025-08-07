@@ -33,6 +33,9 @@ import { CreateInvitationDto } from './dtos/create-invitation.dto';
 import { EInvitationStatus } from './enums/invitation-status.enum';
 import { UpdateInvitationStageDto } from './dtos/invitation-dto';
 import { EBidStatus } from './enums/bid-status.enum';
+import { BookIntroductoryMeetingDto } from '@core-service/modules/autonomous-service/dtos/book-introductory-meeting.dto';
+import { IntroBookingStatus } from './enums/intro-booking-status.enum';
+import { UpdateIntroMeetingStatusDto } from './dtos/update-intro-meeting.dto';
 
 @Controller('autonomous-service')
 @ApiTags('Autonomous Service')
@@ -311,5 +314,46 @@ export class AutonomousServiceController {
   })
   async deleteInitiatedInvitations(@Body() dto: UpdateInvitationStageDto) {
     return this.autonomousServiceService.deleteInvitations(dto);
+  }
+
+  @Post('/introductory-meeting/book')
+  @ApiOperation({ summary: 'Book an introductory meeting with a tutor' })
+  @ApiResponse({ status: 201, description: 'Meeting successfully booked.' })
+  @ApiResponse({ status: 400, description: 'Invalid input.' })
+  @AuthUser()
+  async bookIntroductoryMeeting(
+    @Req() req: any,
+    @Body() dto: BookIntroductoryMeetingDto,
+  ) {
+    const user = req.user as User;
+    return this.autonomousServiceService.bookIntroductoryMeeting(user, dto);
+  }
+
+  @Patch('/introductory-meeting/update/:introductoryMeetingId')
+  @AuthUser()
+  @ApiOperation({ summary: 'Update the status of an introductory meeting' })
+  @ApiParam({
+    name: 'introductoryMeetingId',
+    type: String,
+    description: 'ID of the introductory meeting to update',
+  })
+  @ApiBody({
+    description: 'The new status for the introductory meeting',
+    type: UpdateIntroMeetingStatusDto,
+  })
+  @ApiResponse({ status: 200, description: 'Status updated successfully.' })
+  @ApiResponse({ status: 400, description: 'Invalid status input.' })
+  @ApiResponse({ status: 404, description: 'Introductory meeting not found.' })
+  async updateStatusOfIntroductoryMeeting(
+    @Req() req: any,
+    @Param('introductoryMeetingId') id: string,
+    @Body() dto: UpdateIntroMeetingStatusDto,
+  ) {
+    const user = req.user as User;
+    return this.autonomousServiceService.updateIntroductoryMeetingStatus(
+      user,
+      id,
+      dto,
+    );
   }
 }
