@@ -51,7 +51,10 @@ export class ComplaintsService {
         createComplaintDto.category === ComplaintCategory.AUTONOMOUS_SERVICE
       ) {
         service.status = EAutonomousServiceStatus.COMPLAINED;
-      } else {
+      } else if (
+        createComplaintDto.category ===
+        ComplaintCategory.AUTONOMOUS_SERVICE_CANCELLING
+      ) {
         service.status = EAutonomousServiceStatus.CANCELLED;
       }
       await this.autonomousServiceRepository.save(service);
