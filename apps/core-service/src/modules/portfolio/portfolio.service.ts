@@ -163,6 +163,8 @@ export class PortfolioService {
     }
     educationInstitutionRecords.push(educationRecord);
     portfolio.educationInstitutionRecords = educationInstitutionRecords;
+    portfolio.isHighSchoolTeacher =
+      createEducationInstitutionRecordDto.isHighSchoolTeacher ?? false;
     return await this.portfolioRepository.save(portfolio);
   }
 
