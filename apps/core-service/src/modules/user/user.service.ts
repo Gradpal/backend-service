@@ -40,6 +40,7 @@ import { AcceptInvitationDto } from './dto/accept-invitation.dto';
 import { LoadChatUserByIdRequest } from './dto/grpc/load-chat-user-by-id.dto';
 import { ETimeSlotStatus } from '../portfolio/weekly-availability/enums/time-slot.enum';
 import { ENotificationMessageType } from '@app/common/enums/notification-message-type.enum';
+import { RequestVIPDto } from './dto/vip-request.dto';
 
 @Injectable()
 export class UserService {
@@ -720,5 +721,24 @@ export class UserService {
   deactivateVacationMode(user: User) {
     user.vacationMode = false;
     return this.userRepository.save(user);
+  }
+  async requestVip(user: User, dto: RequestVIPDto) {
+    const admin = await this.userRepository.findOne({
+      where: {
+        role: EUserRole.SUPER_ADMIN,
+      },
+    });
+    if (!admin) this.exceptionHandler.throwNotFound(_404.USER_NOT_FOUND);
+    // TODO: handle payment later here
+    await this.notificationProcessor.sendTemplateEmail(
+      EmailTemplates.REQUEST_VIP,
+      [admin.email],
+      {
+        name: dto.name,
+        message: dto.message,
+        email: dto.email,
+        phoneNumber: dto.phoneNumber,
+      },
+    );
   }
 }

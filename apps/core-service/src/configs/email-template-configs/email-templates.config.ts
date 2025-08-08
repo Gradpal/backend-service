@@ -10,6 +10,7 @@ import {
   InvitationCreationEmailDto,
   ReviewDto,
 } from '@core-service/integrations/notification/dto/emails/autonomous_service.email.dto';
+import { VIPRequestAccessDto } from '@core-service/integrations/notification/dto/emails/vip-request.dto';
 import {
   AddEmailEmailDto,
   ParentInvitationEmailDto,
@@ -40,6 +41,7 @@ export enum EmailTemplates {
   ACCOUNT_ACTIVATION = 'account_activation',
   SETTING_UPDATE = 'settings_update',
   INFORMATION_UPDATE = 'information_update',
+  REQUEST_VIP = 'request_vip',
 }
 
 export const EMAIL_TEMPLATES_CONFIG = {
@@ -134,6 +136,10 @@ export const EMAIL_TEMPLATES_CONFIG = {
   [EmailTemplates.INFORMATION_UPDATE]: {
     subject: 'Your Account Information Has Been Updated',
     dto: AccountUpdateDto,
+  },
+  [EmailTemplates.REQUEST_VIP]: {
+    subject: 'Request VIP access',
+    dto: VIPRequestAccessDto,
   },
 } as const;
 
