@@ -18,10 +18,7 @@ import {
   FAILED_LOGIN_ATTEMPT,
   RESET_PASSWORD_CACHE,
 } from '@core-service/common/constants/brain.constants';
-import {
-  MAX_FAILED_ATTEMPTS,
-  REFERRAL_CODE_CREDISTS,
-} from '@core-service/common/constants/all.constants';
+import { REFERRAL_CODE_CREDISTS } from '@core-service/common/constants/all.constants';
 import {
   generateAlphaNumericCode,
   hashPassword,
@@ -31,6 +28,8 @@ import { CreateUserDTO } from '../user/dto/create-user.dto';
 import { MinioClientService } from '../minio-client/minio-client.service';
 import { PortfolioService } from '../portfolio/portfolio.service';
 import { PaymentService } from '../payment/payment.service';
+import { PlatformQueuePayload } from '@app/common/interfaces/shared-queues/platform-queue-payload.interface';
+import { ENotificationMessageType } from '@app/common/enums/notification-message-type.enum';
 
 @Injectable()
 export class AuthService {
@@ -76,6 +75,31 @@ export class AuthService {
 
     const token = await this.getToken(user);
     user = plainToClass(User, user);
+    await this.notificationProcessor.sendTemplateEmail(
+      EmailTemplates.LOGIN_ATTEMPT,
+      [user.email],
+      {
+        userName: user.firstName,
+        message:
+          'A new login to your account was detected. If this wasn’t you, please review your account activity.',
+      },
+    );
+    await this.notifyOnPlatform({
+      messageType: ENotificationMessageType.LOGIN_ATTEMPT,
+      recipients: [{ userId: user.id }],
+      subject: 'login action detected',
+      metadata: {
+        content: {
+          title: 'login attempt', // commas added here
+          subTitle: 'login attempt',
+          description: `A new login to your account was detected. If this wasn’t you, please review your account activity.`,
+          body: `A new login to your account was detected. If this wasn’t you, please review your account activity.`,
+        },
+        callToAction: {
+          id: user.id,
+        },
+      },
+    });
     return { token, user };
   }
   async verifyOtp(id: string, otp: number) {
@@ -294,5 +318,8 @@ export class AuthService {
     );
 
     return { message: 'Password reset email sent' };
+  }
+  async notifyOnPlatform(data: PlatformQueuePayload) {
+    return await this.notificationProcessor.sendPlatformNotification(data);
   }
 }

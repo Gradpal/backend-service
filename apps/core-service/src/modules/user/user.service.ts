@@ -39,6 +39,7 @@ import { PortfolioService } from '../portfolio/portfolio.service';
 import { AcceptInvitationDto } from './dto/accept-invitation.dto';
 import { LoadChatUserByIdRequest } from './dto/grpc/load-chat-user-by-id.dto';
 import { ETimeSlotStatus } from '../portfolio/weekly-availability/enums/time-slot.enum';
+import { ENotificationMessageType } from '@app/common/enums/notification-message-type.enum';
 
 @Injectable()
 export class UserService {
@@ -248,6 +249,29 @@ export class UserService {
   async update(id: string, updateUserDto: Partial<CreateUserDTO>) {
     const user = await this.findOne(id);
     Object.assign(user, updateUserDto);
+    await this.notificationProcessor.sendTemplateEmail(
+      EmailTemplates.INFORMATION_UPDATE,
+      [user.email],
+      {
+        userName: `${user.firstName}${user.lastName}`,
+      },
+    );
+    await this.notifyOnPlatform({
+      messageType: ENotificationMessageType.INFORMATION_UPDATE,
+      recipients: [{ userId: user.id }],
+      subject: 'account  update',
+      metadata: {
+        content: {
+          title: 'account  update',
+          subTitle: 'account  update',
+          description: 'Your account information has been updated.',
+          body: 'Your account information has been updated.',
+        },
+        callToAction: {
+          id: user.id,
+        },
+      },
+    });
     return await this.userRepository.save(user);
   }
 
@@ -285,6 +309,29 @@ export class UserService {
           (user as any)[key] = value;
         }
       }
+    });
+    await this.notificationProcessor.sendTemplateEmail(
+      EmailTemplates.SETTING_UPDATE,
+      [user.email],
+      {
+        userName: `${user.firstName} ${user.lastName}`,
+      },
+    );
+    await this.notifyOnPlatform({
+      messageType: ENotificationMessageType.SETTING_UPDATE,
+      recipients: [{ userId: user.id }],
+      subject: 'Account Update',
+      metadata: {
+        content: {
+          title: 'account Update',
+          subTitle: 'account Update',
+          description: 'Your account security settings have been updated.',
+          body: 'Your account security settings have been updated.',
+        },
+        callToAction: {
+          id: user.id,
+        },
+      },
     });
 
     return await this.userRepository.save(user);
@@ -356,6 +403,29 @@ export class UserService {
     }
     user.status = EUserStatus.INACTIVE;
     user.deactivation = deactivateUserDto;
+    await this.notificationProcessor.sendTemplateEmail(
+      EmailTemplates.ACCOUNT_DEACTIVATION,
+      [user.email],
+      {
+        userName: `${user.firstName}${user.lastName}`,
+      },
+    );
+    await this.notifyOnPlatform({
+      messageType: ENotificationMessageType.ACCOUNT_DEACTIVATION,
+      recipients: [{ userId: user.id }],
+      subject: 'Account Update',
+      metadata: {
+        content: {
+          title: 'Account Update',
+          subTitle: 'Account Update',
+          description: 'Your GradPal Account Has Been Deactivated',
+          body: 'Your GradPal Account Has Been Deactivated',
+        },
+        callToAction: {
+          id: user.id,
+        },
+      },
+    });
     return await this.userRepository.save(user);
   }
   async activateUser(userId: string) {
@@ -364,6 +434,29 @@ export class UserService {
       this.exceptionHandler.throwConflict(_400.USER_ALREADY_ACTIVATED);
     }
     user.status = EUserStatus.ACTIVE;
+    await this.notificationProcessor.sendTemplateEmail(
+      EmailTemplates.ACCOUNT_ACTIVATION,
+      [user.email],
+      {
+        userName: `${user.firstName} ${user.lastName}`,
+      },
+    );
+    await this.notifyOnPlatform({
+      messageType: ENotificationMessageType.ACCOUNT_ACTIVATION,
+      recipients: [{ userId: user.id }],
+      subject: 'Account Update',
+      metadata: {
+        content: {
+          title: 'Account Update',
+          subTitle: 'Account Update',
+          description: 'Your GradPal Account Has Been activated',
+          body: 'Your GradPal Account Has Been activated',
+        },
+        callToAction: {
+          id: user.id,
+        },
+      },
+    });
     return await this.userRepository.save(user);
   }
   async createNationalPortalAdmin(

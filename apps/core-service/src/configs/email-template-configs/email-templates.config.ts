@@ -1,3 +1,4 @@
+import { AccountUpdateDto } from '@core-service/integrations/notification/dto/emails/account-actions.dto';
 import { ActivateAccountDto } from '@core-service/integrations/notification/dto/emails/activate-account.dto';
 import {
   AcceptRejectBidStudentDto,
@@ -34,6 +35,11 @@ export enum EmailTemplates {
   REVIEW = 'review',
   BID_ACCEPTED = 'bid_accepted',
   BID_REJECTED = 'bid_rejected',
+  LOGIN_ATTEMPT = 'login_attempt',
+  ACCOUNT_DEACTIVATION = 'account_deactivation',
+  ACCOUNT_ACTIVATION = 'account_activation',
+  SETTING_UPDATE = 'settings_update',
+  INFORMATION_UPDATE = 'information_update',
 }
 
 export const EMAIL_TEMPLATES_CONFIG = {
@@ -108,6 +114,26 @@ export const EMAIL_TEMPLATES_CONFIG = {
   [EmailTemplates.BID_REJECTED]: {
     subject: 'Update on Your Bid for',
     dto: BidAcceptedRejectedDto,
+  },
+  [EmailTemplates.LOGIN_ATTEMPT]: {
+    subject: 'New Login to Your GradPal Account',
+    dto: AccountUpdateDto,
+  },
+  [EmailTemplates.ACCOUNT_DEACTIVATION]: {
+    subject: 'Your GradPal Account Has Been Deactivated',
+    dto: AccountUpdateDto,
+  },
+  [EmailTemplates.ACCOUNT_ACTIVATION]: {
+    subject: 'Your GradPal Account Has Been activated',
+    dto: AccountUpdateDto,
+  },
+  [EmailTemplates.SETTING_UPDATE]: {
+    subject: 'Your Account Security Settings Have Been Updated',
+    dto: AccountUpdateDto,
+  },
+  [EmailTemplates.INFORMATION_UPDATE]: {
+    subject: 'Your Account Information Has Been Updated',
+    dto: AccountUpdateDto,
   },
 } as const;
 
