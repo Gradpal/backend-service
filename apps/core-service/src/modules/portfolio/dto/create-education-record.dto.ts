@@ -1,12 +1,15 @@
 import { IsString, IsOptional, IsNotEmpty, IsEnum } from 'class-validator';
 import { EDegreeType } from '../enums/degree-type.enumt';
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 export class CreateEducationInstitutionRecordDto {
   @IsString()
   @ApiProperty({ required: true })
   @IsNotEmpty()
   institutionName: string;
 
+  @IsString()
+  @ApiPropertyOptional({ default: false })
+  isHighSchoolTeacher: boolean;
   @IsString()
   @ApiProperty({ required: true })
   @IsNotEmpty()

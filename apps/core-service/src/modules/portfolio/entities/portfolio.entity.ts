@@ -17,7 +17,6 @@ import { AttachmentDto } from '@app/common/dtos/attachment.dto';
 import { Subject } from '@core-service/modules/subjects/entities/subject.entity';
 import { SavedTutorDto } from '../dto/dashboard-response.dto';
 import { EVerificationStatus } from '../../user/enums/verification-status.enum';
-import { PackageType } from '@core-service/modules/session-package/entities/package-type.entity';
 import { PackageOffering } from '@core-service/modules/session-package/entities/package-offering.entity';
 
 @Entity('portfolio')
@@ -36,7 +35,8 @@ export class Portfolio extends BaseEntity {
 
   @Column({ length: 255, nullable: true })
   nationality: string;
-
+  @Column({ type: 'boolean', nullable: true, default: false })
+  isHighSchoolTeacher: boolean;
   @Column({ type: 'varchar', length: 255, nullable: true })
   timezoneDisplayFormat: string;
 
