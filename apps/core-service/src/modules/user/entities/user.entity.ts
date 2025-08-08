@@ -84,4 +84,6 @@ export class User extends BaseEntity {
 
   @Column({ default: false, nullable: true })
   vacationMode: boolean;
+  @Column({ type: 'boolean', default: false, nullable: true })
+  isVIP: boolean;
 }

@@ -45,6 +45,7 @@ import {
   UserGrpcMethods,
 } from '@core-service/common/constants/grpc.constants';
 import { LoadChatUserByIdRequest } from './dto/grpc/load-chat-user-by-id.dto';
+import { RequestVIPDto } from './dto/vip-request.dto';
 
 @Controller('user')
 @ApiTags('user')
@@ -278,5 +279,11 @@ export class UserController {
   async deactivateVacationMode(@Req() req) {
     const user = req.user as User;
     return this.userService.deactivateVacationMode(user);
+  }
+  @Patch('/user/vip-request')
+  @AuthUser()
+  async requestVIPAccess(@Req() req: any, @Body() dto: RequestVIPDto) {
+    const user = req.user as User;
+    return this.userService.requestVip(user, dto);
   }
 }

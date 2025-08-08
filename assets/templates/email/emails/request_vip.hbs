@@ -1,0 +1,21 @@
+{{> header title="VIP Access Request"}}
+
+<p>Hi Admin,</p>
+
+<p>You have received a new request for VIP access from <strong>{{name}}</strong>.</p>
+
+<p><strong>Details:</strong></p>
+<ul>
+  <li><strong>Name:</strong> {{name}}</li>
+  <li><strong>Email:</strong> {{email}}</li>
+  <li><strong>Phone Number:</strong> {{phoneNumber}}</li>
+</ul>
+
+{{#if message}}
+  <p><strong>Message:</strong></p>
+  <p>{{message}}</p>
+{{/if}}
+
+<p>Please review the request and take the necessary action.</p>
+
+{{> footer NationalPortal="GradPal Marketplace"}}
