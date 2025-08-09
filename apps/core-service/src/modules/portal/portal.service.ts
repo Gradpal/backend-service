@@ -45,7 +45,6 @@ export class PortalService {
       admin = await this.userService.getUserRepository().create({
         email: createNationalPortalDto.countryEmail,
         password: adminPassword,
-        userName: createNationalPortalDto.countryEmail,
         role: EUserRole.NATIONAL_PORTAL_ADMIN,
       });
       admin = await this.userService.getUserRepository().save(admin);

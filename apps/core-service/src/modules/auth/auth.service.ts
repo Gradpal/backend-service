@@ -176,7 +176,6 @@ export class AuthService {
       EmailTemplates.WELCOME,
       [userEntity.email],
       {
-        userName: userEntity.userName,
         otpValidityDuration: RESET_PASSWORD_CACHE.ttl,
         otp: otp,
         verificationUrl: `${this.configService.clientUrl}activate/`,
@@ -223,7 +222,6 @@ export class AuthService {
         : EmailTemplates.VERIFICATION_ADDITIONAL_EMAIL,
       [email],
       {
-        userName: account?.userName || email,
         otp: otp,
         otpValidityDuration: 12,
         verificationUrl: `${this.config.clientUrl}auth/reset-password/?email=${email}&verification_code=${otp}`,
