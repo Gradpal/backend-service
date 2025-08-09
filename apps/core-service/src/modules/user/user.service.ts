@@ -37,7 +37,6 @@ import { PortalService } from '@core-service/modules/portal/portal.service';
 import { PortfolioService } from '../portfolio/portfolio.service';
 import { AcceptInvitationDto } from './dto/accept-invitation.dto';
 import { LoadChatUserByIdRequest } from './dto/grpc/load-chat-user-by-id.dto';
-import { ETimeSlotStatus } from '../portfolio/weekly-availability/enums/time-slot.enum';
 import { ENotificationMessageType } from '@app/common/enums/notification-message-type.enum';
 import { RequestVIPDto } from './dto/vip-request.dto';
 
@@ -208,12 +207,7 @@ export class UserService {
       )
       .leftJoinAndSelect('sessionPackageOfferings.packageType', 'packageType')
 
-      .leftJoinAndSelect(
-        'user.timeSlots',
-        'timeSlots',
-        'timeSlots.status = :status AND timeSlots.isBooked = false',
-        { status: ETimeSlotStatus.ACTIVE },
-      )
+      .leftJoinAndSelect('user.timeSlots', 'timeSlots')
       .leftJoinAndSelect('timeSlots.daySchedule', 'daySchedule')
       .leftJoinAndSelect('daySchedule.weeklyAvailability', 'weeklyAvailability')
       .where('user.id = :id', { id })

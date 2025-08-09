@@ -9,12 +9,10 @@ import {
   UseGuards,
   Query,
   Req,
-  UseInterceptors,
 } from '@nestjs/common';
 import { ClassSessionService } from './class-session.service';
 import {
   ApiBearerAuth,
-  ApiConsumes,
   ApiExtraModels,
   ApiOperation,
   ApiParam,
@@ -26,11 +24,6 @@ import { AuthGuard } from '@core-service/guards/auth.guard';
 import { ClassSession } from './entities/class-session.entity';
 import { ESessionStatus } from './enums/session-status.enum';
 import { User } from '../../user/entities/user.entity';
-import { FileInterceptor } from '@nestjs/platform-express';
-import {
-  ATTACHMENT_MAX_COUNT,
-  ATTACHMENT_MAX_SIZE,
-} from '@core-service/common/constants/all.constants';
 import { CancelLessonDto } from './dto/cancel-lesson.dto';
 import { RequestSessionExtensionDto } from './dto/request-extion.dto';
 import {
@@ -49,20 +42,6 @@ import { TimeRangeDTO } from '@core-service/common/dtos/all.dto';
 @UseGuards(AuthGuard)
 export class ClassSessionController {
   constructor(private readonly classSessionService: ClassSessionService) {}
-
-  @Post()
-  @ApiOperation({ summary: 'Create a new class session' })
-  @ApiResponse({ status: 201, type: ClassSession })
-  @ApiConsumes('multipart/form-data')
-  @AuthUser()
-  @UseInterceptors(
-    FileInterceptor('supportingDocuments', {
-      limits: {
-        fileSize: ATTACHMENT_MAX_SIZE,
-        files: ATTACHMENT_MAX_COUNT,
-      },
-    }),
-  )
   @Get('all/mine')
   @ApiOperation({ summary: 'Get all class sessions' })
   @ApiQuery({ name: 'status', type: 'string', required: false })

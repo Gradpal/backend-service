@@ -22,9 +22,9 @@ import { MinioClientService } from '../minio-client/minio-client.service';
 import { CoreServiceConfigService } from '@core-service/configs/core-service-config.service';
 import { PackageType } from './entities/package-type.entity';
 import {
+  AddSessionsDetailsDto,
   CreateClassSessionPackageDto,
   CreatePackageTypeDto,
-  AddSessionsDetailsDto,
   TimeSlotSessionDateDto,
 } from './dto/create-session-package.dto';
 import { createPaginatedResponse } from '@app/common/helpers/pagination.helper';
@@ -36,6 +36,7 @@ import { TimeSlot } from '../portfolio/weekly-availability/entities/weeky-availa
 import { ClientGrpc } from '@nestjs/microservices';
 import { NOTIFICATION_GRPC_PACKAGE } from '@app/common/constants/services-constants';
 import { ChatService } from '@notification-service/modules/chat/chat.service';
+import { BookedTimeDto } from '../portfolio/dto/bookedTime.dto';
 
 @Injectable()
 export class SessionPackageService {
@@ -120,16 +121,25 @@ export class SessionPackageService {
     for (const {
       timeSlotId,
       sessionDate,
+      startTime,
+      endTime,
     } of timeSlotSessions as TimeSlotSessionDateDto[]) {
       const timeSlot = await this.weeklyAvailabilityService.findOne(timeSlotId);
       if (!timeSlot) {
         this.exceptionHandler.throwNotFound(_404.TIME_SLOT_NOT_FOUND);
       }
 
-      // if (timeSlot.isBooked) {
-      //   this.exceptionHandler.throwBadRequest(_400.TIME_SLOT_ALREADY_BOOKED);
-      // }
-      timeSlot.isBooked = true;
+      const bookedTime: BookedTimeDto = {
+        startTime,
+        endTime,
+        bookedBy: {
+          email: student.email,
+          firstName: student.firstName,
+          lastName: student.lastName,
+          id: student.id,
+        },
+      };
+      timeSlot.bookedTimes = [...(timeSlot.bookedTimes ?? []), bookedTime];
 
       const subjectTier =
         await this.subjectTierService.findSubjectTierWhichHasSubjectByTutorId(
@@ -247,17 +257,15 @@ export class SessionPackageService {
   }
 
   async findOneClassSession(id: string) {
-    const classSession = await this.classSessionRepository.findOne({
+    return await this.classSessionRepository.findOne({
       where: { id },
     });
-    return classSession;
   }
 
   async getAvailablePackageTypes() {
-    const packageTypes = await this.packageTypeRepository.find({
+    return await this.packageTypeRepository.find({
       order: { maximumSessions: 'ASC' },
     });
-    return packageTypes;
   }
 
   async createPackageTypeIfNotExists(
@@ -505,7 +513,6 @@ export class SessionPackageService {
           timeSlot: {
             startTime: true,
             endTime: true,
-            isBooked: true,
             daySchedule: {
               day: true,
               weeklyAvailability: {
@@ -558,7 +565,6 @@ export class SessionPackageService {
         timeSlot: {
           startTime: true,
           endTime: true,
-          isBooked: true,
           daySchedule: {
             day: true,
             weeklyAvailability: {

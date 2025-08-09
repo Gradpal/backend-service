@@ -874,7 +874,6 @@ export class AutonomousServiceService {
     const timeSlot = await this.timeSlotRepo.findOne({
       where: {
         id: dto.timeSlotId,
-        isBooked: false,
       },
     });
     if (!timeSlot)
