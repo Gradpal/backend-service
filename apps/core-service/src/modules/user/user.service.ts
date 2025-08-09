@@ -358,7 +358,6 @@ export class UserService {
       },
       select: {
         id: true,
-        userName: true,
         firstName: true,
         lastName: true,
         email: true,
@@ -376,7 +375,6 @@ export class UserService {
       },
       select: {
         id: true,
-        userName: true,
         firstName: true,
         lastName: true,
         email: true,
@@ -467,7 +465,6 @@ export class UserService {
     const user = await this.userRepository.create({
       email: createNationalPortalAdminDto.email,
       role: EUserRole.NATIONAL_PORTAL_ADMIN,
-      userName: createNationalPortalAdminDto.email,
       password: await hashPassword(createNationalPortalAdminDto.email),
     });
     portal.admin = user;
@@ -520,7 +517,6 @@ export class UserService {
     let parent = this.userRepository.create({
       email: acceptInvitationDto.email,
       role: EUserRole.PARENT,
-      userName: acceptInvitationDto.email,
       firstName: acceptInvitationDto.firstName,
       lastName: acceptInvitationDto.lastName,
       password: await hashPassword(acceptInvitationDto.password),

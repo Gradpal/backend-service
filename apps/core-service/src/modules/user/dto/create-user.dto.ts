@@ -1,11 +1,13 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
   IsEmail,
   IsNotEmpty,
   IsOptional,
   IsPhoneNumber,
   IsString,
-  IsBoolean,
+  Matches,
+  MaxLength,
+  MinLength,
 } from 'class-validator';
 import { EUserRole } from '../enums/user-role.enum';
 
@@ -25,19 +27,29 @@ export class CreateUserDTO {
   @ApiProperty()
   email: string;
 
-  @IsOptional()
-  @ApiProperty()
-  userName: string;
-
   @IsString()
   @IsPhoneNumber()
   @IsNotEmpty()
   @ApiProperty()
   phoneNumber: string;
 
-  @IsString()
-  @IsNotEmpty()
-  @ApiProperty()
+  @MinLength(8, { message: 'Password must be at least 8 characters long' })
+  @MaxLength(32, { message: 'Password must be at most 32 characters long' })
+  @Matches(/(?=.*[A-Z])/, {
+    message: 'Password must contain at least one uppercase letter',
+  })
+  @Matches(/(?=.*[a-z])/, {
+    message: 'Password must contain at least one lowercase letter',
+  })
+  @Matches(/(?=.*\d)/, { message: 'Password must contain at least one number' })
+  @Matches(/(?=.*[!@#$%^&*])/, {
+    message: 'Password must contain at least one special character (!@#$%^&*)',
+  })
+  @ApiProperty({
+    example: 'StrongP@ssw0rd',
+    description:
+      'User password with at least 8 chars, uppercase, lowercase, number, and special char',
+  })
   password: string;
 
   @IsString()
@@ -46,9 +58,8 @@ export class CreateUserDTO {
   referralCode?: string;
 
   @IsString()
-  @IsNotEmpty()
-  @ApiProperty()
-  countryOfResidence: string;
+  @ApiPropertyOptional()
+  countyOfCitizenShip?: string;
 
   @IsNotEmpty()
   @ApiProperty()
