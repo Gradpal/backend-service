@@ -104,6 +104,7 @@ export class UserService {
         verificationUrl: `${this.configService.clientUrl}user/onboarding/verify-email/?otp=${otp}&email=${createUserDto.email}`,
       },
     );
+    return { otp };
   }
 
   async getUserEntityFromDto(createUserDto: CreateUserDTO) {

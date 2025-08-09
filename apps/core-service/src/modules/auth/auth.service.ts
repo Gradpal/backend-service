@@ -183,7 +183,7 @@ export class AuthService {
       },
     );
 
-    return savedUserObject;
+    return { otp, savedUserObject };
   }
 
   async verifyAdditionalEmail(
@@ -229,6 +229,7 @@ export class AuthService {
         verificationUrl: `${this.config.clientUrl}auth/reset-password/?email=${email}&verification_code=${otp}`,
       },
     );
+    return { otp };
   }
 
   async resetPassword(dto: ResetPasswordDto): Promise<User> {
