@@ -5,6 +5,7 @@ import { Entity } from 'typeorm';
 import { WeekDay } from '../../dto/weekly-availability.dto';
 import { User } from '@core-service/modules/user/entities/user.entity';
 import { ETimeSlotStatus } from '../enums/time-slot.enum';
+import { BookedTimeDto } from '../../dto/bookedTime.dto';
 
 @Entity('weekly_availability')
 export class WeeklyAvailability extends BaseEntity {
@@ -25,14 +26,10 @@ export class DaySchedule extends BaseEntity {
 @Entity('time_slot')
 export class TimeSlot extends BaseEntity {
   @Column()
-  startTime: string; // Format: "HH:mm"
+  startTime: string;
 
   @Column()
-  endTime: string; // Format: "HH:mm"
-
-  @Column({ nullable: true, default: false })
-  isBooked: boolean;
-
+  endTime: string;
   @ManyToOne(() => DaySchedule)
   @JoinColumn()
   daySchedule: DaySchedule;
@@ -48,4 +45,6 @@ export class TimeSlot extends BaseEntity {
   @ManyToOne(() => User, (user) => user.timeSlots)
   @JoinColumn({ name: 'owner_id' })
   owner: User;
+  @Column({ nullable: true, type: 'jsonb', array: true })
+  bookedTimes: BookedTimeDto[];
 }

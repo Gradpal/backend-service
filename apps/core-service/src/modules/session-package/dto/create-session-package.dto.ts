@@ -62,6 +62,12 @@ export class TimeSlotSessionDateDto {
   @IsString()
   @IsNotEmpty()
   sessionDate: string;
+  @IsString()
+  @IsNotEmpty()
+  startTime: string;
+  @IsString()
+  @IsNotEmpty()
+  endTime: string;
 }
 
 export class AddSessionsDetailsDto {
