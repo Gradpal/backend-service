@@ -176,6 +176,7 @@ export class AuthService {
       EmailTemplates.WELCOME,
       [userEntity.email],
       {
+        userName: userEntity.firstName,
         otpValidityDuration: RESET_PASSWORD_CACHE.ttl,
         otp: otp,
         verificationUrl: `${this.configService.clientUrl}activate/`,
