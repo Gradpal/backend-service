@@ -17,6 +17,9 @@ export class SessionPackage extends BaseEntity {
   @Expose()
   tutor: User;
 
+  @Column({ type: 'int', nullable: true })
+  sessionLength: number;
+
   @Column({
     type: 'enum',
     enum: PackageStatus,
@@ -27,6 +30,9 @@ export class SessionPackage extends BaseEntity {
   @ManyToOne(() => User)
   @JoinColumn({ name: 'student_id' })
   student: User;
+
+  @Column({ type: 'uuid', nullable: true })
+  sessionPackageOfferingId: string;
 
   @OneToMany(() => ClassSession, (classSession) => classSession.sessionPackage)
   classSessions: ClassSession[];

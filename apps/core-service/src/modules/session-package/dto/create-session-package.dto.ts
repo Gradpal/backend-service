@@ -60,6 +60,12 @@ export class CreateClassSessionPackageDto {
     description: 'Time slot sessions',
     required: false,
     type: [TimeSlotSessionDateDto],
+    example: [
+      {
+        timeSlotId: '6c7f3f4d-4d53-4f62-9d63-0a7d2f8d3e3d',
+        sessionDate: '2025-08-10',
+      },
+    ],
   })
   @IsOptional()
   @ValidateNested({ each: true })
@@ -72,6 +78,12 @@ export class RescheduleClassSessionPackageDto {
     description: 'Time slot sessions',
     required: false,
     type: [TimeSlotSessionDateDto],
+    example: [
+      {
+        timeSlotId: '6c7f3f4d-4d53-4f62-9d63-0a7d2f8d3e3d',
+        sessionDate: '2025-08-12',
+      },
+    ],
   })
   @IsOptional()
   @ValidateNested({ each: true })

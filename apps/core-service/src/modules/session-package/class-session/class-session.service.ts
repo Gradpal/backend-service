@@ -234,7 +234,11 @@ export class ClassSessionService {
     ) {
       this.exceptionHandler.throwBadRequest(_403.SESSION_NOT_YOURS);
     }
-    if (session.joinStatus == ESessionJoinStatus.NONE_JOINED) {
+    if (
+      ![ESessionStatus.IN_PROGRESS, ESessionStatus.SCHEDULED].includes(
+        session.status as ESessionStatus,
+      )
+    ) {
       this.exceptionHandler.throwBadRequest(_400.SESSION_NOT_JOINED);
     }
     const isUserTutor = user.role == EUserRole.TUTOR;
@@ -248,7 +252,7 @@ export class ClassSessionService {
     ) {
       session.joinStatus = ESessionJoinStatus.STUDENT_LEFT;
     } else {
-      session.joinStatus = ESessionJoinStatus.NONE_JOINED;
+      session.joinStatus = ESessionJoinStatus.BOTH_LEFT;
     }
     return this.classSessionRepository.save(session);
   }

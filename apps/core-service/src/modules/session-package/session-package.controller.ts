@@ -15,6 +15,7 @@ import {
   CreateClassSessionPackageDto,
   CreatePackageTypeDto,
   AddSessionsDetailsDto,
+  RescheduleClassSessionPackageDto,
 } from './dto/create-session-package.dto';
 import {
   AuthUser,
@@ -32,6 +33,7 @@ import { EUserRole } from '../user/enums/user-role.enum';
 import { ESessionStatus } from './class-session/enums/session-status.enum';
 import { AcceptPackageSessionDto } from '../finance/dtos/accept-package-session.dto';
 import { UpdatePackageDto } from './dto/update-session-package.dto';
+import { User } from '../user/entities/user.entity';
 
 @Controller('session-package')
 @ApiTags('Session Package')
@@ -51,6 +53,22 @@ export class SessionPackageController {
       createClassSessionPackageDto,
     );
   }
+
+  @Post(':sessionPackageId/reschedule')
+  @ApiOperation({ summary: 'Reschedule session package' })
+  @AuthUser()
+  async reschedule(
+    @Req() req,
+    @Param('sessionPackageId') sessionPackageId: string,
+    @Body() rescheduleClassSessionPackageDto: RescheduleClassSessionPackageDto,
+  ) {
+    return this.sessionPackageService.reschedule(
+      req.user as User,
+      sessionPackageId,
+      rescheduleClassSessionPackageDto,
+    );
+  }
+
   @Post('package-type')
   createPackageType(@Body() createPackageTypeDto: CreatePackageTypeDto) {
     return this.sessionPackageService.createPackageType(createPackageTypeDto);

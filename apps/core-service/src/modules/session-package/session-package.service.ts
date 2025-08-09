@@ -26,6 +26,7 @@ import {
   CreatePackageTypeDto,
   AddSessionsDetailsDto,
   TimeSlotSessionDateDto,
+  RescheduleClassSessionPackageDto,
 } from './dto/create-session-package.dto';
 import { createPaginatedResponse } from '@app/common/helpers/pagination.helper';
 import { AcceptPackageSessionDto } from '../finance/dtos/accept-package-session.dto';
@@ -75,14 +76,24 @@ export class SessionPackageService {
     return this.packageOfferingRepository;
   }
 
+  async getPackageOfferingById(id: string) {
+    const packageOffering = await this.packageOfferingRepository.findOne({
+      where: { id },
+      relations: ['packageType'],
+    });
+    if (!packageOffering) {
+      this.exceptionHandler.throwNotFound(_404.PACKAGE_OFFERING_NOT_FOUND);
+    }
+    return packageOffering;
+  }
+
   async create(
     student: User,
     createClassSessionPackageDto: CreateClassSessionPackageDto,
   ) {
-    const packageOffering = await this.getPackageOfferingRepository().findOne({
-      where: { id: createClassSessionPackageDto.packageOfferingId },
-      relations: ['packageType'],
-    });
+    const packageOffering = await this.getPackageOfferingById(
+      createClassSessionPackageDto.packageOfferingId,
+    );
 
     if (!packageOffering) {
       this.exceptionHandler.throwNotFound(_404.PACKAGE_OFFERING_NOT_FOUND);
@@ -114,6 +125,8 @@ export class SessionPackageService {
       sessionPackageType: packageOffering.packageType,
       tutor: tutor,
       student: student,
+      sessionPackageOfferingId: packageOffering.id,
+      sessionLength: createClassSessionPackageDto.sessionLength,
     });
     sessionPackage = await this.sessionPackageRepository.save(sessionPackage);
 
@@ -152,6 +165,133 @@ export class SessionPackageService {
         ...createClassSessionPackageDto,
         status: ESessionStatus.SCHEDULED,
         subject: { id: createClassSessionPackageDto.subjectId },
+        price: sessionPrice,
+        timeSlot,
+        sessionDate: sessionDate,
+        sessionPackage,
+        sessionTimelines: [
+          {
+            type: SessionTimelineType.REQUEST_SUBMITTED,
+            description: 'Session request submitted',
+            actor: student,
+            createdAt,
+            updatedAt,
+          },
+          {
+            type: SessionTimelineType.PAYMENT_PROCESSED,
+            description: 'Payment processed',
+            actor: student,
+            createdAt,
+            updatedAt,
+          },
+        ],
+      });
+
+      // student.credits -= subjectTier?.credits;
+
+      const savedSession = await this.classSessionRepository.save(session);
+
+      const meetId = generateUUID();
+      const sessionMeetLink = `${this.coreServiceConfigService.getMeetHost()}/join?sessionId=${savedSession.id}&meetId=${meetId}`;
+      const cacheKey = `${MEETING_CACHE.name}:${savedSession.id}`;
+      await this.brainService.memorize(cacheKey, meetId);
+
+      savedSession.meetLink = sessionMeetLink;
+
+      await Promise.all([
+        this.userService.save(student),
+        this.classSessionRepository.save(savedSession),
+      ]);
+
+      sessions.push(savedSession);
+    }
+    const [session, conversationResponse] = await Promise.all([
+      this.getSessionPackageById(sessionPackage.id),
+      this.chatService.createConversation({
+        sender: {
+          id: tutor.id,
+          firstName: tutor.firstName,
+          lastName: tutor.lastName,
+          role: tutor.role,
+          profilePicture: tutor.profilePicture,
+        },
+        receiver: {
+          id: student.id,
+          firstName: student.firstName,
+          lastName: student.lastName,
+          role: student.role,
+          profilePicture: student.profilePicture,
+        },
+      }),
+    ]);
+    return session;
+  }
+
+  async reschedule(
+    student: User,
+    sessionPackageId: string,
+    rescheduleClassSessionPackageDto: RescheduleClassSessionPackageDto,
+  ) {
+    const sessionPackage = await this.getSessionPackageById(sessionPackageId);
+    const packageOffering = await this.getPackageOfferingById(
+      sessionPackage.sessionPackageOfferingId,
+    );
+
+    const timeSlotSessions = normalizeArray(
+      rescheduleClassSessionPackageDto.newTimeSlots,
+    ) as TimeSlotSessionDateDto[];
+
+    if (!Array.isArray(timeSlotSessions) || timeSlotSessions.length === 0) {
+      this.exceptionHandler.throwBadRequest(_400.INVALID_TIMESLOTS);
+    }
+
+    const createdAt = new Date();
+    const updatedAt = createdAt;
+
+    const sessions = [];
+
+    const firstTimeSlot = await this.weeklyAvailabilityService.findOne(
+      timeSlotSessions[0].timeSlotId,
+    );
+    if (!firstTimeSlot) {
+      this.exceptionHandler.throwNotFound(_404.TIME_SLOT_NOT_FOUND);
+    }
+
+    const tutor = firstTimeSlot.owner;
+
+    for (const {
+      timeSlotId,
+      sessionDate,
+    } of timeSlotSessions as TimeSlotSessionDateDto[]) {
+      const timeSlot = await this.weeklyAvailabilityService.findOne(timeSlotId);
+      if (!timeSlot) {
+        this.exceptionHandler.throwNotFound(_404.TIME_SLOT_NOT_FOUND);
+      }
+
+      if (timeSlot.isBooked) {
+        this.exceptionHandler.throwBadRequest(_400.TIME_SLOT_ALREADY_BOOKED);
+      }
+      timeSlot.isBooked = true;
+
+      const subjectTier =
+        await this.subjectTierService.findSubjectTierWhichHasSubjectByTutorId(
+          tutor.id,
+          sessionPackage.classSessions[0].subject.id,
+        );
+
+      const sessionPrice =
+        (subjectTier?.credits *
+          (sessionPackage.sessionLength / 60) *
+          packageOffering.discount) /
+        100;
+      if (student.credits < subjectTier?.credits) {
+        this.exceptionHandler.throwBadRequest(_400.INSUFFICIENT_CREDITS);
+      }
+      await this.timeSlotRepository.save(timeSlot);
+
+      const session = this.classSessionRepository.create({
+        status: ESessionStatus.SCHEDULED,
+        subject: { id: sessionPackage.classSessions[0].subject.id },
         price: sessionPrice,
         timeSlot,
         sessionDate: sessionDate,
