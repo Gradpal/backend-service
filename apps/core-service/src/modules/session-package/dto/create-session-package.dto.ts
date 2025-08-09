@@ -11,7 +11,6 @@ import {
   MaxLength,
   ValidateNested,
 } from 'class-validator';
-
 export class CreatePackageTypeDto {
   @ApiProperty({ description: 'Maximum sessions' })
   @IsNumber()
@@ -27,6 +26,18 @@ export class CreatePackageTypeDto {
   @IsString()
   @IsNotEmpty()
   description: string;
+}
+
+export class TimeSlotSessionDateDto {
+  @ApiProperty({ description: 'Time slot ID' })
+  @IsUUID()
+  @IsNotEmpty()
+  timeSlotId: string;
+
+  @ApiProperty({ description: 'Session date (ISO format)' })
+  @IsString()
+  @IsNotEmpty()
+  sessionDate: string;
 }
 
 export class CreateClassSessionPackageDto {
@@ -45,25 +56,28 @@ export class CreateClassSessionPackageDto {
   @IsNotEmpty()
   subjectId: string;
 
-  @ApiProperty({ description: 'Time slot sessions', required: false })
+  @ApiProperty({
+    description: 'Time slot sessions',
+    required: false,
+    type: [TimeSlotSessionDateDto],
+  })
   @IsOptional()
   @ValidateNested({ each: true })
   @Type(() => TimeSlotSessionDateDto)
   timeSlots?: TimeSlotSessionDateDto[];
 }
 
-export class TimeSlotSessionDateDto {
-  @ApiProperty({ description: 'Time slot ID' })
-  @IsUUID()
-  @IsNotEmpty()
-  timeSlotId: string;
-
-  @ApiProperty({ description: 'Session date (ISO format)' })
-  @IsString()
-  @IsNotEmpty()
-  sessionDate: string;
+export class RescheduleClassSessionPackageDto {
+  @ApiProperty({
+    description: 'Time slot sessions',
+    required: false,
+    type: [TimeSlotSessionDateDto],
+  })
+  @IsOptional()
+  @ValidateNested({ each: true })
+  @Type(() => TimeSlotSessionDateDto)
+  newTimeSlots?: TimeSlotSessionDateDto[];
 }
-
 export class AddSessionsDetailsDto {
   @ApiProperty({ description: 'URLs' })
   // @IsArray()
