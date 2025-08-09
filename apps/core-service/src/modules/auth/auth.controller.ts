@@ -25,7 +25,7 @@ export class AuthController {
   @Post('/send-otp/:email')
   @Public()
   async sendOpt(@Param('email') email: string) {
-    return await this.authService.sendOpt(email, true);
+    return await this.authService.sendOpt(email);
   }
 
   @Post('/send-otp-additional-email/:email')
