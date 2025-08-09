@@ -14,6 +14,7 @@ export class HocusPocusServiceConfigService {
     return this.configService.getOrThrow('NODE_ENV');
   }
 
+  //
   get grpcUrl(): string {
     return this.configService.getOrThrow('GRPC_URL');
   }
