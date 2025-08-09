@@ -214,6 +214,7 @@ export class AuthService {
 
   async sendOpt(email: string, isResetPassword: boolean = false) {
     const account: User = await this.userService.findByEmail(email, false);
+    if (!account) this.exceptionHandler.throwNotFound(_404.USER_NOT_FOUND);
     const otpId = isResetPassword ? account.id : email;
     const otp = await this.generateOTP(otpId);
     await this.notificationProcessor.sendTemplateEmail(
