@@ -4,7 +4,6 @@ import {
   Req,
   Post,
   Body,
-  UploadedFile,
   UseInterceptors,
   Query,
   Param,

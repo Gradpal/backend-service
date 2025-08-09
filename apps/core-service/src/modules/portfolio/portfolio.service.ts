@@ -24,9 +24,6 @@ import { _400, _404 } from '@app/common/constants/errors-constants';
 import { EUserRole } from '../user/enums/user-role.enum';
 import { TutorProfileDto } from './dto/tutor-profile.dto';
 import { SessionInvitationDto } from '../user/dto/session-invitation.dto';
-import { Booking, BookingStatus } from '../booking/entities/booking.entity';
-import { SessionDetailsDto } from '../booking/dto/session-details.dto';
-import { MoreThanOrEqual } from 'typeorm';
 import { MinioClientService } from '../minio-client/minio-client.service';
 import { createPaginatedResponse } from '@app/common/helpers/pagination.helper';
 import { CreateEducationInstitutionRecordDto } from './dto/create-education-record.dto';
@@ -57,8 +54,6 @@ export class PortfolioService {
     private readonly dayScheduleRepository: Repository<DaySchedule>,
     @InjectRepository(TimeSlot)
     private readonly timeSlotRepository: Repository<TimeSlot>,
-    @InjectRepository(Booking)
-    private readonly bookingRepository: Repository<Booking>,
     @Inject(forwardRef(() => UserService))
     private readonly userService: UserService,
     private readonly exceptionHandler: ExceptionHandler,
@@ -560,31 +555,6 @@ export class PortfolioService {
     return TutorProfileDto.fromEntity(portfolio.user, portfolio);
   }
 
-  async getUpcomingSessions(id: string): Promise<Booking[]> {
-    const portfolio = await this.portfolioRepository.findOne({
-      where: { id },
-      relations: ['user'],
-    });
-
-    if (!portfolio) {
-      this.exceptionHandler.throwNotFound(_404.DATABASE_RECORD_NOT_FOUND);
-    }
-
-    if (portfolio.user.role !== EUserRole.TUTOR) {
-      this.exceptionHandler.throwNotFound(_404.TUTOR_NOT_FOUND);
-    }
-
-    const today = new Date().toISOString().split('T')[0];
-    return this.bookingRepository.find({
-      where: {
-        tutor: { id: portfolio.user.id },
-        status: BookingStatus.APPROVED,
-        sessionDate: MoreThanOrEqual(today),
-      },
-      relations: ['student', 'tutor'],
-    });
-  }
-
   async removeSubjectFromSubjectsOfInterestAndTiers(
     portfolioId: string,
     subjectId: string,
@@ -609,18 +579,6 @@ export class PortfolioService {
     return updatedPortfolio;
   }
 
-  async getSessionDetails(sessionId: string): Promise<SessionDetailsDto> {
-    const booking = await this.bookingRepository.findOne({
-      where: { id: sessionId },
-      relations: ['student', 'tutor'],
-    });
-
-    if (!booking) {
-      this.exceptionHandler.throwNotFound(_404.BOOKING_NOT_FOUND);
-    }
-
-    return plainToClass(SessionDetailsDto, booking);
-  }
   async getPortfolioById(portfolioId: string): Promise<Portfolio> {
     const portfoio = await this.findOne(portfolioId);
     return portfoio;
