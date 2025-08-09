@@ -42,8 +42,6 @@ import { AuthGuard } from '@core-service/guards/auth.guard';
 import { Portfolio } from './entities/portfolio.entity';
 import { UpdateDeactivateTimeSlotDto } from './dto/update-portfolio-availability.dto';
 import { TutorProfileDto } from './dto/tutor-profile.dto';
-import { Booking } from '../booking/entities/booking.entity';
-import { SessionDetailsDto } from '../booking/dto/session-details.dto';
 import { SessionInvitationDto } from '../user/dto/session-invitation.dto';
 import { Public } from '@app/common/decorators/public.decorator';
 import {
@@ -224,27 +222,6 @@ export class PortfolioController {
   @ApiResponse({ status: 200, type: TutorProfileDto })
   getTutorProfile(@Param('id') id: string): Promise<TutorProfileDto> {
     return this.portfolioService.getTutorProfile(id);
-  }
-
-  @Get(':id/sessions/upcoming')
-  @PreAuthorize(EUserRole.TUTOR)
-  @ApiOperation({ summary: 'Get upcoming sessions' })
-  @ApiParam({ name: 'id', description: 'Portfolio ID' })
-  @ApiResponse({ status: 200, type: [Booking] })
-  getUpcomingSessions(@Param('id') id: string): Promise<Booking[]> {
-    return this.portfolioService.getUpcomingSessions(id);
-  }
-
-  @Get(':id/sessions/:sessionId')
-  @PreAuthorize(EUserRole.TUTOR)
-  @ApiOperation({ summary: 'Get session details' })
-  @ApiParam({ name: 'id', description: 'Portfolio ID' })
-  @ApiParam({ name: 'sessionId', description: 'Session ID' })
-  @ApiResponse({ status: 200, type: SessionDetailsDto })
-  getSessionDetails(
-    @Param('sessionId') sessionId: string,
-  ): Promise<SessionDetailsDto> {
-    return this.portfolioService.getSessionDetails(sessionId);
   }
 
   @Get(':id/tutor/invitations')

@@ -5,7 +5,6 @@ import { PortfolioController } from './portfolio.controller';
 import { Portfolio } from './entities/portfolio.entity';
 import { EducationInstitutionRecord } from './entities/education-record.entity';
 import { Institution } from './dto/institution.dto';
-import { Booking } from '../booking/entities/booking.entity';
 import { UserModule } from '../user/user.module';
 import { ExceptionHandler } from '@app/common/exceptions/exceptions.handler';
 import { MinioClientModule } from '../minio-client/minio-client.module';
@@ -23,7 +22,6 @@ import { SessionPackageModule } from '../session-package/session-package.module'
       Portfolio,
       EducationInstitutionRecord,
       Institution,
-      Booking,
       WeeklyAvailability,
       DaySchedule,
       TimeSlot,

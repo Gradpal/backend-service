@@ -17,7 +17,6 @@ import { REDIS_CONST } from './common/constants/all.constants';
 import { BrainModule } from '@app/common/brain/brain.module';
 import { PaymentModule } from './modules/payment/payment.module';
 import { ClassSessionModule } from './modules/session-package/class-session/class-session.module';
-import { BookingModule } from './modules/booking/booking.module';
 import { PortfolioModule } from './modules/portfolio/portfolio.module';
 import { SubjectsModule } from './modules/subjects/subjects.module';
 import { SessionPackageModule } from './modules/session-package/session-package.module';
@@ -56,7 +55,6 @@ import { NotificationIntegrationModule } from './integrations/notification/integ
     MinioClientModule,
     PaymentModule,
     ClassSessionModule,
-    BookingModule,
     PortfolioModule,
     SubjectsModule,
     SessionPackageModule,

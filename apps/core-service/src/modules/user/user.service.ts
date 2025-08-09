@@ -33,7 +33,6 @@ import {
   USER_INVITATION_CACHE,
 } from '@core-service/common/constants/brain.constants';
 import { EmailTemplates } from '@core-service/configs/email-template-configs/email-templates.config';
-import { Booking } from '../booking/entities/booking.entity';
 import { PortalService } from '@core-service/modules/portal/portal.service';
 import { PortfolioService } from '../portfolio/portfolio.service';
 import { AcceptInvitationDto } from './dto/accept-invitation.dto';
@@ -47,8 +46,6 @@ export class UserService {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
-    @InjectRepository(Booking)
-    private readonly bookingRepository: Repository<Booking>,
     @Inject(forwardRef(() => PortfolioService))
     private readonly portfolioService: PortfolioService,
     private readonly notificationProcessor: NotificationPreProcessor,

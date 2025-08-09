@@ -1,6 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { TutorProfileDto } from './tutor-profile.dto';
-import { Booking } from '../../booking/entities/booking.entity';
 import { User } from '../../user/entities/user.entity';
 import { Portfolio } from '../entities/portfolio.entity';
 
@@ -23,7 +22,8 @@ export class UpcomingAppointmentDto {
   @ApiProperty()
   subject: string;
 
-  static fromEntity(booking: Booking): UpcomingAppointmentDto {
+  static fromEntity(booking: any): UpcomingAppointmentDto {
+    /// remove this any and use the type
     const dto = new UpcomingAppointmentDto();
     dto.id = booking.id;
     dto.studentName = `${booking.student.firstName} ${booking.student.lastName}`;
@@ -74,7 +74,7 @@ export class TutorDashboardDto {
   static fromEntity(
     user: User,
     portfolio: Portfolio,
-    bookings: Booking[],
+    bookings: any[],
   ): TutorDashboardDto {
     const dto = new TutorDashboardDto();
     dto.totalStudents = portfolio.totalStudents || 0;
