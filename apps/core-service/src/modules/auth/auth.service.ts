@@ -222,6 +222,7 @@ export class AuthService {
         : EmailTemplates.VERIFICATION_ADDITIONAL_EMAIL,
       [email],
       {
+        userName: account.email,
         otp: otp,
         otpValidityDuration: 12,
         verificationUrl: `${this.config.clientUrl}auth/reset-password/?email=${email}&verification_code=${otp}`,
